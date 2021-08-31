@@ -1,0 +1,57 @@
+.container-notification h2 {
+    margin-left: 10px;
+}
+
+.list-notification {
+    flex-direction: column;
+    padding: 10px;
+}
+
+.list-notification:hover {
+    background-color: #f2f3f5;
+}
+
+.detail-notification {
+    display: flex;
+    width: 200px;
+    align-items: center;
+}
+
+.profile-detail-notification {
+    margin-left: 5px;
+}
+
+.profile-detail-notification p {
+    font-weight: bold;
+}
+
+.profile-detail-notification p span {
+    font-weight: normal;
+}
+
+.text-notification {
+    width: 230px;
+}
+
+.text-notification p:last-child {
+    color: #1877f2;    
+}
+
+/* search */
+#nav-search div div div input {
+    color: #fff;
+}
+
+#nav-search div div div {
+    background-color: #6c7cd3;
+}
+
+#nav-search div div label{
+    color: #fff;
+}
+
+@media (min-width: 600px) {
+    #nav-search {
+        width: 300px;
+    }
+}

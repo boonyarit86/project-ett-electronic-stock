@@ -1,0 +1,11 @@
+{
+    "env": {
+        "DB_USER": "admin",
+        "DB_PASSWORD": "1234",
+        "DB_NAME": "ETT-DB",
+        "JWT_KEY": "supersecret_dont_share",
+        "CLOUDINARY_CLOUD_NAME": "bebub",
+        "CLOUDINARY_API_KEY": "581816242135365",
+        "CLOUDINARY_API_SECRET": "coxT7pB1sZE0pUTZJ282WCYVkmg"
+    }
+}

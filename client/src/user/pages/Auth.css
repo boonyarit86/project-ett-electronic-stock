@@ -1,0 +1,68 @@
+.GroupLogin-h2 {
+    margin-top: 5px;
+    text-align: center;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+.GroupLogin {
+    width: 400px;
+    margin: 30px auto;
+    background: #ffffff;
+    box-shadow: 5px 5px 30px 5px rgb(226, 235, 255);
+    padding: 40px 20px;
+    border-radius: 15px;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+.GroupInput {
+    font-size: small;
+    font-weight: bold;
+}
+
+.GroupInput-flex {
+    display: flex;
+}
+
+.GroupInput-flex div:first-child {
+    padding-right: 5px;
+}
+
+.GroupInput-flex div:last-child {
+    padding-left: 5px;
+}
+
+.GroupInput span {
+    color: #fa0000;
+}
+
+.GroupPassword {
+    font-size: small;
+    font-weight: bold;
+}
+
+.btnSubmit {
+    background: #6c7cd3;
+    width: 100%;
+    height: 40px;
+    font-size: larger;
+    border-radius: 7px;
+    border: none;
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btnSubmit:disabled {
+    background: #ccc;
+}
+
+.auth-link {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+@media (max-width: 500px) {
+    .GroupLogin {
+        width: 90%;
+    }
+}
