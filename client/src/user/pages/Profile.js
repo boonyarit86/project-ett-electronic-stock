@@ -52,7 +52,7 @@ export default function Profile() {
               width: "200px",
               borderRadius: "5px",
             }}
-            src={ user.avatar ? user.avatar.url : "/images/profile.png"}
+            src={ user.avartar ? user.avartar.url : "/images/profile.png"}
             alt="jpg"
           />
           <h4>{user.name}</h4>

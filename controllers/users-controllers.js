@@ -2,6 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user");
 const isEmail = require("validator/lib/isEmail");
+const cloudinary = require("../utils/cloudinary");
+const { json } = require("express");
 
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
@@ -87,7 +89,9 @@ const login = async (req, res) => {
 
   try {
     let existingUser;
-    existingUser = await UserModel.findOne({ email: email }).select("+password");
+    existingUser = await UserModel.findOne({ email: email }).select(
+      "+password"
+    );
 
     if (!existingUser) return res.status(401).send("There is no user ");
 
@@ -119,82 +123,64 @@ const login = async (req, res) => {
 };
 
 // แก้ไขข้อมูลโปรไฟล์
-const editProfile = async (req, res, next) => {
-  const { email, name, password, firstName, lastName, phone, department } =
-    req.body;
+const editProfile = async (req, res) => {
+  const { email, name, password, oldPassword } = req.body;
+
+  if (!isEmail(email)) return res.status(401).send("Invalid Email");
+
   let findData;
   // หาข้อมูล document ที่ต้องการแกไข
   try {
-    findData = await User.findById(req.params.uid);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not find user.",
-      500
-    );
-    return next(error);
-  }
+    findData = await UserModel.findById(req.params.uid).select("+password");
+    if (!findData) return res.status(401).send("Not found user");
 
-  // แก้ไขข้อมูล
-  findData.email = email;
-  findData.name = name;
-  findData.firstName = firstName;
-  findData.lastName = lastName;
-  findData.phone = phone;
-  findData.department = department;
+    // แก้ไขข้อมูล
+    findData.email = email;
+    findData.name = name;
+    
+    if (password !== "") {
+      
+      if (password.length < 6) {
+        return res.status(401).send("Password must be at least 6 characters");
+      }
 
-  if (password !== "") {
-    let hashedPassword;
-    try {
+      let isValidPassword = false;
+      isValidPassword = await bcrypt.compare(oldPassword, findData.password);
+  
+      if (!isValidPassword) {
+        return res.status(401).send("password is incorrect");
+      }
+      let hashedPassword;
       hashedPassword = await bcrypt.hash(password, 12);
-    } catch (err) {
-      const error = new HttpError(
-        "Could not create user, please try again.",
-        500
-      );
-      return next(error);
+      if (!hashedPassword)
+        return res
+          .status(401)
+          .send("can not hashed password. please try to use new password");
+      findData.password = hashedPassword;
     }
-    findData.password = hashedPassword;
-  }
 
-  // ถ้ามีการอัพโหลดรูปใหม่ ให้ทำการลบรูปภาพเก่าใน Aws S3 และอัพโหลดรูปภาพใหม่ไปแทน
-  if (req.file !== undefined) {
-    if (findData.key !== "") {
-      fs.unlink(findData.keyImage, (err) => {
-        if (err) console.log(err);
-        else console.log("delete image successfully");
+    // ถ้ามีการอัพโหลดรูปใหม่ ให้ทำการลบรูปภาพเก่าใน Aws S3 และอัพโหลดรูปภาพใหม่ไปแทน
+    if (req.file !== undefined) {
+      // console.log(findData.avartar.public_id)
+      if (findData.avartar.public_id !== undefined) {
+        await cloudinary.uploader.destroy(findData.avartar.public_id);
+      }
+      await cloudinary.uploader.upload(req.file.path, (error, result) => {
+        if (error) res.status(401).send("can not upload image on clound");
+        else
+          findData.avartar = {
+            url: result.secure_url,
+            public_id: result.public_id,
+          };
       });
     }
-    findData.image = "http://localhost:5000/" + req.file.path;
-    findData.keyImage = req.file.path;
-  }
 
-  // Loop all of images after all delete it.
-  // for (var i = 0; i < files.length; i++) {
-  //     console.log(files[i]);
-  //     s3.deleteObject({
-  //         Bucket: 'project-utcc',
-  //         Key: files[i]
-  //     }, (err, data) => {
-  //         if (err) console.log("can not delete an image in Aws S3")
-  //         else console.log("delete an image in Aws S3 successfully.")
-  //     })
-  // }
-
-  // console.log(findData)
-
-  // บันทึกข้อมูล
-  try {
     await findData.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not edit user.",
-      500
-    );
-    return next(error);
+    res.status(200).json(findData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Can not edit your profile due to server error");
   }
-  res.status(200).json(findData);
-  console.log("edit success");
-  // console.log(findData)
 };
 
 // อนุมัติผู้ใช้งาน
