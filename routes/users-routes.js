@@ -5,7 +5,7 @@ const usersController = require("../controllers/users-controllers");
 
 const router = express.Router();
 
-router.get("/", usersController.getUsers);
+router.get("/", authMiddleware, usersController.getUsers);
 router.get("/profile", authMiddleware, usersController.getUser);
 
 router.post("/signup", usersController.signup);
@@ -15,7 +15,7 @@ router.post("/login", usersController.login);
 // router.use(checkAuth);
 
 router.put("/edit/:uid", fileUpload.single("avartar"), usersController.editProfile)
-// router.patch('/approve/:uid', usersController.approveUser);
+router.put('/approve/:uid', authMiddleware, usersController.approveUser);
 
 // router.delete("/approve/:uid", usersController.deleteUser)
 

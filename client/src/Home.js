@@ -15,6 +15,18 @@ function Home() {
   const dispatch = useDispatch();
   const { user, isLoading, errorMsg } = useSelector((state) => state.userData);
 
+  // let test = [
+  //   {name: "b", age: 3},
+  //   {name: "c", age: 4},
+  //   {name: "d", age: 5}
+  // ]
+
+  // let newArr = test.map((item) => {
+  //   if(item.age === 4) {
+  //     return {...item, {name: "c", age: 6}}
+  //   }
+  // })
+
   useEffect(() => {
     dispatch(getUserByIdAction(auth.token));
   }, []);

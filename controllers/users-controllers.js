@@ -3,19 +3,8 @@ const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user");
 const isEmail = require("validator/lib/isEmail");
 const cloudinary = require("../utils/cloudinary");
-const { json } = require("express");
 
-const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
-
-// const aws = require('aws-sdk');
-
-// You can get those keys from My Security from Credentials of Aws S3
-// aws.config.update({
-//     accessKeyId: process.env.accessKeyId,
-//     secretAccessKey: process.env.secretAccessKey
-// });
-
-// const s3 = new aws.S3();
+// const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
 // เรียกดูข้อมูลผู้ใช้งานทั้งหมด
 const getUsers = async (req, res) => {
@@ -24,7 +13,7 @@ const getUsers = async (req, res) => {
     users = await UserModel.find();
   } catch (error) {
     console.log(error);
-    res.status(500).send("can not retrieve all users due to server error");
+    res.status(500).send("can not retrieve All user lists due to server error");
   }
   res.status(200).json(users);
 };
@@ -184,45 +173,21 @@ const editProfile = async (req, res) => {
 };
 
 // อนุมัติผู้ใช้งาน
-const approveUser = async (req, res, next) => {
-  let findData;
+const approveUser = async (req, res) => {
   try {
-    findData = await User.findById(req.params.uid);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not find user.",
-      500
-    );
-    return next(error);
+    let user = await UserModel.findById(req.params.uid);
+    if(!user) return res.status(401).send("can not find this user on database")
+
+    user.status = "user"
+
+    await user.save();
+    res.status(200).send("approved successfully");
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Can not approve due to server error");
   }
-
-  findData.status = "User";
-  try {
-    await findData.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not update user.",
-      500
-    );
-    return next(error);
-  }
-
-  res.status(200).json(findData);
-  console.log("save successfully");
-
-  /* 
-    เอาไอดีจาก Token Json(req.userData ถูกสร้างขึ้นตอนที่ผู้ใช้ทำการเข้าสู่ระบบและข้อมูลจะถูกบันทึกใน backend เป็นตัวแปรแบบ global )
-    มาเปรียบเทียบกับ Id ที่ได้รับจาก Front-end เพื่อป้องกันผู้ใช้งานแก้ไขข้อมูลผ่าน Postman หรืออื่นๆ ที่ไม่ได้ผ่านทางเว็บแอป
-     */
-  // console.log("test: " + req.userData)
-  // if (findData._id.toString() !== req.userData.userId) {
-  //     console.log(true)
-  //     const error = new HttpError(
-  //         'You are not allowed to edit this place.',
-  //         401
-  //     );
-  //     return next(error);
-  // }
+  
 };
 
 // ลบผู้ใช้งานหรือปฎิเสธการอนุมัติ

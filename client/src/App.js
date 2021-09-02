@@ -28,7 +28,7 @@ import Home from "./Home";
 import Auth from "./user/pages/Auth";
 import Profile from "./user/pages/Profile";
 import EditProfile from "./user/pages/EditProfile";
-// import AuthUser from "./user/pages/AuthUser";
+import AuthUser from "./user/pages/AuthUser";
 
 // CSS
 import "./App.css";
@@ -52,6 +52,9 @@ function App() {
         </Route>
         <Route path="/profile/edit">
           <EditProfile />
+        </Route>
+        <Route path="/auth/users">
+          <AuthUser />
         </Route>
         <Redirect to="/" />
       </Switch>

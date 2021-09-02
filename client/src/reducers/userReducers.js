@@ -1,11 +1,11 @@
-import { EDIT_USER_FAIL, EDIT_USER_REQUEST, EDIT_USER_SUCCESS, GET_USER_FAIL, GET_USER_REQUEST, GET_USER_SUCCESS } from "../constants/userConstants";
+import { APPROVE_USER_FAIL, APPROVE_USER_REQUEST, APPROVE_USER_SUCCESS, EDIT_USER_FAIL, EDIT_USER_REQUEST, EDIT_USER_SUCCESS, GET_ALL_USER_FAIL, GET_ALL_USER_REQUEST, GET_ALL_USER_SUCCESS, GET_USER_FAIL, GET_USER_REQUEST, GET_USER_SUCCESS } from "../constants/userConstants";
 
 const initialState = {
     user: {},
     errorMsg: null
 };
 
-export default function (state = initialState, action) {
+export function userDataReducers (state = initialState, action) {
     switch (action.type) {
         case GET_USER_REQUEST:
             return {
@@ -44,5 +44,52 @@ export default function (state = initialState, action) {
             }
         default:
             return state;        
+    }
+}
+
+export function authUserReducers (state = {}, action) {
+    switch (action.type) {
+        case GET_ALL_USER_REQUEST:
+            return {
+                ...state,
+                isLoading: true
+            }
+        case APPROVE_USER_REQUEST:
+            return {
+                ...state,
+                isLoadingEdit: true
+            }
+        case GET_ALL_USER_SUCCESS:
+            return {
+                ...state,
+                isLoading: false,
+                userLists: action.payload
+            }
+        case APPROVE_USER_SUCCESS:
+            return {
+                ...state,
+                isLoadingEdit: false,
+                userLists: state.userLists.map((item) => {
+                    if(item._id === action.payload) {
+                        item.status = "user"
+                    }
+                    return item
+                })
+            }
+        case GET_ALL_USER_FAIL:
+            return {
+                ...state,
+                isLoading: false,
+                userLists: [],
+                errorMsg: action.payload
+            }
+        case APPROVE_USER_FAIL:
+            return {
+                ...state,
+                isLoadingEdit: false,
+                errorMsgEdit: action.payload
+            }
+        default:
+            return state
     }
 }

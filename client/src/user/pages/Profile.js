@@ -1,8 +1,8 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { Container, Paper } from "@material-ui/core";
-import { AuthContext } from "../../shared/context/auth-context";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserByIdAction } from "../../actions/userActions";
+import { AuthContext } from "../../shared/context/auth-context";
 
 // components
 import Loading from "../../shared/components/UIElements/Loading";
