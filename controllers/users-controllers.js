@@ -91,9 +91,9 @@ const login = async (req, res) => {
       return res.status(401).send("password is incorrect");
     }
 
-    // if (existingUser.status === "none") {
-    //   return res.status(403).send("Waiting for approvement");
-    // }
+    if (existingUser.status === "none") {
+      return res.status(403).send("Waiting for approvement");
+    }
 
     let token;
     token = jwt.sign(
@@ -190,37 +190,41 @@ const approveUser = async (req, res) => {
   
 };
 
+// อนุมัติผู้ใช้งาน
+const editStatusUser = async (req, res) => {
+  try {
+    let user = await UserModel.findById(req.params.uid);
+    if(!user) return res.status(401).send("can not find this user on database")
+
+    user.status = req.body.newStatus
+
+    await user.save();
+    res.status(200).send("edit status successfully");
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Can not edit status due to server error");
+  }
+  
+};
+
 // ลบผู้ใช้งานหรือปฎิเสธการอนุมัติ
-const deleteUser = async (req, res, next) => {
-  let findData;
+const deleteUser = async (req, res) => {
   try {
-    findData = await User.findById(req.params.uid);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not find user.",
-      500
-    );
-    return next(error);
-  }
+    let user = await UserModel.findById(req.params.uid);
+    if(!user) return res.status(401).send("can not find this user on database")
 
-  if (findData.keyImage !== "") {
-    fs.unlink(findData.keyImage, (err) => {
-      if (err) console.log(err);
-      else console.log("delete image successfully");
-    });
-  }
+    if(user.avartar.public_id !== undefined) {
+      await cloudinary.uploader.destroy(user.avartar.public_id)
+    }
 
-  try {
-    await findData.remove();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not delete user.",
-      500
-    );
-    return next(error);
-  }
+    await user.remove();
+    res.status(200).send("deleted successfully");
 
-  res.status(200).json({ msg: "delete successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Can not deleted due to server error");
+  }
 };
 
 exports.getUsers = getUsers;
@@ -229,4 +233,5 @@ exports.signup = signup;
 exports.login = login;
 exports.editProfile = editProfile;
 exports.approveUser = approveUser;
+exports.editStatusUser = editStatusUser;
 exports.deleteUser = deleteUser;

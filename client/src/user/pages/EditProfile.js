@@ -95,7 +95,7 @@ function EditProfile() {
       oldPassword: oldPassword,
       avartar: file,
     };
-    dispatch(editUserByIdAction(data));
+    dispatch(editUserByIdAction(auth.token, data));
 
     setFile(null);
     setPassword("");
@@ -139,7 +139,7 @@ function EditProfile() {
           initialValue={user.email}
           initialValid={true}
           required
-          disabled={user.status === "Admin" || user.status === "Manager"}
+          disabled={user.status === "admin"}
         />
         <Input
           id="name"

@@ -11,6 +11,12 @@ import {
   APPROVE_USER_REQUEST,
   APPROVE_USER_FAIL,
   APPROVE_USER_SUCCESS,
+  DELETE_USER_REQUEST,
+  DELETE_USER_SUCCESS,
+  DELETE_USER_FAIL,
+  EDIT_STATUS_USER_REQUEST,
+  EDIT_STATUS_USER_SUCCESS,
+  EDIT_STATUS_USER_FAIL,
 } from "../constants/userConstants";
 import catchErrors from "../shared/utils/catchErrors";
 import Axios from "axios";
@@ -47,7 +53,7 @@ export const getUserByIdAction = (token) => async (dispatch) => {
   }
 };
 
-export const editUserByIdAction = (user) => async (dispatch) => {
+export const editUserByIdAction = (token, user) => async (dispatch) => {
   dispatch({ type: EDIT_USER_REQUEST });
 
   try {
@@ -64,9 +70,9 @@ export const editUserByIdAction = (user) => async (dispatch) => {
     if (typeof user.avartar === "object") {
       formData.append("avartar", user.avartar);
     }
-    await Axios.put(`${react_api_url}/edit/${user.id}`, formData).then((res) =>
-      dispatch({ type: EDIT_USER_SUCCESS, payload: res.data })
-    );
+    await Axios.put(`${react_api_url}/edit/${user.id}`, formData, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => dispatch({ type: EDIT_USER_SUCCESS, payload: res.data }));
   } catch (error) {
     dispatch({
       type: EDIT_USER_FAIL,
@@ -88,6 +94,38 @@ export const approveUserAction = (token, userId) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: APPROVE_USER_FAIL,
+      payload: catchErrors(error),
+    });
+  }
+};
+
+export const editStatusUserAction = (token, data) => async (dispatch) => {
+  dispatch({ type: EDIT_STATUS_USER_REQUEST });
+  try {
+    await Axios.put(
+      `${react_api_url}/edit/status/${data.userId}`,
+      {newStatus: data.newStatus},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    ).then((res) => dispatch({ type: EDIT_STATUS_USER_SUCCESS, payload: data }));
+  } catch (error) {
+    dispatch({
+      type: EDIT_STATUS_USER_FAIL,
+      payload: catchErrors(error),
+    });
+  }
+};
+
+export const deleteUserAction = (token, userId) => async (dispatch) => {
+  dispatch({ type: DELETE_USER_REQUEST });
+  try {
+    await Axios.delete(`${react_api_url}/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => dispatch({ type: DELETE_USER_SUCCESS, payload: userId }));
+  } catch (error) {
+    dispatch({
+      type: DELETE_USER_FAIL,
       payload: catchErrors(error),
     });
   }

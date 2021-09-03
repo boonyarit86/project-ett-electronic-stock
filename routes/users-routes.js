@@ -14,9 +14,9 @@ router.post("/login", usersController.login);
 // path ด้านล่างจะใช้ได้ต่อเมื่อ ต้องล็อคอินก่อน เพื่อสร้าง Token JWT ยืนยันตัวตน
 // router.use(checkAuth);
 
-router.put("/edit/:uid", fileUpload.single("avartar"), usersController.editProfile)
+router.put("/edit/:uid", authMiddleware, fileUpload.single("avartar"), usersController.editProfile)
 router.put('/approve/:uid', authMiddleware, usersController.approveUser);
-
-// router.delete("/approve/:uid", usersController.deleteUser)
+router.put('/edit/status/:uid', authMiddleware, usersController.editStatusUser);
+router.delete("/:uid", authMiddleware, usersController.deleteUser)
 
 module.exports = router;

@@ -1,11 +1,24 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
-import { getAllUserAction, approveUserAction } from "../../actions/userActions";
+import {
+  getAllUserAction,
+  approveUserAction,
+  deleteUserAction,
+  editStatusUserAction
+} from "../../actions/userActions";
 import { AuthContext } from "../../shared/context/auth-context";
 
 // Components
-import { Card, CardContent, Avatar, Button } from "@material-ui/core";
+import {
+  Card,
+  CardContent,
+  Avatar,
+  Button,
+  ButtonGroup,
+  MenuItem,
+  TextField,
+} from "@material-ui/core";
 import ModalSubmit from "../components/ModalSubmit";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import Loading from "../../shared/components/UIElements/Loading";
@@ -30,6 +43,10 @@ const useStyles = makeStyles((theme) => ({
     width: "90%",
     margin: "0 auto",
   },
+  marginFilter: {},
+  btnGroup: {
+    margin: "10px 0"
+  }
 }));
 
 function AuthUser() {
@@ -38,7 +55,8 @@ function AuthUser() {
   const auth = useContext(AuthContext);
   // Redux
   const dispatch = useDispatch();
-  const { userLists, isLoading, errorMsg, isLoadingEdit, errorMsgEdit } = useSelector((state) => state.authUser);
+  const { userLists, isLoading, errorMsg, isLoadingEdit, errorMsgEdit } =
+    useSelector((state) => state.authUser);
   // ตัวแปรเก็บค่า
   const [openPromptDelete, setOpenPromptDelete] = useState(false);
   const [openPromptApprove, setOpenPromptApprove] = useState(false);
@@ -81,8 +99,7 @@ function AuthUser() {
   const handleSubmitPromptDelete = (e) => {
     e.preventDefault();
     setOpenPromptDelete(false);
-    let data = { id: userId };
-    // dispatch(deleteUsersAction(data))
+    dispatch(deleteUserAction(auth.token, userId));
     setUserId("");
   };
 
@@ -90,9 +107,14 @@ function AuthUser() {
   const handleSubmitPromptApprove = (e) => {
     e.preventDefault();
     setOpenPromptApprove(false);
-    dispatch(approveUserAction(auth.token ,userId))
+    dispatch(approveUserAction(auth.token, userId));
     setUserId("");
     setUserIndex("");
+  };
+
+  const handleStatusUser = (userId, status) => {
+    // console.log(uid + " : " + status);
+    dispatch(editStatusUserAction(auth.token, { userId, newStatus: status }));
   };
 
   if (isLoading) {
@@ -132,10 +154,29 @@ function AuthUser() {
                       <Avatar
                         className={classes.image}
                         alt=""
-                        src={user.avartar ? user.avartar.url : "/images/profile.png"}
+                        src={
+                          user.avartar
+                            ? user.avartar.url
+                            : "/images/profile.png"
+                        }
                       />
-                      <h3>ชื่อในระบบ: {user.name}</h3>                    
+                      <h3>ชื่อในระบบ: {user.name}</h3>
                       <p>สถานะ {user.status}</p>
+                      <ButtonGroup
+                        variant="contained"
+                        color="primary"
+                        aria-label="contained primary button group"
+                        className={classes.btnGroup}
+                      >
+                        <Button 
+                        onClick={() => handleStatusUser(user._id, `${user.status === "staff" ? "user" : "staff"}`)}>
+                          {user.status === "staff" ? "user" : "staff"}
+                        </Button>
+                        <Button 
+                        onClick={() => handleStatusUser(user._id, "none")}>
+                          none
+                        </Button>
+                      </ButtonGroup>
                       <Button
                         variant="contained"
                         color="secondary"
@@ -152,7 +193,9 @@ function AuthUser() {
             })}
 
           {userLists !== undefined &&
-            userLists.filter((user) => user.status === "user" || user.status === "admin").length === 0 && (
+            userLists.filter(
+              (user) => user.status === "user" || user.status === "admin"
+            ).length === 0 && (
               <Card className={classes.card}>
                 <CardContent>ไม่มีข้อมูล</CardContent>
               </Card>
