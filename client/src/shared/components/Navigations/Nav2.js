@@ -32,6 +32,7 @@ import SlideBar from "./SlideBar";
 // Icon
 import MenuIcon from "@material-ui/icons/Menu";
 import NotificationsIcon from "@material-ui/icons/Notifications";
+import SettingsIcon from '@material-ui/icons/Settings';
 import MoreIcon from "@material-ui/icons/MoreVert";
 
 // CSS
@@ -119,6 +120,7 @@ export default function Nav2() {
   // ตัวแปรกำหนดค่า
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [anchorElNoti, setAnchorElNoti] = React.useState(null);
+  const [anchorElSetting, setAnchorElSetting] = React.useState(null);
   const [Hamburgur, setHamburgur] = React.useState(false);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const [data, setData] = useState([]);
@@ -133,6 +135,12 @@ export default function Nav2() {
   const isMenuOpen = Boolean(anchorEl);
   const isNotifiOpen = Boolean(anchorElNoti);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isSettingOpen = Boolean(anchorElSetting);
+
+  const handleSettingMenuOpen = (event) => {
+    // console.log(event.currentTarget)
+    setAnchorElSetting(event.currentTarget);
+  };
 
   const handleProfileMenuOpen = (event) => {
     // console.log(event.currentTarget)
@@ -165,6 +173,15 @@ export default function Nav2() {
 
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
+  };
+
+  const handleMobileSettingMenuClose = () => {
+    setMobileMoreAnchorEl(null);
+  };
+
+  const handleSettingMenuClose = () => {
+    setAnchorElSetting(null);
+    handleMobileSettingMenuClose();
   };
 
   // Handle SlideBar
@@ -208,6 +225,7 @@ export default function Nav2() {
   // }
 
   const menuId = "primary-search-account-menu";
+  const settingMenuId = "primary-search-setting-menu";
   const renderNotification = (
     <Menu
       anchorEl={anchorElNoti}
@@ -265,6 +283,22 @@ export default function Nav2() {
     </Menu>
   );
 
+  const renderSettingMenu = (
+    <Menu
+      anchorEl={anchorElSetting}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      id={settingMenuId}
+      keepMounted
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      open={isSettingOpen}
+      onClose={handleSettingMenuClose}
+    >
+      <Link to={"/setting/tool"}>
+        <MenuItem onClick={handleSettingMenuClose}>ชนิด&ประเภทของอุปกรณ์</MenuItem>
+      </Link>
+    </Menu>
+  );
+
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -298,6 +332,17 @@ export default function Nav2() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
+      <MenuItem onClick={handleSettingMenuOpen}>
+        <IconButton
+          aria-label="stting of current user"
+          aria-controls="primary-search-setting-menu"
+          aria-haspopup="true"
+          color="inherit"
+        >
+          <SettingsIcon />
+        </IconButton>
+        <p>การตั่งค่า</p>
+      </MenuItem>
       <MenuItem onClick={handleNotificationOpen}>
         <IconButton aria-label="show 11 new notifications" color="inherit">
           <Badge badgeContent={11} color="secondary">
@@ -379,6 +424,15 @@ export default function Nav2() {
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
+          <IconButton
+              aria-label="setting"
+              color="inherit"
+              onClick={handleSettingMenuOpen}
+            >
+              <Badge color="secondary">
+                <SettingsIcon />
+              </Badge>
+            </IconButton>
             {/* Notification Icon */}
             <IconButton
               aria-label="show 17 new notifications"
@@ -421,6 +475,7 @@ export default function Nav2() {
       {renderMobileMenu}
       {renderMenu}
       {renderNotification}
+      {renderSettingMenu}
       <SlideBar
         openHamburgur={openHamburgur}
         closeHamburgur={closeHamburgur}

@@ -100,7 +100,7 @@ export default function SlideBar(props) {
             </ListItem>
           </Link>
         )}
-        {user.status === "admin" && user.status === "staff" ? (
+        {user.status === "admin" || user.status === "staff" ? (
           <Link
             className={classes.link}
             to="/tool/new"

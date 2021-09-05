@@ -1,0 +1,19 @@
+.createtool-input-group {
+    display: flex;
+}
+
+.createtool-input-group div:first-child {
+    padding-right: 10px;
+}
+
+.createtool-input-group div:last-child {
+    padding-left: 0px;
+}
+
+.createtool-form {
+    padding: 10px 20px;
+}
+
+.createtool-textarea {
+    margin: 20px 0 20px 0;
+}

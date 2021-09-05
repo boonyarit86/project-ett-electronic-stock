@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const usersRoutes = require("./routes/users-routes");
+const sttRoutes = require("./routes/stt-routes");
 const cors = require('cors')
 // const toolsRoutes = require("./routes/tools-routes");
 // const boardsRoutes = require("./routes/boards-routes");
@@ -45,6 +46,7 @@ app.use(cors());
 // })
 
 app.use('/api/users', usersRoutes);
+app.use('/api/stts', sttRoutes);
 // app.use('/api/tools', toolsRoutes);
 // app.use('/api/boards', boardsRoutes);
 // app.use('/api/projects', projectsRoutes);
