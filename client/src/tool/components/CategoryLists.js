@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function CategoryLists({ onSubmit, onChange, state }) {
+function CategoryLists({ onSubmit, onChange, state, handleDelete, handleModal }) {
   const classes = useStyles();
 
   return (
@@ -53,10 +53,10 @@ function CategoryLists({ onSubmit, onChange, state }) {
                     secondary={false ? "Secondary text" : null}
                   />
                   <ListItemSecondaryAction>
-                    <IconButton edge="end" aria-label="edit">
+                    <IconButton edge="end" aria-label="edit" onClick={() => handleModal(item.category, item._id)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton edge="end" aria-label="delete">
+                    <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(item._id)} >
                       <DeleteIcon />
                     </IconButton>
                   </ListItemSecondaryAction>

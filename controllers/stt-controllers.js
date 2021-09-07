@@ -47,7 +47,7 @@ const addCategoryTool = async (req, res) => {
         if(isCategory) return res.status(401).send("มีข้อมูลนี้แล้วในฐานข้อมูล");
         await data.categorys.unshift({ category: newCategory})
         await data.save();
-        res.status(201).json(data)
+        res.status(201).json(data.categorys)
     } catch (error) {
         console.log(error);
         res.status(500).send("ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
@@ -58,6 +58,7 @@ const editTypeTool = async (req, res) => {
     let typeToolId = req.params.tid;
     let newType = req.body.type.toLowerCase();
     try {
+        if(newType.length === 0) return res.status(401).send("ตัวหนังสือต้องมีอย่างน้อย 1 ตัว");
         let data = await SttModel.findById(typeToolId);
         if(!data) return res.status(401).send("ไม่พบข้อมูลในฐานข้อมูล");
         const AllData = await SttModel.find();
@@ -77,6 +78,7 @@ const editCategoryTool = async (req, res) => {
     let categoryToolId = req.params.cid;
     let newCategory = req.body.category.toLowerCase();
     try {
+        if(newCategory.length === 0) return res.status(401).send("ตัวหนังสือต้องมีอย่างน้อย 1 ตัว");
         let data = await SttModel.findById(typeToolId);
         if(!data) return res.status(401).send("ไม่พบข้อมูลในฐานข้อมูล");
         const categoryIndex = await data.categorys.map((item) => item._id.toString()).indexOf(categoryToolId);

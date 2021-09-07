@@ -38,14 +38,14 @@ function SelectType({ data, state, onChange }) {
       style={{ width: "100%" }}
     >
       <InputLabel id="demo-simple-select-outlined-label">
-        {"Type"}
+        {"ชนิด"}
       </InputLabel>
       <Select
         labelId="demo-simple-select-outlined-label"
         id="demo-simple-select-outlined"
         // value={state.type || ""}
         onChange={onChange}
-        label="Type"
+        label="ชนิดอุปกรณ์"
         fullWidth
       >
         <MenuItem value={{}}>
