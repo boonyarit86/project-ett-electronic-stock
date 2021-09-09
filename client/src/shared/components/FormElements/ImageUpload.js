@@ -48,12 +48,12 @@ const ImageUpload = props => {
         }
     }, [initialValue])
 
-    useEffect(() => {
-        // console.log("refresh")
-        return () => {
+    // useEffect(() => {
+    //     // console.log("refresh")
+    //     return () => {
 
-        }
-    }, [file])
+    //     }
+    // }, [file])
 
     // Function ทำงานต่อเมื่อกดอัพโหลดรูปภาพจาก ปุ่ม
     const pickedHandler = e => {

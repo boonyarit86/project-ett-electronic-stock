@@ -34,6 +34,7 @@ import AuthUser from "./user/pages/AuthUser";
 import "./App.css";
 import CreateTool from "./tool/pages/CreateTool";
 import SettingToolDetail from "./tool/pages/SettingToolDetail";
+import ToolLists from "./tool/pages/ToolLists";
 // import Purchase from "./shared/pages/Purchase";
 
 
@@ -57,6 +58,9 @@ function App() {
         </Route>
         <Route path="/auth/users">
           <AuthUser />
+        </Route>
+        <Route path="/tool/list">
+          <ToolLists />
         </Route>
         <Route path="/tool/new">
           <CreateTool />

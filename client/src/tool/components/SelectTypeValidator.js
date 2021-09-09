@@ -56,7 +56,7 @@ function SelectTypeValidator(props) {
     dispatch({
       type: "CHANGE",
       val: event.target.value,
-      validators: props.validators,
+      // validators: props.validators,
     });
   };
 
@@ -87,9 +87,9 @@ function SelectTypeValidator(props) {
         onBlur={touchHandler}
         fullWidth
       >
-        <MenuItem value={{}}>
+        {/* <MenuItem value={{}}>
           <em>None</em>
-        </MenuItem>
+        </MenuItem> */}
         {data.map((item) => (
           <MenuItem key={item._id} value={item}>
             {item.type}

@@ -15,7 +15,7 @@ import { Alert, AlertTitle } from "@material-ui/lab";
 // import SelectType from '../components/SelectType';
 // import SelectCategory from '../components/SelectCategory';
 import Loading from "../../shared/components/UIElements/Loading";
-// import { createtoolAction } from "../../actions/toolActions";
+import { createToolAction } from "../../actions/toolActions";
 import SelectCategory from "../components/SelectCategory";
 import SelectTypeValidator from "../components/SelectTypeValidator";
 
@@ -45,7 +45,7 @@ function CreateTool() {
   const dispatch = useDispatch();
   const history = useHistory();
   // Redux
-  // const createTool = useSelector((state) => state.createTool)
+  const { isLoading: loadingSave, errorMsg: errorMsgCreate } = useSelector((state) => state.toolLists)
   const { isLoading, lists, errorMsg } = useSelector((state) => state.sttData);
   // const { loading, error } = createTool;
   // ตัวแปรเก็บค่า
@@ -96,7 +96,7 @@ function CreateTool() {
       description: description,
     };
 
-    // await dispatch(createtoolAction(newTool))
+    dispatch(createToolAction(auth.token, newTool))
     // console.log(newTool);
     // setCreateSuccess(true);
     setCategoryId("")
@@ -119,8 +119,14 @@ function CreateTool() {
   return (
     <Container maxWidth="sm" className={classes.form}>
       <h1>การสร้างอุปกรณ์</h1>
-      {/* {loading && <Loading loading={loading} />} */}
-      {/* {error && <Alert variant="filled" severity="error"><AlertTitle>{error}</AlertTitle></Alert>} */}
+      {loadingSave && <Loading loading={loadingSave} />}
+      {!loadingSave && errorMsgCreate && (
+        <div style={{ margin: "10px" }}>
+          <Alert variant="filled" severity="error">
+            <AlertTitle>{errorMsgCreate}</AlertTitle>
+          </Alert>
+        </div>
+      )}
       <Paper className="createtool-form">
         <form onSubmit={onSubmit}>
           <Input

@@ -48,7 +48,7 @@ function SelectCategory({ data, onChange }) {
         label="ประเภทอุปกรณ์"
         fullWidth
       >
-        <MenuItem value={{}}>
+        <MenuItem value="" >
           <em>None</em>
         </MenuItem>
         {data ? data.categorys.map((item) => (

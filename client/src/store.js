@@ -2,12 +2,14 @@ import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import thunk from 'redux-thunk';
 import { userDataReducers, authUserReducers } from "./reducers/userReducers";
 import { sttReducers } from "./reducers/sttReducers";
+import { toolListsReducers } from "./reducers/toolReducers";
 
 const inititalState = [];
 const reducer = combineReducers({
     userData: userDataReducers,
     authUser: authUserReducers,
-    sttData: sttReducers
+    sttData: sttReducers,
+    toolLists: toolListsReducers
 });
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
