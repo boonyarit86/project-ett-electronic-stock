@@ -29,6 +29,7 @@ import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import SaveIcon from "@material-ui/icons/Save";
 import Loading from "../../shared/components/UIElements/Loading";
 import { Alert, AlertTitle } from "@material-ui/lab";
+import { ToastContainer } from "react-toastify";
 
 // CSS Material UI
 const useStyles = makeStyles((theme) => ({
@@ -196,6 +197,7 @@ function EditProfile() {
           </Button>
         </div>
       </Paper>
+      <ToastContainer />
     </Container>
   );
 }

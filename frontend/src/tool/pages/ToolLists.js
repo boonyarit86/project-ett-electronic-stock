@@ -8,6 +8,8 @@ import { io } from "socket.io-client";
 import TableTool from "../components/TableTool";
 import Loading from "../../shared/components/UIElements/Loading";
 import { Alert, AlertTitle } from "@material-ui/lab";
+import { ToastContainer } from "react-toastify";
+
 
 // import "./ToolList.css";
 
@@ -55,7 +57,6 @@ function ToolLists() {
       </div>
     );
   }
-
   return (
     <div className="container-toollist">
       {isLoadingActions && <Loading loading={isLoadingActions} />}
@@ -68,6 +69,7 @@ function ToolLists() {
       )}
       <h1>รายการอุปกรณ์</h1>
       <TableTool tools={tools} auth={auth} dispatch={dispatch} />
+      <ToastContainer />
     </div>
   );
 }

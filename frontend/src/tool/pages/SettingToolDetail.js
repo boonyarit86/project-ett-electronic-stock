@@ -12,6 +12,7 @@ import {
   editCategoryAction
 } from "../../actions/sttActions";
 
+// Components
 import { Container, Paper, TextField, Button } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import InputAdd from "../components/InputAdd";
@@ -20,6 +21,8 @@ import SelectType from "../components/SelectType";
 import TypeAction from "../components/TypeAction";
 import CategoryLists from "../components/CategoryLists";
 import ModalEditCategory from "../components/ModalEditCategory";
+import { ToastContainer } from "react-toastify";
+
 
 const useStyles = makeStyles((theme) => ({
   textarea: {
@@ -194,6 +197,7 @@ function SettingTool() {
         openModal={openModal}
         handleCloseModal={handleCloseModal}
       />
+      <ToastContainer />
     </Container>
   );
 }

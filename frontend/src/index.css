@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.notify-default {
+  top: 80px;
+}
+
+/* @media (max-width: 500px) {
+  .notify-success {
+      width: 100%;
+      top: 80px;
+  }
+} */

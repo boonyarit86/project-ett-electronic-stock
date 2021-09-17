@@ -20,13 +20,12 @@ import {
 } from "../constants/userConstants";
 import catchErrors from "../shared/utils/catchErrors";
 import Axios from "axios";
-
-const react_api_url = "http://localhost:5000/api/users";
+import { notifySuccess } from "../shared/components/UIElements/Toasts";
 
 export const getAllUserAction = (token) => async (dispatch) => {
   dispatch({ type: GET_ALL_USER_REQUEST });
   try {
-    await Axios.get(`${react_api_url}/`, {
+    await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/users`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) =>
       dispatch({ type: GET_ALL_USER_SUCCESS, payload: res.data })
@@ -42,7 +41,7 @@ export const getAllUserAction = (token) => async (dispatch) => {
 export const getUserByIdAction = (token) => async (dispatch) => {
   dispatch({ type: GET_USER_REQUEST });
   try {
-    await Axios.get(`${react_api_url}/profile`, {
+    await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => dispatch({ type: GET_USER_SUCCESS, payload: res.data }));
   } catch (error) {
@@ -70,9 +69,16 @@ export const editUserByIdAction = (token, user) => async (dispatch) => {
     if (typeof user.avartar === "object") {
       formData.append("avartar", user.avartar);
     }
-    await Axios.put(`${react_api_url}/edit/${user.id}`, formData, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => dispatch({ type: EDIT_USER_SUCCESS, payload: res.data }));
+    await Axios.put(
+      `${process.env.REACT_APP_BACKEND_URL}/users/edit/${user.id}`,
+      formData,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    ).then((res) => {
+      dispatch({ type: EDIT_USER_SUCCESS, payload: res.data });
+      notifySuccess("แก้ไขข้อมูลเรียบร้อย");
+    });
   } catch (error) {
     dispatch({
       type: EDIT_USER_FAIL,
@@ -85,12 +91,15 @@ export const approveUserAction = (token, userId) => async (dispatch) => {
   dispatch({ type: APPROVE_USER_REQUEST });
   try {
     await Axios.put(
-      `${react_api_url}/approve/${userId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/users/approve/${userId}`,
       {},
       {
         headers: { Authorization: `Bearer ${token}` },
       }
-    ).then((res) => dispatch({ type: APPROVE_USER_SUCCESS, payload: userId }));
+    ).then((res) => {
+      dispatch({ type: APPROVE_USER_SUCCESS, payload: userId });
+      notifySuccess("อนุมัติเรียบร้อย");
+    });
   } catch (error) {
     dispatch({
       type: APPROVE_USER_FAIL,
@@ -103,12 +112,15 @@ export const editStatusUserAction = (token, data) => async (dispatch) => {
   dispatch({ type: EDIT_STATUS_USER_REQUEST });
   try {
     await Axios.put(
-      `${react_api_url}/edit/status/${data.userId}`,
-      {newStatus: data.newStatus},
+      `${process.env.REACT_APP_BACKEND_URL}/users/edit/status/${data.userId}`,
+      { newStatus: data.newStatus },
       {
         headers: { Authorization: `Bearer ${token}` },
       }
-    ).then((res) => dispatch({ type: EDIT_STATUS_USER_SUCCESS, payload: data }));
+    ).then((res) => {
+      dispatch({ type: EDIT_STATUS_USER_SUCCESS, payload: data });
+      notifySuccess("แก้ไขข้อมูลเรียบร้อย");
+    });
   } catch (error) {
     dispatch({
       type: EDIT_STATUS_USER_FAIL,
@@ -120,9 +132,12 @@ export const editStatusUserAction = (token, data) => async (dispatch) => {
 export const deleteUserAction = (token, userId) => async (dispatch) => {
   dispatch({ type: DELETE_USER_REQUEST });
   try {
-    await Axios.delete(`${react_api_url}/${userId}`, {
+    await Axios.delete(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => dispatch({ type: DELETE_USER_SUCCESS, payload: userId }));
+    }).then((res) => {
+      dispatch({ type: DELETE_USER_SUCCESS, payload: userId });
+      notifySuccess("ลบข้อมูลผู้ใช้เรียบร้อย");
+    });
   } catch (error) {
     dispatch({
       type: DELETE_USER_FAIL,

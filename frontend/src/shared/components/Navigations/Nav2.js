@@ -293,7 +293,7 @@ export default function Nav2() {
       open={isSettingOpen}
       onClose={handleSettingMenuClose}
     >
-      <Link to={"/setting/tool"}>
+      <Link to={"/setting1/tool1"}>
         <MenuItem onClick={handleSettingMenuClose}>ชนิด&ประเภทของอุปกรณ์</MenuItem>
       </Link>
     </Menu>

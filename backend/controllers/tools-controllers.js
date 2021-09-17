@@ -1,8 +1,7 @@
 const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
 const cloudinary = require("../utils/cloudinary");
-const io = require("../index.js")
-
+const io = require("../index.js");
 
 // const HistoryTool = require("../models/history-tool");
 // const HistoryCnt = require("../models/history-cnt");
@@ -12,33 +11,35 @@ const io = require("../index.js")
 // const historyTool = require('../models/history-tool');
 
 const covertTypeandCateTool = async (tools, stt) => {
-  for(var r=0; r < tools.length; r++) {
-    await stt.map((item) => {
-        
-        if(item._id.toString() === tools[r].type) {
-            tools[r].type = item.type
-            // console.log(tools[r])
-        } 
-
-        if(tools[r].category !== "") {
-            for(var x=0; x < item.categorys.length; x++) {
-                if(item.categorys[x]._id.toString() === tools[r].category) {
-                    tools[r].category = item.categorys[x].category
-                } 
-            }
-        }
-    })
-}
-}
+  let arrTool = await tools.map((item) => {
+    let data = stt.find((x) => x._id.toString() === item.type);
+    if (data) {
+      let cate = data.categorys.find((x) => x._id.toString() === item.category);
+      if (cate) {
+        item.category = cate.category;
+      } else {
+        item.category = "ไม่ได้กำหนด";
+      }
+      item.type = data.type;
+      return item;
+    } else {
+      item.type = "ไม่ได้กำหนด";
+      item.category = "ไม่ได้กำหนด";
+      return item;
+    }
+    // return item
+  });
+  // console.log(arrTool)
+  return arrTool;
+};
 
 // รับข้อมูลรายการอุปกรณ์ทั้งหมด
 const getAllTools = async (req, res) => {
-// console.log(io)
+  // console.log(io)
   try {
     let toolLists = await Tool.find();
     let stt = await Stt.find();
-    covertTypeandCateTool(toolLists, stt)
-    console.log(toolLists)
+    covertTypeandCateTool(toolLists, stt);
     res.status(200).json(toolLists);
   } catch (error) {
     console.error(error);
@@ -102,18 +103,18 @@ const getAllHistoryTools = async (req, res, next) => {
 };
 
 // รับข้อมูลอุปกรณ์ที่ผู้ใช้เลือก
-const getTool = async (req, res, next) => {
-  let tool;
+const getTool = async (req, res) => {
   try {
-    tool = await Tool.findById(req.params.tid);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not fetching data.",
-      500
-    );
-    return next(error);
+    let tool = await Tool.findById(req.params.tid);
+    if (!tool)
+      return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
+    res.status(200).json(tool);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send("ไม่สามารถเรียกข้อมูลรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
-  res.json(tool);
 };
 
 // สร้างรายการอุปกรณ์
@@ -176,30 +177,31 @@ const createTool = async (req, res) => {
 const actionTool = async (req, res) => {
   const { total, description, actionType } = req.body;
   const toolId = req.params.tid;
-  const toolTotal = Number(total)
-  if(toolTotal <= 0) return res.status(401).send("จำนวนอุปกรณ์ต้องมีค่าอย่างน้อย 1")
+  const toolTotal = Number(total);
+  if (toolTotal <= 0)
+    return res.status(401).send("จำนวนอุปกรณ์ต้องมีค่าอย่างน้อย 1");
 
   try {
-    
     let tool = await Tool.findById(toolId);
-    if(!tool) return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล")
-    if(actionType === "เพิ่ม") {
-      tool.total = tool.total + toolTotal
+    if (!tool)
+      return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
+    if (actionType === "เพิ่ม") {
+      tool.total = tool.total + toolTotal;
     } else {
-      if(tool.total < toolTotal) return res.status(401).send("จำนวนอุปกรณ์ที่เบิกมีมากกว่าในสต๊อก")
-      tool.total = tool.total - toolTotal
+      if (tool.total < toolTotal)
+        return res.status(401).send("จำนวนอุปกรณ์ที่เบิกมีมากกว่าในสต๊อก");
+      tool.total = tool.total - toolTotal;
     }
 
     await tool.save();
     let tools = await Tool.find();
     let stt = await Stt.find();
-    covertTypeandCateTool(tools, stt)
-    io.emit('tool-actions', tools);
+    covertTypeandCateTool(tools, stt);
+    io.emit("tool-actions", tools);
     res.status(200).send(tools);
-
-  } catch(error) {
+  } catch (error) {
     console.log(error);
-    res.status(500).send("ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+    res.status(500).send("ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
 };
 
@@ -216,17 +218,15 @@ const actionTool = async (req, res) => {
 // })
 
 // การแก้ไขรายการอุปกรณ์
-const editTool = async (req, res, next) => {
-  let tool;
+const editTool = async (req, res) => {
   const {
     toolName,
     toolCode,
-    total,
     type,
     category,
     size,
     images,
-    imageProfile,
+    avartar,
     description,
     oldImages,
     delImages,
@@ -234,148 +234,140 @@ const editTool = async (req, res, next) => {
   } = req.body;
   // ตัวแปรรูปภาพที่จะถูกลบ
   let delImgArr = [];
+
+  if (Number(limit) <= 0)
+    return res.status(401).send("จำนวนต้องมีค่าอย่างน้อย 1");
+
+
   try {
-    tool = await Tool.findById(req.params.tid);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not fetching data.",
-      500
-    );
-    return next(error);
-  }
+    let tool = await Tool.findById(req.params.tid);
+    if (!tool)
+      return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
 
-  tool.toolName = toolName;
-  tool.toolCode = toolCode;
-  tool.total = total;
-  tool.type = type;
-  tool.size = size;
-  tool.limit = limit;
-  tool.category = category;
-  tool.description = description;
+    tool.toolName = toolName;
+    tool.toolCode = toolCode;
+    tool.type = type;
+    tool.size = size;
+    tool.limit = limit;
+    tool.category = category;
+    tool.description = description;
 
-  // อัพโหลดโปรไฟล์อุปกรณ์
-  // ถ้ารูปอุปกรณ์ถูกลบหรือไม่ได้กำหนดมา
-  if (imageProfile === "false") {
-    // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
-    if (tool.imageProfile.key) {
-      delImgArr = [...delImgArr, tool.imageProfile.key];
-      tool.imageProfile = { location: "/images/profile.png", key: false };
-      console.log("set default image and delete");
+    // อัพโหลดโปรไฟล์อุปกรณ์
+    // ถ้ารูปอุปกรณ์ถูกลบหรือไม่ได้กำหนดมา
+    if (avartar === "false") {
+      // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
+      // if (tool.avartar.key) {
+      //   delImgArr = [...delImgArr, tool.avartar.key];
+      //   tool.avartar = { location: "/images/profile.png", key: false };
+      //   console.log("set default image and delete");
+      // }
+      // ถ้าไม่มีรูปภาพก่อนหน้านี้ เพิ่มรูปภาพระบบเข้าไป ป้องกันค่าว่าง
+      // else {
+      //   tool.avartar = { location: "/images/profile.png", key: false };
+      // }
     }
-    // ถ้าไม่มีรูปภาพก่อนหน้านี้ เพิ่มรูปภาพระบบเข้าไป ป้องกันค่าว่าง
-    else {
-      tool.imageProfile = { location: "/images/profile.png", key: false };
+    // ผู้ใช้งานกำหนดรูปภาพใหม่
+    else if (avartar === "true") {
+      // ถ้ามีรูปเก่าในระบบให้ลบ และเพิ่มรุปภาพใหม่เข้าไป
+      if (tool.avartar.public_id) {
+        delImgArr = [...delImgArr, tool.avartar.public_id];
+        tool.avartar = {
+          public_id: req.files[0].public_id,
+          url: req.files[0].secure_url,
+        };
+      }
+      // ถ้าไม่มีรุปภาพเก่าในระบบ ให้เพิ่มอย่างเดียว
+      else {
+        console.log("add images to db");
+        tool.avartar = {
+          public_id: req.files[0].public_id,
+          url: req.files[0].secure_url,
+        };
+      }
     }
-  }
-  // ผู้ใช้งานกำหนดรูปภาพใหม่
-  else if (imageProfile === "true") {
-    // ถ้ามีรูปเก่าในระบบให้ลบ และเพิ่มรุปภาพใหม่เข้าไป
-    if (tool.imageProfile.key) {
-      delImgArr = [...delImgArr, tool.imageProfile.key];
-      tool.imageProfile = {
-        location: "http://localhost:5000/" + req.files[0].path,
-        key: req.files[0].path,
-      };
-    }
-    // ถ้าไม่มีรุปภาพเก่าในระบบ ให้เพิ่มอย่างเดียว
-    else {
-      console.log("add images to db");
-      tool.imageProfile = {
-        location: "http://localhost:5000/" + req.files[0].path,
-        key: req.files[0].path,
-      };
-    }
-  } else if (typeof imageProfile === "string") {
-    console.log("default image");
-  }
 
-  // Multi Images
-  let newImgArr = [];
-  // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
-  if (images === "true") {
-    console.log("have images");
-    // ทำการแยกรูปภาพโปรไฟล์อุปกรณ์ออกจากรายการ ถ้ามี
-    if (imageProfile === "true") {
-      for (var round = 0; round < req.files.length; round++) {
-        if (round !== 0) {
+    // Multi Images
+    let newImgArr = [];
+    // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
+    if (images === "true") {
+      console.log("have images");
+      // ทำการแยกรูปภาพโปรไฟล์อุปกรณ์ออกจากรายการ ถ้ามี
+      if (avartar === "true") {
+        for (var round = 0; round < req.files.length; round++) {
+          if (round !== 0) {
+            newImgArr = [
+              ...newImgArr,
+              {
+                public_id: req.files[round].public_id,
+                url: req.files[round].secure_url,
+              },
+            ];
+          }
+        }
+      } else {
+        console.log("Only many imges");
+        for (var round1 = 0; round1 < req.files.length; round1++) {
           newImgArr = [
             ...newImgArr,
             {
-              location: "http://localhost:5000/" + req.files[round].path,
-              key: req.files[round].path,
+              public_id: req.files[round1].public_id,
+              url: req.files[round1].secure_url,
             },
           ];
         }
       }
-    } else {
-      console.log("Only many imges");
-      for (var round1 = 0; round1 < req.files.length; round1++) {
-        newImgArr = [
-          ...newImgArr,
-          {
-            location: "http://localhost:5000/" + req.files[round1].path,
-            key: req.files[round1].path,
-          },
-        ];
+      // เพิ่มรุปภาพเก่าไปยังที่เดิม
+      if (JSON.parse(oldImages).length !== 0) {
+        let convOldImages = JSON.parse(oldImages);
+        newImgArr = [...newImgArr, ...convOldImages];
       }
-    }
-    // เพิ่มรุปภาพเก่าไปยังที่เดิม
-    if (JSON.parse(oldImages).length !== 0) {
-      let convOldImages = JSON.parse(oldImages);
-      newImgArr = [...newImgArr, ...convOldImages];
-    }
 
-    if (JSON.parse(delImages).length !== 0) {
-      console.log("delete images section 1");
-      let convDelImages = JSON.parse(delImages);
-      for (var x = 0; x < convDelImages.length; x++) {
-        delImgArr = [...delImgArr, convDelImages[x].key];
+      if (JSON.parse(delImages).length !== 0) {
+        console.log("delete images section 1");
+        let convDelImages = JSON.parse(delImages);
+        for (var x = 0; x < convDelImages.length; x++) {
+          delImgArr = [...delImgArr, convDelImages[x].key];
+        }
       }
+      tool.images = newImgArr;
     }
-    tool.images = newImgArr;
-  }
-  // ถ้าไม่มีรูปภาพที่อัพมาใหม่ แต่เป็นรูปภาพเก่าที่ถูกลบจากฐานข้อมูล
-  else {
-    console.log("have no images");
-    // เพิ่มรุปภาพเก่าไปยังที่เดิม
-    if (JSON.parse(oldImages).length !== 0) {
-      let convOldImages = JSON.parse(oldImages);
-      newImgArr = [...newImgArr, ...convOldImages];
-    }
-
-    if (JSON.parse(delImages).length !== 0) {
-      console.log("delete images section 2");
-      let convDelImages = JSON.parse(delImages);
-      for (var x = 0; x < convDelImages.length; x++) {
-        delImgArr = [...delImgArr, convDelImages[x].key];
+    // ถ้าไม่มีรูปภาพที่อัพมาใหม่ แต่เป็นรูปภาพเก่าที่ถูกลบจากฐานข้อมูล
+    else {
+      console.log("have no images");
+      // เพิ่มรุปภาพเก่าไปยังที่เดิม
+      if (JSON.parse(oldImages).length !== 0) {
+        let convOldImages = JSON.parse(oldImages);
+        newImgArr = [...newImgArr, ...convOldImages];
       }
-    }
-    tool.images = newImgArr;
-  }
 
-  // ลบรูปภาพออกจากระบบ
-  if (delImgArr.length !== 0) {
-    for (var i = 0; i < delImgArr.length; i++) {
-      fs.unlink(delImgArr[i], (err) => {
-        if (err) console.log(err);
-        else console.log("delete image successfully");
-      });
+      if (JSON.parse(delImages).length !== 0) {
+        console.log("delete images section 2");
+        let convDelImages = JSON.parse(delImages);
+        for (var x = 0; x < convDelImages.length; x++) {
+          delImgArr = [...delImgArr, convDelImages[x].key];
+        }
+      }
+      tool.images = newImgArr;
     }
-  }
 
-  try {
+    // ลบรูปภาพออกจากระบบ
+    // if (delImgArr.length !== 0) {
+    //   for (var i = 0; i < delImgArr.length; i++) {
+    //     fs.unlink(delImgArr[i], (err) => {
+    //       if (err) console.log(err);
+    //       else console.log("delete image successfully");
+    //     });
+    //   }
+    // }
+    console.log(tool)
     await tool.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not save data.",
-      500
-    );
-    return next(error);
+    res.status(200).json(tool);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send("ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
-
-  res.status(201).json(tool);
-  // console.log(tool);
-  console.log("edit successfully");
 };
 
 // ยกเลิกการเบิกอุปกรณ์
@@ -626,7 +618,7 @@ const deleteTool = async (req, res, next) => {
   }
 
   // ลบรูปภาพโปรไฟล์ของอุปกรณ์
-  if (tool.imageProfile.key !== false) {
+  if (tool.avartar.key !== false) {
     fs.unlink(tool.imageProfile.key, (err) => {
       if (err) console.log("can not find path of image");
       else console.log("delete image successfully");

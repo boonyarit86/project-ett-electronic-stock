@@ -1,0 +1,17 @@
+.slide-img {
+    width: 82px;
+    height: 82px;
+    padding: 0;
+}
+
+.slide-img:last-child{
+    padding: 0;
+}
+
+.slide-img img {
+    padding: 0;
+    width: 82px;
+    height: 82px;
+    position: relative;
+    cursor: pointer;
+}

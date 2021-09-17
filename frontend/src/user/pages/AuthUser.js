@@ -22,6 +22,7 @@ import {
 import ModalSubmit from "../components/ModalSubmit";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import Loading from "../../shared/components/UIElements/Loading";
+import { ToastContainer } from "react-toastify";
 
 // Icon
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -248,6 +249,8 @@ function AuthUser() {
             )}
         </div>
       </React.Fragment>
+
+      <ToastContainer />
 
       <ModalSubmit
         openPrompt={openPromptDelete}

@@ -8,6 +8,12 @@ import {
   ACTION_TOOL_REQUEST,
   ACTION_TOOL_SUCCESS,
   ACTION_TOOL_FAIL,
+  GET_TOOL_REQUEST,
+  GET_TOOL_SUCCESS,
+  GET_TOOL_FAIL,
+  EDIT_TOOL_REQUEST,
+  EDIT_TOOL_SUCCESS,
+  EDIT_TOOL_FAIL,
 } from "../constants/toolConstants";
 
 const initialState = {
@@ -27,30 +33,71 @@ export function toolListsReducers(state = initialState, action) {
         ...state,
         isLoadingActions: true,
       };
-      case GET_ALL_TOOL_SUCCESS:
-        return {
-          ...state,
-          isLoading: false,
-        };
+    case GET_ALL_TOOL_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+      };
     case CREATE_TOOL_SUCCESS:
     case ACTION_TOOL_SUCCESS:
       return {
         ...state,
         isLoadingActions: false,
-        errorMsgActions: null
+        errorMsgActions: null,
       };
-      case GET_ALL_TOOL_FAIL:
-        return {
-          ...state,
-          isLoading: false,
-          errorMsg: action.payload,
-        };
+    case GET_ALL_TOOL_FAIL:
+      return {
+        ...state,
+        isLoading: false,
+        errorMsg: action.payload,
+      };
     case CREATE_TOOL_FAIL:
     case ACTION_TOOL_FAIL:
       return {
         ...state,
         isLoadingActions: false,
-        errorMsgActions: action.payload
+        errorMsgActions: action.payload,
+      };
+    default:
+      return state;
+  }
+}
+
+export function toolListReducers(state = {}, action) {
+  switch (action.type) {
+    case GET_TOOL_REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case EDIT_TOOL_REQUEST:
+      return {
+        ...state,
+        isLoadingEdit: true,
+      };
+    case GET_TOOL_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        tool: action.payload,
+      };
+    case EDIT_TOOL_SUCCESS:
+      return {
+        ...state,
+        isLoadingEdit: false,
+        tool: action.payload
+      };
+    case GET_TOOL_FAIL:
+      return {
+        ...state,
+        isLoading: false,
+        errorMsg: action.payload,
+      };
+    case EDIT_TOOL_FAIL:
+      return {
+        ...state,
+        isLoadingEdit: false,
+        errorMsgEdit: action.payload
       };
     default:
       return state;
