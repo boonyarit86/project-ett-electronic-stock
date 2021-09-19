@@ -52,6 +52,14 @@ function SelectTypeValidator(props) {
     onInput(id, value, isValid);
   }, [id, value, isValid, onInput]);
 
+  // useEffect(() => {
+  //   if(props.initialValue) {
+  //     // let findData = data.find((item) => item._id === props.initialValue);
+  //     console.log(props.initialValue)
+      
+  //   }
+  // }, [props.initialValue])
+
   const changeHandler = (event) => {
     dispatch({
       type: "CHANGE",

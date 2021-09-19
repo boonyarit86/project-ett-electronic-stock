@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -12,6 +12,12 @@ import { useAuth } from "./shared/hooks/auth-hook";
 // Components
 import Nav from "./shared/components/Navigations/Nav";
 import Nav2 from "./shared/components/Navigations/Nav2";
+import Loading from "./shared/components/UIElements/Loading";
+
+// CSS
+import "./App.css";
+import "react-toastify/dist/ReactToastify.css";
+
 // import ToolList from "./tool/pages/ToolList";
 // import CreateTool from "./tool/pages/CreateTool";
 // import CreateBoard from "./board/page/CreateBoard";
@@ -27,20 +33,31 @@ import Nav2 from "./shared/components/Navigations/Nav2";
 // import HistoryProject from "./board/page/HistoryProject";
 // import DetailHistoryProject from "./board/page/DetailHistoryProject";
 // import EditProject from "./board/page/EditProject";
-import Home from "./Home";
-import Auth from "./user/pages/Auth";
-import Profile from "./user/pages/Profile";
-import EditProfile from "./user/pages/EditProfile";
-import AuthUser from "./user/pages/AuthUser";
-import CreateTool from "./tool/pages/CreateTool";
-import SettingToolDetail from "./tool/pages/SettingToolDetail";
-import EditTool from "./tool/pages/EditTool";
-import ToolLists from "./tool/pages/ToolLists";
-import DetailTool from "./tool/pages/DetailTool";
 
-// CSS
-import "./App.css";
-import "react-toastify/dist/ReactToastify.css";
+// import Home from "./Home";
+// import Auth from "./user/pages/Auth";
+// import Profile from "./user/pages/Profile";
+// import EditProfile from "./user/pages/EditProfile";
+// import AuthUser from "./user/pages/AuthUser";
+// import CreateTool from "./tool/pages/CreateTool";
+// import SettingToolDetail from "./tool/pages/SettingToolDetail";
+// import EditTool from "./tool/pages/EditTool";
+// import ToolLists from "./tool/pages/ToolLists";
+// import DetailTool from "./tool/pages/DetailTool";
+const Home = React.lazy(() => import("./Home"));
+const Auth = React.lazy(() => import("./user/pages/Auth"));
+const Profile = React.lazy(() => import("./user/pages/Profile"));
+const EditProfile = React.lazy(() => import("./user/pages/EditProfile"));
+const AuthUser = React.lazy(() => import("./user/pages/AuthUser"));
+const CreateTool = React.lazy(() => import("./tool/pages/CreateTool"));
+const SettingToolDetail = React.lazy(() =>
+  import("./tool/pages/SettingToolDetail")
+);
+const EditTool = React.lazy(() => import("./tool/pages/EditTool"));
+const ToolLists = React.lazy(() => import("./tool/pages/ToolLists"));
+const DetailTool = React.lazy(() => import("./tool/pages/DetailTool"));
+
+
 // import Purchase from "./shared/pages/Purchase";
 
 function App() {
@@ -56,7 +73,10 @@ function App() {
         <Route path="/tool/list">
           <ToolLists />
         </Route>
-        <Route path="/:tid/tool">
+        <Route path="/tool/new">
+          <CreateTool />
+        </Route>
+        <Route path="/:tid/tool" exact>
           <DetailTool />
         </Route>
         <Route path="/tool/:tid" exact>
@@ -71,9 +91,7 @@ function App() {
         <Route path="/auth/users">
           <AuthUser />
         </Route>
-        <Route path="/tool/new">
-          <CreateTool />
-        </Route>
+       
         <Route path="/setting1/tool1">
           <SettingToolDetail />
         </Route>
@@ -104,7 +122,15 @@ function App() {
       <Router>
         {token ? <Nav2 /> : <Nav />}
         {/* <Nav /> */}
-        <Container maxWidth="lg">{routes}</Container>
+        <Container maxWidth="lg">
+          <Suspense
+            fallback={
+              <Loading loading={true} />
+            }
+          >
+            {routes}
+          </Suspense>
+        </Container>
       </Router>
     </AuthContext.Provider>
   );

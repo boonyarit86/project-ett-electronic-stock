@@ -108,7 +108,7 @@ function Auth() {
         };
         try {
           setLoading(true);
-          await Axios.post("http://localhost:5000/api/users/signup", data);
+          await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/users/signup`, data);
           setLoading(false);
           setIsLoginMode(!isLoginMode);
         } catch (error) {
@@ -125,7 +125,7 @@ function Auth() {
       };
       try {
         setLoading(true);
-        await Axios.post("http://localhost:5000/api/users/login", data).then(
+        await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/users/login`, data).then(
           (res) => auth.login(res.data.token, res.data.userStatus)
         );
         setLoading(false);

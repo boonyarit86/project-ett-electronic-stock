@@ -4,7 +4,11 @@ form {
 
 .edittool-input-group {
     display: flex;
-    padding: 20px 0;
+    padding: 20px 0 0 0;
+}
+
+.edittool-input-group:last-child {
+    display: flex;
 }
 
 .edittool-input-group div:first-child {

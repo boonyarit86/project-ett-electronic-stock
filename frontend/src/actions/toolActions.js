@@ -140,7 +140,7 @@ export const editToolAction = (token, tool, history) => async (dispatch) => {
     //   formData.append("avartar", tool.avartar);
     // }
     // กรณี ผู้ใช้ลบรูปภาพและไม่ได้อัพลงไปใหม่ หรือ ไม่มีรูปภาพอยู่แล้ว
-    if (tool.avartar === false) {
+    if (tool.avartar === null) {
       console.log("no image");
       formData.append("avartar", false);
     }

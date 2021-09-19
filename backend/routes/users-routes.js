@@ -2,7 +2,7 @@ const express = require("express");
 const authMiddleware = require('../middleware/authMiddleware');
 const fileUpload = require("../utils/multer");
 const usersController = require("../controllers/users-controllers");
-const io = require("../index");
+// const io = require("../index");
 
 const router = express.Router();
 router.get("/", authMiddleware, usersController.getUsers);

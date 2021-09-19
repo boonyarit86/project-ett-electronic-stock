@@ -29,7 +29,7 @@ function DetailTool() {
   const { tool, isLoading, errorMsg } = useSelector((state) => state.toolList);
   //   const deleteTool = useSelector((state) => state.deleteTool);
   // ตัวแปรเก็บค่า
-  const [previewImg, setPreviewImg] = useState(false);
+  const [previewImg, setPreviewImg] = useState(null);
   const [openPrompt, setOpenPrompt] = useState(false);
   // เรียกข้อมูลจากฐานข้อมูล
   useEffect(() => {
@@ -82,36 +82,34 @@ function DetailTool() {
           <div className="container-detailtool">
             <div>
               <div className="introl-img">
-                <img
-                  src={
-                    previewImg || tool.avartar
-                      ? tool.avartar.url
-                      : "/images/profile.png"
-                  }
-                  alt=""
-                />
+                <img src={!previewImg ? tool.avartar.url : previewImg} alt="" />
               </div>
-              { tool.images.length === 0 ? <div>ไม่มีรูปภาพ</div> : 
-                tool.images.length <= 3 ? (
-                    <div className="detailtool-list-img">
-                {tool.images.map((img, index) => (
+              {tool.images.length === 0 ? (
+                <div>ไม่มีรูปภาพ</div>
+              ) : tool.images.length <= 3 ? (
+                <div className="detailtool-list-img">
                   <Avatar
                     variant="square"
-                    src={img.url}
-                    key={index}
-                    onClick={() => setPreviewImg(img.url)}
+                    src={tool.avartar.url}
+                    onClick={() => setPreviewImg(tool.avartar.url)}
                   />
-                ))}
-              </div>
-                ) : (
-                    <div>
-                      {/* <SlideImagePreview
+                  {tool.images.map((img, index) => (
+                    <Avatar
+                      variant="square"
+                      src={img.url}
+                      key={index}
+                      onClick={() => setPreviewImg(img.url)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  {/* <SlideImagePreview
                         setPreviewImg={setPreviewImg}
                         images={tool.images}
                       /> */}
-                    </div>
-                )
-               }
+                </div>
+              )}
             </div>
             {/* <div>
             {tool.imageProfile === undefined ? (

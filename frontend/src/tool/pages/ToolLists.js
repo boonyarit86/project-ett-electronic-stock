@@ -23,8 +23,9 @@ function ToolLists() {
   // Connect with Socket.io
   useEffect(() => {
     // console.log("Client: Socket.io stands by...");
-    const socket = io("ws://localhost:5000");
+    // const socket = io("ws://localhost:5000");
     // const socket = io(`${process.env.REACT_APP_BACKEND_URL}`);
+    const socket = io("https://ett-test.herokuapp.com");
     socket.on("connnection", () => {
       //   console.log("connected to server");
     });

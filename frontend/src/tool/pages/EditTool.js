@@ -8,15 +8,16 @@ import { makeStyles } from "@material-ui/core/styles";
 // import { typeAndcategory_select } from "../../Api";
 import { getToolAction, editToolAction } from "../../actions/toolActions";
 import { AuthContext } from "../../shared/context/auth-context";
+import { getAllTypeAction } from "../../actions/sttActions";
 
 // Component
 import ImageUpload from "../../shared/components/FormElements/ImageUpload";
-// import ImageUploadMultiple from "../../shared/components/FormElements/ImageUploadMultiple";
+import ImageUploadMultiple from "../../shared/components/FormElements/ImageUploadMultiple";
 import Input from "../../shared/components/FormElements/Input";
-// import SelectType from "../components/SelectType";
-// import SelectCategory from "../components/SelectCategory";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import Loading from "../../shared/components/UIElements/Loading";
+import SelectCategory from "../components/SelectCategory";
+import SelectTypeValidator from "../components/SelectTypeValidator";
 
 // CSS
 import "./EditTool.css";
@@ -41,17 +42,18 @@ function EditTool() {
   // Redux
   const { tool, isLoading, errorMsg, isLoadingEdit, errorMsgEdit } =
     useSelector((state) => state.toolList);
+    const { lists } = useSelector((state) => state.sttData);
   // const editTool = useSelector((state) => state.editTool)
   // ตัวแปรเก็บค่า
-  const [file, setFile] = useState(tool.avartar ? tool.avartar.url : false);
-  const [files, setFiles] = useState(tool.images ? tool.images : false);
+  const [file, setFile] = useState(tool.avartar ? tool.avartar.url : null);
+  const [files, setFiles] = useState(tool.images ? tool.images : null);
   const [filesDel, setFilesDel] = useState([]);
   const [limit, setLimit] = useState(tool.limit || "");
   const [size, setSize] = useState(tool.size || "");
   const [description, setDescription] = useState(tool.description || "");
   const [toolCode, settoolCode] = useState(tool.toolCode || "");
   //   const [selectValue] = useState(typeAndcategory_select);
-//   const [categoryValue, setCategoryValue] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   //   const [categorySelect, setCategorySelect] = useState([]);
   //   const [isEditSuccess, setIsEditSuccess] = useState(false);
 
@@ -61,10 +63,10 @@ function EditTool() {
         value: "",
         isValid: false,
       },
-      //   type: {
-      //     value: "",
-      //     isValid: false,
-      //   },
+      // type: {
+      //   value: false,
+      //   isValid: false,
+      // },
     },
     false
   );
@@ -72,6 +74,7 @@ function EditTool() {
   // เรียกข้อมูลจากฐานข้อมูล
   useEffect(() => {
     dispatch(getToolAction(auth.token, toolId));
+    dispatch(getAllTypeAction(auth.token));
     return () => {};
   }, []);
 
@@ -82,6 +85,11 @@ function EditTool() {
   //     }
   //     return () => {};
   //   }, [isEditSuccess]);
+
+  const onChangeSelectCategory = (e) => {
+    let data = e.target.value;
+    setCategoryId(data);
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -98,7 +106,7 @@ function EditTool() {
       images: files,
       imagesDel: filesDel,
     };
-
+    // console.log(newTool)
     dispatch(editToolAction(auth.token, newTool, history));
     // setIsEditSuccess(true);
   };
@@ -174,32 +182,34 @@ function EditTool() {
               />
             </div>
             <div className="edittool-input-group">
-              {/* <SelectType
-                selectValue={selectValue}
+              {/* <SelectTypeValidator
                 id="type"
                 filterName="ชนิด"
                 validators={[VALIDATOR_REQUIRE()]}
                 errorText="โปรดเลือกข้อมูล."
                 onInput={inputHandler}
-                setCategorySelect={setCategorySelect}
-                initialValue={tool.type}
+                data={lists}
+                initialValue={lists.find((item) => item._id === tool.type)}
                 initialValid={true}
                 required
-              />
-              <SelectCategory
-                selectValue={categorySelect}
-                setCategoryValue={setCategoryValue}
-                categoryValue={categoryValue}
+              /> */}
+
+              {/* <SelectCategory
+                data={
+                  formState.inputs.type ? formState.inputs.type.value : false
+                }
                 initialValue={tool.category}
+                onChange={onChangeSelectCategory}
+                
               /> */}
             </div>
             <ImageUpload file={file} setFile={setFile} />
-            {/* <ImageUploadMultiple
+            <ImageUploadMultiple
               files={files}
               setFiles={setFiles}
               setFilesDel={setFilesDel}
               filesDel={filesDel}
-            /> */}
+            />
             <TextField
               id="outlined-multiline-flexible"
               label="รายละเอียดเพิ่มเติม"

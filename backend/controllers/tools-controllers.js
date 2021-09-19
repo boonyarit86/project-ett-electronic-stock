@@ -238,7 +238,6 @@ const editTool = async (req, res) => {
   if (Number(limit) <= 0)
     return res.status(401).send("จำนวนต้องมีค่าอย่างน้อย 1");
 
-
   try {
     let tool = await Tool.findById(req.params.tid);
     if (!tool)
@@ -256,36 +255,37 @@ const editTool = async (req, res) => {
     // ถ้ารูปอุปกรณ์ถูกลบหรือไม่ได้กำหนดมา
     if (avartar === "false") {
       // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
-      // if (tool.avartar.key) {
-      //   delImgArr = [...delImgArr, tool.avartar.key];
-      //   tool.avartar = { location: "/images/profile.png", key: false };
-      //   console.log("set default image and delete");
-      // }
-      // ถ้าไม่มีรูปภาพก่อนหน้านี้ เพิ่มรูปภาพระบบเข้าไป ป้องกันค่าว่าง
-      // else {
-      //   tool.avartar = { location: "/images/profile.png", key: false };
-      // }
+      if (tool.avartar.public_id) {
+        delImgArr = [...delImgArr, tool.avartar.public_id];
+        tool.avartar = {};
+        console.log("set default image and delete");
+      }
     }
     // ผู้ใช้งานกำหนดรูปภาพใหม่
     else if (avartar === "true") {
       // ถ้ามีรูปเก่าในระบบให้ลบ และเพิ่มรุปภาพใหม่เข้าไป
       if (tool.avartar.public_id) {
         delImgArr = [...delImgArr, tool.avartar.public_id];
-        tool.avartar = {
-          public_id: req.files[0].public_id,
-          url: req.files[0].secure_url,
-        };
+        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
+          if (error) console.log("can not upload image on clound");
+          tool.avartar = {
+            public_id: result.public_id,
+            url: result.secure_url,
+          };
+        });
       }
       // ถ้าไม่มีรุปภาพเก่าในระบบ ให้เพิ่มอย่างเดียว
       else {
-        console.log("add images to db");
-        tool.avartar = {
-          public_id: req.files[0].public_id,
-          url: req.files[0].secure_url,
-        };
+        console.log("add only image to db");
+        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
+          if (error) console.log("can not upload image on clound");
+          tool.avartar = {
+            public_id: result.public_id,
+            url: result.secure_url,
+          };
+        });
       }
     }
-
     // Multi Images
     let newImgArr = [];
     // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
@@ -295,25 +295,37 @@ const editTool = async (req, res) => {
       if (avartar === "true") {
         for (var round = 0; round < req.files.length; round++) {
           if (round !== 0) {
-            newImgArr = [
-              ...newImgArr,
-              {
-                public_id: req.files[round].public_id,
-                url: req.files[round].secure_url,
-              },
-            ];
+            await cloudinary.uploader.upload(
+              req.files[round].path,
+              (error, result) => {
+                if (error) {
+                  console.log("can not upload image on clound");
+                } else {
+                  newImgArr = [
+                    ...newImgArr,
+                    {
+                      url: result.secure_url,
+                      public_id: result.public_id,
+                    },
+                  ];
+                }
+              }
+            );
           }
         }
       } else {
         console.log("Only many imges");
         for (var round1 = 0; round1 < req.files.length; round1++) {
-          newImgArr = [
-            ...newImgArr,
-            {
-              public_id: req.files[round1].public_id,
-              url: req.files[round1].secure_url,
-            },
-          ];
+          await cloudinary.uploader.upload(req.files[round1].path, (error, result) => {
+            if (error) console.log("can not upload image on clound");
+            newImgArr = [
+              ...newImgArr,
+              {
+                public_id: result.public_id,
+                url: result.secure_url,
+              },
+            ];
+          });
         }
       }
       // เพิ่มรุปภาพเก่าไปยังที่เดิม
@@ -326,7 +338,7 @@ const editTool = async (req, res) => {
         console.log("delete images section 1");
         let convDelImages = JSON.parse(delImages);
         for (var x = 0; x < convDelImages.length; x++) {
-          delImgArr = [...delImgArr, convDelImages[x].key];
+          delImgArr = [...delImgArr, convDelImages[x].public_id];
         }
       }
       tool.images = newImgArr;
@@ -344,22 +356,22 @@ const editTool = async (req, res) => {
         console.log("delete images section 2");
         let convDelImages = JSON.parse(delImages);
         for (var x = 0; x < convDelImages.length; x++) {
-          delImgArr = [...delImgArr, convDelImages[x].key];
+          delImgArr = [...delImgArr, convDelImages[x].public_id];
         }
       }
       tool.images = newImgArr;
     }
 
     // ลบรูปภาพออกจากระบบ
-    // if (delImgArr.length !== 0) {
-    //   for (var i = 0; i < delImgArr.length; i++) {
-    //     fs.unlink(delImgArr[i], (err) => {
-    //       if (err) console.log(err);
-    //       else console.log("delete image successfully");
-    //     });
-    //   }
-    // }
-    console.log(tool)
+    if (delImgArr.length !== 0) {
+      for (var i = 0; i < delImgArr.length; i++) {
+        await cloudinary.uploader.destroy(delImgArr[i], (error, res ) => {
+          if(error) console.log("can not delete image")
+          else console.log("delete image")
+        });
+      }
+    }
+    console.log(tool);
     await tool.save();
     res.status(200).json(tool);
   } catch (error) {
