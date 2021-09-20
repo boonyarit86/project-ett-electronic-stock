@@ -14,6 +14,9 @@ import {
   EDIT_TOOL_REQUEST,
   EDIT_TOOL_SUCCESS,
   EDIT_TOOL_FAIL,
+  DELETE_TOOL_REQUEST,
+  DELETE_TOOL_SUCCESS,
+  DELETE_TOOL_FAIL,
 } from "../constants/toolConstants";
 
 const initialState = {
@@ -75,6 +78,11 @@ export function toolListReducers(state = {}, action) {
         ...state,
         isLoadingEdit: true,
       };
+    case DELETE_TOOL_REQUEST:
+      return {
+        ...state,
+        isLoadingDelete: true,
+      };
     case GET_TOOL_SUCCESS:
       return {
         ...state,
@@ -85,7 +93,12 @@ export function toolListReducers(state = {}, action) {
       return {
         ...state,
         isLoadingEdit: false,
-        tool: action.payload
+        tool: action.payload,
+      };
+    case DELETE_TOOL_SUCCESS:
+      return {
+        ...state,
+        isLoadingDelete: false,
       };
     case GET_TOOL_FAIL:
       return {
@@ -97,7 +110,13 @@ export function toolListReducers(state = {}, action) {
       return {
         ...state,
         isLoadingEdit: false,
-        errorMsgEdit: action.payload
+        errorMsgEdit: action.payload,
+      };
+    case DELETE_TOOL_FAIL:
+      return {
+        ...state,
+        isLoadingDelete: false,
+        errorMsgDelete: action.payload,
       };
     default:
       return state;

@@ -19,7 +19,6 @@ import {
   Avatar,
   Button,
 } from "@material-ui/core";
-// import SelectFilter from '../../shared/components/UIElements/SelectFilter';
 import ModalAction from "./ModalAction";
 
 // Icon
@@ -95,11 +94,6 @@ export default function TableTool({ tools, auth, dispatch }) {
   const [tool, setTool] = useState({});
   const [action, setAction] = useState(null);
   const [description, setDescription] = useState("");
-  // const [valueFilterType, setValueFilterType] = useState("ทั้งหมด");
-  // const [valueFilterStatus, setValueFilterStatus] = useState("ทั้งหมด");
-  // const [dataModal, setDataModal] = useState({});
-  // const [defaultValue, setDefaultValue] = useState([]);
-  // const [text, setText] = useState("");
 
   // function ตรวจสอบ error ของ Input ต่างๆ
   const [formState, inputHandler] = useForm(
@@ -155,53 +149,9 @@ export default function TableTool({ tools, auth, dispatch }) {
     setHeaderForm("")
   };
 
-  // function ค้นหาชื่ออุปกรณ์ในตาราง
-  // const onTextChanged = (e) => {
-  //     const value = e.target.value;
-  //     let suggestions = []
-  //     if (value.length > 0) {
-  //         // หาข้อมูลโดยใช้ตัวแปร name เช่น props.data[0].name ของข้อมูลด้านบน
-  //         const regex = new RegExp(`^${value}`, 'i');
-  //         suggestions = tools.sort().filter(res => regex.test(res.toolName))
-  //     }
-
-  //     // ถ้าไม่ได้พิมพ์อะไรให้กำหนดข้อมูลเป็นค่า default
-  //     if (value.length === 0) {
-  //         suggestions = defaultValue
-  //     }
-  //     setText(value);
-  //     setTools(suggestions)
-  // }
-
   return (
     <div>
       <React.Fragment>
-        {/* <SelectFilter
-                    label="ชนิด"
-                    defaultValue={defaultValue}
-                    data={tools} setData={setTools}
-                    filterType="type"
-                    setValueFilterType={setValueFilterType}
-                    valueFilterType={valueFilterType}
-                    valueFilterStatus={valueFilterStatus}
-                    setValueFilterStatus={setValueFilterStatus}
-                />
-                <SelectFilter
-                    label="สถานะ"
-                    defaultValue={defaultValue}
-                    data={tools} setData={setTools}
-                    filterType="status"
-                    setValueFilterType={setValueFilterType}
-                    valueFilterType={valueFilterType}
-                    valueFilterStatus={valueFilterStatus}
-                    setValueFilterStatus={setValueFilterStatus}
-                /> */}
-        {/* <TextField
-                    label="ค้นหาชื่ออุปกรณ์"
-                    type="text"
-                    className={classes.input}
-                    value={text} onChange={onTextChanged}
-                /> */}
 
         <Paper className={classes.root}>
           <TableContainer className={classes.container}>

@@ -258,7 +258,7 @@ const editTool = async (req, res) => {
       if (tool.avartar.public_id) {
         delImgArr = [...delImgArr, tool.avartar.public_id];
         tool.avartar = {};
-        console.log("set default image and delete");
+        // console.log("set default image and delete");
       }
     }
     // ผู้ใช้งานกำหนดรูปภาพใหม่
@@ -290,7 +290,7 @@ const editTool = async (req, res) => {
     let newImgArr = [];
     // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
     if (images === "true") {
-      console.log("have images");
+      // console.log("have images");
       // ทำการแยกรูปภาพโปรไฟล์อุปกรณ์ออกจากรายการ ถ้ามี
       if (avartar === "true") {
         for (var round = 0; round < req.files.length; round++) {
@@ -314,18 +314,21 @@ const editTool = async (req, res) => {
           }
         }
       } else {
-        console.log("Only many imges");
+        // console.log("Only many imges");
         for (var round1 = 0; round1 < req.files.length; round1++) {
-          await cloudinary.uploader.upload(req.files[round1].path, (error, result) => {
-            if (error) console.log("can not upload image on clound");
-            newImgArr = [
-              ...newImgArr,
-              {
-                public_id: result.public_id,
-                url: result.secure_url,
-              },
-            ];
-          });
+          await cloudinary.uploader.upload(
+            req.files[round1].path,
+            (error, result) => {
+              if (error) console.log("can not upload image on clound");
+              newImgArr = [
+                ...newImgArr,
+                {
+                  public_id: result.public_id,
+                  url: result.secure_url,
+                },
+              ];
+            }
+          );
         }
       }
       // เพิ่มรุปภาพเก่าไปยังที่เดิม
@@ -335,7 +338,7 @@ const editTool = async (req, res) => {
       }
 
       if (JSON.parse(delImages).length !== 0) {
-        console.log("delete images section 1");
+        // console.log("delete images section 1");
         let convDelImages = JSON.parse(delImages);
         for (var x = 0; x < convDelImages.length; x++) {
           delImgArr = [...delImgArr, convDelImages[x].public_id];
@@ -345,7 +348,7 @@ const editTool = async (req, res) => {
     }
     // ถ้าไม่มีรูปภาพที่อัพมาใหม่ แต่เป็นรูปภาพเก่าที่ถูกลบจากฐานข้อมูล
     else {
-      console.log("have no images");
+      // console.log("have no images");
       // เพิ่มรุปภาพเก่าไปยังที่เดิม
       if (JSON.parse(oldImages).length !== 0) {
         let convOldImages = JSON.parse(oldImages);
@@ -353,7 +356,7 @@ const editTool = async (req, res) => {
       }
 
       if (JSON.parse(delImages).length !== 0) {
-        console.log("delete images section 2");
+        // console.log("delete images section 2");
         let convDelImages = JSON.parse(delImages);
         for (var x = 0; x < convDelImages.length; x++) {
           delImgArr = [...delImgArr, convDelImages[x].public_id];
@@ -365,9 +368,9 @@ const editTool = async (req, res) => {
     // ลบรูปภาพออกจากระบบ
     if (delImgArr.length !== 0) {
       for (var i = 0; i < delImgArr.length; i++) {
-        await cloudinary.uploader.destroy(delImgArr[i], (error, res ) => {
-          if(error) console.log("can not delete image")
-          else console.log("delete image")
+        await cloudinary.uploader.destroy(delImgArr[i], (error, res) => {
+          if (error) console.log("can not delete image");
+          else console.log("delete image");
         });
       }
     }
@@ -502,159 +505,53 @@ const editHistoryTool = async (req, res, next) => {
 };
 
 // ลบรายการอุปกรณ์
-const deleteTool = async (req, res, next) => {
+const deleteTool = async (req, res) => {
   let toolId = req.params.tid;
 
   // หาข้อมูลอุปกรณ์
-  let tool;
   try {
-    tool = await Tool.findById(toolId);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not find tool by id.",
-      500
-    );
-    return next(error);
-  }
+    let tool = await Tool.findById(toolId);
+    if (!tool)
+      return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
 
-  // หาข้อมูลบอร์ด
-  let boards;
-  try {
-    boards = await Board.find();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not fetching data of boards.",
-      500
-    );
-    return next(error);
-  }
+    // ลบรูปภาพของอุปกรณ์
+    if (tool.images.length !== 0) {
+      for (var i = 0; i < tool.images.length; i++) {
+        await cloudinary.uploader.destroy(
+          tool.images[i].public_id,
+          (error, res) => {
+            if (error) console.log("can not delete image");
+            else console.log("delete images");
+          }
+        );
+      }
+    }
 
-  // ลบข้อมูลอุปกรณ์ที่อยู่ในบอร์ด
-  for (var round = 0; round < boards.length; round++) {
-    let newArr = boards[round].tools.filter((board) => board.id !== toolId);
-    boards[round].tools = newArr;
-    // console.log(newArr)
-
-    // บันทึกข้อมูลบอร์ด
-    try {
-      await boards[round].save();
-    } catch (err) {
-      const error = new HttpError(
-        "Something went wrong, could not save data boards.",
-        500
+    // ลบรูปภาพโปรไฟล์ของอุปกรณ์
+    if (tool.avartar.public_id) {
+      await cloudinary.uploader.destroy(
+        tool.avartar.public_id,
+        (error, res) => {
+          if (error) console.log("can not delete image");
+          else console.log("delete image");
+        }
       );
-      return next(error);
     }
-  }
 
-  // ลบข้อมูลอุปกรณ์ที่อยู่ในประวัติการเบิกหรือเพิ่มอุปกรณ์
-  let histool;
-  try {
-    histool = await HistoryTool.find();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not fetching data of history-tool.",
-      500
-    );
-    return next(error);
-  }
-
-  for (var round = 0; round < histool.length; round++) {
-    if (histool[round].tid === toolId) {
-      histool[round].isDeleted = true;
-
-      // บันทึกข้อมูลอุปกรณ์
-      try {
-        await histool[round].save();
-      } catch (err) {
-        const error = new HttpError(
-          "Something went wrong, could not save data history-tool.",
-          500
-        );
-        return next(error);
-      }
-    }
-  }
-
-  // ลบข้อมูลอุปกรณ์ที่อยู่ในหน้าอุปกรณ์คงค้าง
-  let incomplete;
-  try {
-    incomplete = await IncompleteTool.find();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not fetching data of incomplete board.",
-      500
-    );
-    return next(error);
-  }
-
-  for (var round = 0; round < incomplete.length; round++) {
-    let newArr = incomplete[round].tools.filter(
-      (tool) => String(tool.tid) !== toolId
-    );
-    incomplete[round].tools = newArr;
-
-    if (incomplete[round].tools.length === 0) {
-      console.log("delete incomplete", incomplete[round].tools.length);
-      try {
-        await incomplete[round].remove();
-      } catch (err) {
-        const error = new HttpError(
-          "Something went wrong, could not delete data tool.",
-          500
-        );
-        return next(error);
-      }
-    } else {
-      console.log("save incomplete", incomplete[round].tools.length);
-      try {
-        await incomplete[round].save();
-      } catch (err) {
-        const error = new HttpError(
-          "Something went wrong, could not save incomplete.",
-          500
-        );
-        return next(error);
-      }
-    }
-  }
-
-  // ลบรูปภาพของอุปกรณ์
-  if (tool.images.length !== 0) {
-    for (var i = 0; i < tool.images.length; i++) {
-      fs.unlink(tool.images[i].key, (err) => {
-        if (err) console.log("can not find path of images");
-        else console.log("delete images successfully");
-      });
-    }
-  }
-
-  // ลบรูปภาพโปรไฟล์ของอุปกรณ์
-  if (tool.avartar.key !== false) {
-    fs.unlink(tool.imageProfile.key, (err) => {
-      if (err) console.log("can not find path of image");
-      else console.log("delete image successfully");
-    });
-  }
-
-  try {
     await tool.remove();
-    console.log("delete tool successfully");
+
+    let tools = await Tool.find();
+    let stt = await Stt.find();
+    covertTypeandCateTool(tools, stt);
+    io.emit("tool-actions", tools);
+
+    res.status(200).send("delete success");
   } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not delete tool by id.",
-      500
-    );
-    return next(error);
+    console.error(error);
+    res
+      .status(500)
+      .send("ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
-
-  // ลบข้อมูลอุปกรณ์
-  // await Tool.findByIdAndDelete(toolId, (err, data) => {
-  //     if (err) console.log("can not delete")
-  //     else console.log(data)
-  // })
-
-  res.json(tool);
 };
 
 exports.editTool = editTool;

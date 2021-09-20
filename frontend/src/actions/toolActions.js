@@ -5,6 +5,9 @@ import {
   CREATE_TOOL_FAIL,
   CREATE_TOOL_REQUEST,
   CREATE_TOOL_SUCCESS,
+  DELETE_TOOL_FAIL,
+  DELETE_TOOL_REQUEST,
+  DELETE_TOOL_SUCCESS,
   EDIT_TOOL_FAIL,
   EDIT_TOOL_REQUEST,
   EDIT_TOOL_SUCCESS,
@@ -29,13 +32,14 @@ const AuthToken = (token) => {
   return { Authorization: `Bearer ${token}` };
 };
 
-export const getAllToolAction = (token, setTools) => async (dispatch) => {
+export const getAllToolAction = (token, setTools, setDefaultValue) => async (dispatch) => {
   dispatch({ type: GET_ALL_TOOL_REQUEST });
   try {
     await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/tools`, {
       headers: AuthToken(token),
     }).then((res) => {
       setTools(res.data);
+      setDefaultValue(res.data);
       dispatch({ type: GET_ALL_TOOL_SUCCESS });
     });
   } catch (error) {
@@ -205,5 +209,27 @@ export const editToolAction = (token, tool, history) => async (dispatch) => {
     });
   } catch (error) {
     dispatch({ type: EDIT_TOOL_FAIL, payload: catchErrors(error) });
+  }
+};
+
+
+export const deleteToolAction = (token, tid, history) => async (dispatch) => {
+  dispatch({ type: DELETE_TOOL_REQUEST });
+  try {
+    await Axios.delete(
+      `${process.env.REACT_APP_BACKEND_URL}/tools/delete/${tid}`,
+      {
+        headers: AuthToken(token),
+      }
+    ).then((res) => {
+      dispatch({ type: DELETE_TOOL_SUCCESS });
+      history.push("/tool/list");
+    });
+  } catch (error) {
+    dispatch({
+      type: DELETE_TOOL_FAIL,
+      payload: catchErrors(error)
+    });
+    notifyError(catchErrors(error));
   }
 };

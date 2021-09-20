@@ -2,11 +2,11 @@ import React, { useState, useContext, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AuthContext } from "../../shared/context/auth-context";
-import { getToolAction } from "../../actions/toolActions";
+import { getToolAction, deleteToolAction } from "../../actions/toolActions";
 
 // Component
 // import SlideImagePreview from "../../shared/components/UIElements/SlideImagePreview";
-// import ModalSubmit from "../components/ModalSubmit";
+import ModalSubmit from "../components/ModalSubmit";
 import { Avatar, Button } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import Loading from "../../shared/components/UIElements/Loading";
@@ -26,7 +26,7 @@ function DetailTool() {
   const history = useHistory();
   const toolId = useParams().tid;
   // Redux
-  const { tool, isLoading, errorMsg } = useSelector((state) => state.toolList);
+  const { tool, isLoading, errorMsg, isLoadingDelete, errorMsgDelete } = useSelector((state) => state.toolList);
   //   const deleteTool = useSelector((state) => state.deleteTool);
   // ตัวแปรเก็บค่า
   const [previewImg, setPreviewImg] = useState(null);
@@ -48,12 +48,7 @@ function DetailTool() {
   const handleSubmitPrompt = async (e) => {
     e.preventDefault();
     setOpenPrompt(false);
-    try {
-      //   await dispatch(deleteToolAction(toolId));
-    } catch (error) {
-      console.log("can not delete tool on this page");
-    }
-    history.push("/tool/list");
+    dispatch(deleteToolAction(auth.token, toolId, history));
   };
 
   if (isLoading) {
@@ -74,15 +69,21 @@ function DetailTool() {
     <>
       {tool && (
         <div>
-          {/* {deleteTool.loading ? <Loading loading={deleteTool.loading} /> : deleteTool.error ?
-                <Alert><AlertTitle>{deleteTool.error}</AlertTitle></Alert>: null } */}
+          {isLoadingDelete && <Loading loading={isLoadingDelete} />}
+          {!isLoadingDelete && errorMsgDelete && (
+            <div style={{ margin: "10px" }}>
+              <Alert variant="filled" severity="error">
+                <AlertTitle>{errorMsgDelete}</AlertTitle>
+              </Alert>
+            </div>
+          )}
 
           <h1>รายละเอียดอุปกรณ์ของ {tool.toolName}</h1>
 
           <div className="container-detailtool">
             <div>
               <div className="introl-img">
-                <img src={!previewImg ? tool.avartar.url : previewImg} alt="" />
+                <img src={!previewImg ? !tool.avartar ? "/images/profile.png" : tool.avartar.url : previewImg} alt="" />
               </div>
               {tool.images.length === 0 ? (
                 <div>ไม่มีรูปภาพ</div>
@@ -214,12 +215,12 @@ function DetailTool() {
             </div>
           </div>
 
-          {/* <ModalSubmit
+          <ModalSubmit
         openPrompt={openPrompt}
         setOpenPrompt={setOpenPrompt}
         handleClosePrompt={handleClosePrompt}
         handleSubmitPrompt={handleSubmitPrompt}
-      /> */}
+      />
         </div>
       )}
     </>
