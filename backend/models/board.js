@@ -9,10 +9,12 @@ const boardSchema = new Schema({
     total: { type: Number, minlength: 7 },
     type: { type: String },
     limit: { type: Number, minlength: 7},
-    tools: {type: Array},
-    imageProfile: { type: Object },
-    images: { type: Array },
-    status: { type: Boolean, required: true },
+    tools: [{
+        tid: { type: Schema.Types.ObjectId, ref: "Tool" },
+        total: { type: Number, default: 0 }
+    }],
+    avartar: { url: {type: String}, public_id: {type: String} },
+    images: [{ url: {type: String}, public_id: {type: String} }],
     description: { type: String },
     isAlert: {type: Boolean, default: false}
 });

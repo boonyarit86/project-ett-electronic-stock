@@ -73,6 +73,9 @@ function App() {
         <Route path="/tool/list">
           <ToolLists />
         </Route>
+        {/* <Route path="/" exact>
+          <ToolLists />
+        </Route> */}
         <Route path="/tool/new">
           <CreateTool />
         </Route>

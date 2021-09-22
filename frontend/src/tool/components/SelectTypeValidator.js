@@ -45,22 +45,15 @@ function SelectTypeValidator(props) {
     isValid: props.initialValid || false,
   });
 
-  const { id, onInput, data, filterName } = props;
+  const { id, onInput, data, filterName, setCategory } = props;
   const { value, isValid } = inputState;
 
   useEffect(() => {
     onInput(id, value, isValid);
   }, [id, value, isValid, onInput]);
 
-  // useEffect(() => {
-  //   if(props.initialValue) {
-  //     // let findData = data.find((item) => item._id === props.initialValue);
-  //     console.log(props.initialValue)
-      
-  //   }
-  // }, [props.initialValue])
-
   const changeHandler = (event) => {
+    setCategory("")
     dispatch({
       type: "CHANGE",
       val: event.target.value,

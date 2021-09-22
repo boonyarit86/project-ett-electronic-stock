@@ -1,5 +1,13 @@
-import React from "react";
-import { Paper, IconButton, InputBase, FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
+import React, { useEffect } from "react";
+import {
+  Paper,
+  IconButton,
+  InputBase,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 // Icons
@@ -24,12 +32,14 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "28px",
   },
   margin: {
-    margin: "10px 0"
-  }
+    margin: "10px 0",
+  },
 }));
 
-function SelectCategory({ data, onChange }) {
+function SelectCategory({ data, onChange, value }) {
   const classes = useStyles();
+
+  
 
   return (
     <FormControl
@@ -37,25 +47,25 @@ function SelectCategory({ data, onChange }) {
       className={classes.margin}
       style={{ width: "100%" }}
     >
-      <InputLabel id="demo-simple-select-outlined-label">
-        {"ประเภท"}
-      </InputLabel>
+      <InputLabel id="demo-simple-select-outlined-label">{"ประเภท"}</InputLabel>
       <Select
         labelId="demo-simple-select-outlined-label"
         id="demo-simple-select-outlined"
-        // value={state.}
+        value={value}
         onChange={onChange}
         label="ประเภทอุปกรณ์"
         fullWidth
       >
-        <MenuItem value="" >
+        <MenuItem value="">
           <em>None</em>
         </MenuItem>
-        {data ? data.categorys.map((item) => (
-          <MenuItem key={item._id} value={item._id}>
-            {item.category}
-          </MenuItem>
-        )): null}
+        {data
+          ? data.categorys.map((item) => (
+              <MenuItem key={item._id} value={item}>
+                {item.category}
+              </MenuItem>
+            ))
+          : null}
       </Select>
     </FormControl>
   );

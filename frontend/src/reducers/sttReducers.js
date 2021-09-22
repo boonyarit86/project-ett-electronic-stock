@@ -47,8 +47,8 @@ export function sttReducers(state = initialState, action) {
     case GET_ALL_TYPE_SUCCESS:
       return {
         ...state,
-        isLoading: false,
         lists: action.payload,
+        isLoading: false,
       };
     case ADD_TYPE_SUCCESS:
       return {

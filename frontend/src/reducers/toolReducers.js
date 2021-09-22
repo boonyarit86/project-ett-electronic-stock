@@ -86,8 +86,8 @@ export function toolListReducers(state = {}, action) {
     case GET_TOOL_SUCCESS:
       return {
         ...state,
-        isLoading: false,
         tool: action.payload,
+        isLoading: false,
       };
     case EDIT_TOOL_SUCCESS:
       return {

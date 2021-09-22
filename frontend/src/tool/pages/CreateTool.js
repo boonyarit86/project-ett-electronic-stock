@@ -52,7 +52,7 @@ function CreateTool() {
   const [description, setDescription] = useState("");
   const [toolCode, setToolCode] = useState("");
   const [file, setFile] = useState(null);
-  const [categoryId, setCategoryId] = useState("");
+  const [category, setCategory] = useState("");
 
   const [formState, inputHandler] = useForm(
     {
@@ -78,7 +78,7 @@ function CreateTool() {
 
   const onChangeSelectCategory = (e) => {
     let data = e.target.value;
-    setCategoryId(data);
+    setCategory(data);
   };
 
   // send data to front-end
@@ -89,14 +89,14 @@ function CreateTool() {
       toolName: formState.inputs.name.value,
       toolCode: toolCode,
       type: formState.inputs.type.value._id,
-      category: categoryId,
+      category: category !== "" ? category._id : "",
       size: size,
       avartar: file,
       description: description,
     };
-
+    // console.log(newTool)
     dispatch(createToolAction(auth.token, newTool, history))
-    setCategoryId("")
+    setCategory("")
   };
 
   if (isLoading) {
@@ -152,12 +152,14 @@ function CreateTool() {
               errorText="โปรดเลือกข้อมูล."
               onInput={inputHandler}
               data={lists}
+              setCategory={setCategory}
               required
             />
 
             <SelectCategory
               data={formState.inputs.type ? formState.inputs.type.value : false}
               onChange={onChangeSelectCategory}
+              value={category}
             />
           </div>
           <div className="createtool-input-group">

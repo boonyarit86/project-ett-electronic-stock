@@ -5,7 +5,6 @@ import { useForm } from "../../shared/hooks/form-hook";
 import { VALIDATOR_REQUIRE } from "../../shared/utils/validators";
 import { Container, Paper, TextField, Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-// import { typeAndcategory_select } from "../../Api";
 import { getToolAction, editToolAction } from "../../actions/toolActions";
 import { AuthContext } from "../../shared/context/auth-context";
 import { getAllTypeAction } from "../../actions/sttActions";
@@ -42,8 +41,7 @@ function EditTool() {
   // Redux
   const { tool, isLoading, errorMsg, isLoadingEdit, errorMsgEdit } =
     useSelector((state) => state.toolList);
-    const { lists } = useSelector((state) => state.sttData);
-  // const editTool = useSelector((state) => state.editTool)
+  const { lists } = useSelector((state) => state.sttData);
   // ตัวแปรเก็บค่า
   const [file, setFile] = useState(tool.avartar ? tool.avartar.url : null);
   const [files, setFiles] = useState(tool.images ? tool.images : null);
@@ -52,43 +50,47 @@ function EditTool() {
   const [size, setSize] = useState(tool.size || "");
   const [description, setDescription] = useState(tool.description || "");
   const [toolCode, settoolCode] = useState(tool.toolCode || "");
-  //   const [selectValue] = useState(typeAndcategory_select);
-  const [categoryId, setCategoryId] = useState("");
-  //   const [categorySelect, setCategorySelect] = useState([]);
-  //   const [isEditSuccess, setIsEditSuccess] = useState(false);
-
+  const [category, setCategory] = useState(false);
+  const [type, setType] = useState(false);
   const [formState, inputHandler] = useForm(
     {
       name: {
         value: "",
         isValid: false,
       },
-      // type: {
-      //   value: false,
-      //   isValid: false,
-      // },
+      type: {
+        value: false,
+        isValid: false,
+      },
     },
     false
   );
 
   // เรียกข้อมูลจากฐานข้อมูล
   useEffect(() => {
-    dispatch(getToolAction(auth.token, toolId));
     dispatch(getAllTypeAction(auth.token));
+    dispatch(getToolAction(auth.token, toolId));
     return () => {};
   }, []);
 
-  //   useEffect(() => {
-  //     if (editTool.editSuccess && isEditSuccess) {
-  //       setIsEditSuccess(false);
-  //       history.push(`/${toolId}/tool`);
-  //     }
-  //     return () => {};
-  //   }, [isEditSuccess]);
+  useEffect(async () => {
+    if (tool && lists.length !== 0) {
+      let findDataType = await lists.find((item) => item._id === tool.type);
+      let findDataCate = await findDataType.categorys.find(
+        (item) => item._id === tool.category
+      );
+      if(!findDataCate) {
+        setCategory("")
+      } else {
+        setCategory(findDataCate);
+      }
+      setType(findDataType);
+    }
+  }, [tool && lists]);
 
   const onChangeSelectCategory = (e) => {
     let data = e.target.value;
-    setCategoryId(data);
+    setCategory(data);
   };
 
   const onSubmit = (e) => {
@@ -97,8 +99,8 @@ function EditTool() {
       id: tool._id,
       toolName: formState.inputs.name.value,
       toolCode: toolCode,
-      type: tool.type,
-      category: tool.category,
+      type: formState.inputs.type.value._id,
+      category: category !== "" ? category._id : "",
       size: size,
       avartar: file,
       limit: limit,
@@ -107,6 +109,7 @@ function EditTool() {
       imagesDel: filesDel,
     };
     // console.log(newTool)
+    // console.log(tool.type + " : " + tool.category)
     dispatch(editToolAction(auth.token, newTool, history));
     // setIsEditSuccess(true);
   };
@@ -182,26 +185,28 @@ function EditTool() {
               />
             </div>
             <div className="edittool-input-group">
-              {/* <SelectTypeValidator
+              {type && (<SelectTypeValidator
                 id="type"
                 filterName="ชนิด"
                 validators={[VALIDATOR_REQUIRE()]}
                 errorText="โปรดเลือกข้อมูล."
                 onInput={inputHandler}
                 data={lists}
-                initialValue={lists.find((item) => item._id === tool.type)}
+                setCategory={setCategory}
+                initialValue={type}
                 initialValid={true}
                 required
-              /> */}
+              />)}
 
-              {/* <SelectCategory
-                data={
-                  formState.inputs.type ? formState.inputs.type.value : false
-                }
-                initialValue={tool.category}
-                onChange={onChangeSelectCategory}
-                
-              /> */}
+              {category !== false && (
+                <SelectCategory
+                  data={
+                    formState.inputs.type ? formState.inputs.type.value : false
+                  }
+                  onChange={onChangeSelectCategory}
+                  value={category}
+                />
+              )}
             </div>
             <ImageUpload file={file} setFile={setFile} />
             <ImageUploadMultiple
