@@ -17,6 +17,12 @@ import {
   GET_TOOL_FAIL,
   GET_TOOL_REQUEST,
   GET_TOOL_SUCCESS,
+  HISTORY_TOOL_LIST_FAIL,
+  HISTORY_TOOL_LIST_REQUEST,
+  HISTORY_TOOL_LIST_SUCCESS,
+  RESTORE_HISTORY_TOOL_FAIL,
+  RESTORE_HISTORY_TOOL_REQUEST,
+  RESTORE_HISTORY_TOOL_SUCCESS,
 } from "../constants/toolConstants";
 import catchErrors from "../shared/utils/catchErrors";
 import Axios from "axios";
@@ -231,5 +237,42 @@ export const deleteToolAction = (token, tid, history) => async (dispatch) => {
       payload: catchErrors(error)
     });
     notifyError(catchErrors(error));
+  }
+};
+
+export const getAllHistoryToolAction = (token) => async (dispatch) => {
+  dispatch({ type: HISTORY_TOOL_LIST_REQUEST });
+  try {
+    await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/tools/history`, {
+      headers: AuthToken(token),
+    }).then((res) => {
+      dispatch({ type: HISTORY_TOOL_LIST_SUCCESS, payload: res.data });
+    });
+  } catch (error) {
+    dispatch({
+      type: HISTORY_TOOL_LIST_FAIL,
+      payload: catchErrors(error),
+    });
+  }
+};
+
+export const restoreToolAction = (token, data) => async (dispatch) => {
+  dispatch({ type: RESTORE_HISTORY_TOOL_REQUEST });
+  try {
+    await Axios.put(
+      `${process.env.REACT_APP_BACKEND_URL}/tools/history/restore`,
+      data,
+      {
+        headers: AuthToken(token),
+      }
+    ).then((res) => {
+      dispatch({ type: RESTORE_HISTORY_TOOL_SUCCESS, payload: res.data });
+      notifySuccess("ทำรายการสำเร็จ");
+    });
+  } catch (error) {
+    dispatch({
+      type: RESTORE_HISTORY_TOOL_FAIL,
+      payload: catchErrors(error)
+    });
   }
 };

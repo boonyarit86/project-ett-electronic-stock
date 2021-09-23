@@ -4,6 +4,7 @@ const http = require("http");
 const socketIO = require("socket.io");
 const mongoose = require("mongoose");
 const path = require("path");
+// const HistoryCnt = require("./models/history-cnt");
 
 // const usersRoutes = require("./routes/users-routes");
 // const sttRoutes = require("./routes/stt-routes");
@@ -14,6 +15,16 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+
+// app.post("/cnt", (req, res) => {
+//   let newHistoryCnt = new HistoryCnt({
+//       name: "HB",
+//       cntNumber: 1
+//   })
+
+//   newHistoryCnt.save()
+//   res.status(201).json(newHistoryCnt)
+// })
 
 mongoose.connect(
   `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@mongo3-crud.7dsrv.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,

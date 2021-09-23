@@ -2,7 +2,7 @@ import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import thunk from 'redux-thunk';
 import { userDataReducers, authUserReducers } from "./reducers/userReducers";
 import { sttReducers } from "./reducers/sttReducers";
-import { toolListsReducers, toolListReducers } from "./reducers/toolReducers";
+import { toolListsReducers, toolListReducers, histsListsReducers } from "./reducers/toolReducers";
 
 const inititalState = [];
 const reducer = combineReducers({
@@ -10,7 +10,8 @@ const reducer = combineReducers({
     authUser: authUserReducers,
     sttData: sttReducers,
     toolLists: toolListsReducers,
-    toolList: toolListReducers
+    toolList: toolListReducers,
+    histLists: histsListsReducers
 });
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

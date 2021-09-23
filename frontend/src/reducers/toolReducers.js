@@ -17,6 +17,12 @@ import {
   DELETE_TOOL_REQUEST,
   DELETE_TOOL_SUCCESS,
   DELETE_TOOL_FAIL,
+  HISTORY_TOOL_LIST_REQUEST,
+  HISTORY_TOOL_LIST_SUCCESS,
+  HISTORY_TOOL_LIST_FAIL,
+  RESTORE_HISTORY_TOOL_REQUEST,
+  RESTORE_HISTORY_TOOL_SUCCESS,
+  RESTORE_HISTORY_TOOL_FAIL,
 } from "../constants/toolConstants";
 
 const initialState = {
@@ -118,6 +124,51 @@ export function toolListReducers(state = {}, action) {
         isLoadingDelete: false,
         errorMsgDelete: action.payload,
       };
+    default:
+      return state;
+  }
+}
+
+export function histsListsReducers(state = {}, action) {
+  switch (action.type) {
+    case HISTORY_TOOL_LIST_REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case RESTORE_HISTORY_TOOL_REQUEST:
+      return {
+        ...state,
+        isLoadingActions: true
+      }
+    case HISTORY_TOOL_LIST_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        hists: action.payload,
+        errorMsg: null,
+        errorMsgActions: null
+      };
+      case RESTORE_HISTORY_TOOL_SUCCESS:
+        return {
+          ...state,
+          isLoadingActions: false,
+          hists: action.payload,
+          errorMsgActions: null,
+          errorMsg: null
+        }
+    case HISTORY_TOOL_LIST_FAIL:
+      return {
+        ...state,
+        isLoading: false,
+        errorMsg: action.payload,
+      };
+    case RESTORE_HISTORY_TOOL_FAIL:
+      return {
+        ...state,
+        isLoadingActions: false,
+        errorMsgActions: action.payload
+      }
     default:
       return state;
   }

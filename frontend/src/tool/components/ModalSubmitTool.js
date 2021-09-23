@@ -4,15 +4,11 @@ import { makeStyles } from '@material-ui/core/styles';
 // CSS
 import "./ModalSubmit.css";
 
+
 // Component
-import { Button, Modal, Backdrop, Fade } from '@material-ui/core';
+import { Button, Modal, Backdrop, Fade, TextField } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
-    modal: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     paper: {
         backgroundColor: theme.palette.background.paper,
         border: '2px solid #000',
@@ -21,17 +17,14 @@ const useStyles = makeStyles((theme) => ({
     },
     textarea: {
         margin: "20px 0px"
-    },
-    btnGroup: {
-        marginRight: 10
     }
 }));
 
-// Function ของหน้ารายละเอียดอุปกรณ์ เป็นแบบฟอร์มยืนยันการลบข้อมูล
+// แบบฟอร์ดการยกเลิกการเบิกอุปกรณ์ของหน้าประวัติการเบิกอุปกกรณ์
 function ModalSubmit(props) {
 
     const classes = useStyles();
-    const { handleClosePrompt, openPrompt, handleSubmitPrompt } = props
+    const { handleClosePrompt, openPrompt, handleSubmitPrompt, setDescription, item } = props;
 
     return (
         <Modal
@@ -49,8 +42,20 @@ function ModalSubmit(props) {
             <Fade in={openPrompt}>
                 <div className={classes.paper}>
                     <h2 id="transition-modal-title">คุณต้องการทำขั้นตอนนี้หรือไม่ ?</h2>
-                    <div>
-                        <Button variant="contained" color="primary" onClick={handleSubmitPrompt} className={classes.btnGroup}>ยืนยัน</Button>
+                    <p>ชื่ออุปกรณ์: {item.tool.toolName}</p>
+                    <p>จำนวนอุปกรณ์ที่ต้องการคืนไปยังสต๊อก: <span style={{color: "red"}}>{item.total}</span></p>
+                    <TextField
+                        id="outlined-multiline-flexible"
+                        label="รายละเอียดเพิ่มเติม"
+                        multiline
+                        rowsMax={4}
+                        variant="outlined"
+                        fullWidth
+                        className={classes.textarea}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
+                    <div className="modal-submit-btn-group">
+                        <Button variant="contained" color="primary" onClick={handleSubmitPrompt}>ยืนยัน</Button>
                         <Button variant="contained" color="secondary" onClick={handleClosePrompt}>ยกเลิก</Button>
                     </div>
                 </div>

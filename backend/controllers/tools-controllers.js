@@ -2,14 +2,17 @@ const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
 const cloudinary = require("../utils/cloudinary");
 const io = require("../index.js");
+const { orderData } = require("../utils/covertData");
 
-// const HistoryTool = require("../models/history-tool");
-// const HistoryCnt = require("../models/history-cnt");
+const HistoryTool = require("../models/history-tool");
+const HistoryCnt = require("../models/history-cnt");
 // const Board = require("../models/board");
 // const HistoryBoard = require("../models/history-board");
 // const IncompleteTool = require("../models/incomplete-tool");
 // const historyTool = require('../models/history-tool');
 
+
+// ** -- Public Function -- **
 const covertTypeandCateTool = async (tools, stt) => {
   let arrTool = await tools.map((item) => {
     let data = stt.find((x) => x._id.toString() === item.type);
@@ -33,6 +36,8 @@ const covertTypeandCateTool = async (tools, stt) => {
   return arrTool;
 };
 
+// ** -- Public Function -- **
+
 // รับข้อมูลรายการอุปกรณ์ทั้งหมด
 const getAllTools = async (req, res) => {
   // console.log(io)
@@ -50,56 +55,22 @@ const getAllTools = async (req, res) => {
 };
 
 // รับข้อมูลการเบิกโปรเจคทั้งหมด
-const getAllHistoryTools = async (req, res, next) => {
-  let historyTools;
-  let userStatus = req.body.status;
-  let userName = req.body.userName;
+const getAllHistoryTools = async (req, res) => {
   try {
-    historyTools = await HistoryTool.find();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not fetching history tool.",
-      500
-    );
-    return next(error);
+    let hists = await HistoryTool.find()
+      .populate("tool")
+      .populate("user")
+      .populate("tags.user");
+    let newData = await orderData(hists);
+    res.status(200).json(newData);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send(
+        "ไม่สามารถเรียกข้อมูลประวัติรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง"
+      );
   }
-
-  // ลบข้อมูลที่หมดอายุ
-  for (var round = 0; round < historyTools.length; round++) {
-    let expHistory = new Date(historyTools[round].exp).getTime();
-    let currentDate = new Date().getTime();
-    if (expHistory < currentDate) {
-      try {
-        await historyTools[round].remove();
-      } catch (err) {
-        const error = new HttpError(
-          "Something went wrong, could not remove history-tool that expired.",
-          500
-        );
-        return next(error);
-      }
-    }
-  }
-
-  // รายการอุปกรณ์ไหนที่ถูกลบไปแล้ว จะไปแสดงผลในหน้าประวัติการใช้งานอุปกรณ์ด้วย แต่จะเก็บไว้ในฐานข้อมูลอย่างเดียว
-  // ตรวจสอบว่าผู้ใช้สถานะไหนเป็นคนขอข้อมูล
-  let filterData;
-  if (userStatus === "User") {
-    filterData = historyTools.filter(
-      (item) => item.isDeleted !== true && item.username === userName
-    );
-  } else {
-    filterData = historyTools.filter((item) => item.isDeleted !== true);
-  }
-
-  // เรียงลำดับข้อมูล โดยเอาวันที่ล่าสุดขึ้นมาก่อน
-  let responseData = [];
-  for (var round = 0; round < filterData.length; round++) {
-    let index = filterData.length - 1 - round;
-    responseData = [...responseData, filterData[index]];
-  }
-
-  res.json(responseData);
 };
 
 // รับข้อมูลอุปกรณ์ที่ผู้ใช้เลือก
@@ -183,6 +154,11 @@ const actionTool = async (req, res) => {
 
   try {
     let tool = await Tool.findById(toolId);
+    let cnt = await HistoryCnt.findById("614c2b3d246f3c25995dc745");
+    if (!cnt)
+      return res
+        .status(401)
+        .send("ไม่สามารถกำหนดเลขที่การเบิกได้ โปรดลองทำรายการอีกครั้ง");
     if (!tool)
       return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
     if (actionType === "เพิ่ม") {
@@ -193,7 +169,32 @@ const actionTool = async (req, res) => {
       tool.total = tool.total - toolTotal;
     }
 
+    let newHistoryTool = new HistoryTool({
+      code: `${cnt.name}${cnt.cntNumber}`,
+      tool: toolId,
+      user: req.userId,
+      total: toolTotal,
+      actionType: actionType,
+      date: new Date(),
+      exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
+      description: description,
+      tags: [
+        {
+          user: req.userId,
+          code: `${cnt.name}${cnt.cntNumber}-1`,
+          action: actionType,
+          total: toolTotal,
+          date: new Date(),
+          description: description
+        },
+      ],
+    });
+
+    cnt.cntNumber = cnt.cntNumber + 1;
+
     await tool.save();
+    await newHistoryTool.save();
+    await cnt.save();
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);
@@ -386,122 +387,58 @@ const editTool = async (req, res) => {
 };
 
 // ยกเลิกการเบิกอุปกรณ์
-const editHistoryTool = async (req, res, next) => {
-  const { htid, username, status, total, description } = req.body;
+const restoreTool = async (req, res) => {
+  const { htid, tid, description } = req.body;
 
-  let findTool;
-  let findHistoryTool;
-
-  // หาข้อมูลอุปกรณ์
   try {
-    findTool = await Tool.findById(req.params.tid);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not find tool by id.",
-      500
-    );
-    return next(error);
-  }
+    let tool = await Tool.findById(tid);
+    if (!tool)
+      return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
+    let hist = await HistoryTool.findById(htid);
+    if (!hist)
+      return res
+        .status(401)
+        .send("ไม่พบข้อมูลประวัติรายการอุปกรณ์นี้ในฐานข้อมูล");
 
-  // หาข้อมูลประวัติการเบิกอุปกรณ์
-  try {
-    findHistoryTool = await HistoryTool.findById(htid);
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not find history-tool by id.",
-      500
-    );
-    return next(error);
-  }
-
-  let newTag;
-  let calTotal;
-  // แก้ไขกระบวนการทำงานของ การเพิ่ม
-  if (findHistoryTool.actionType === "add") {
-    // 10 - 8 = 2 ก็คือ สต๊อกถูกลดค่า
-    if (findHistoryTool.total > Number(total)) {
-      calTotal = findHistoryTool.total - Number(total);
-      findTool.total = findTool.total - calTotal;
-    }
-    // 10 - 15 = -5 ก็คือ สต๊อกถูกเพิ่มค่า
-    else if (findHistoryTool.total < Number(total)) {
-      calTotal = Number(total) - findHistoryTool.total;
-      findTool.total = findTool.total + calTotal;
-    }
-    newTag = {
-      code: findHistoryTool.code + "-2",
-      username: username,
-      total: total,
-      status: status,
-      date: new Date().toString(),
-      description: description,
-      actionType: findHistoryTool.actionType,
-    };
-  }
-  // แก้ไขกระบวนการทำงานของ การเบิก
-  else if (findHistoryTool.actionType === "request") {
-    // ตรวจสอบว่าเป็นกระบวนการ Restore ของคืนสต๊อกรึป่าว
-    if (Number(total) !== 0) {
-      // 10 - 8 = 2 ก็คือ สต๊อกถูกเพิ่มค่า
-      if (findHistoryTool.total > Number(total)) {
-        calTotal = findHistoryTool.total - Number(total);
-        findTool.total = findTool.total + calTotal;
-      }
-      // 10 - 15 = 5 ก็คือ สต๊อกถูกลดค่า
-      else if (findHistoryTool.total < Number(total)) {
-        calTotal = Number(total) - findHistoryTool.total;
-        findTool.total = findTool.total - calTotal;
-      }
+    if (hist.actionType === "เพิ่ม") {
+      if (tool.total < hist.total)
+        return res.status(401).send("จำนวนอุปกรณ์ในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
+      tool.total = tool.total - hist.total;
     } else {
-      findTool.total = findTool.total + findHistoryTool.total;
+      tool.total = tool.total + hist.total;
     }
-  }
 
-  // สร้างข้อมูลแท๊กใหม่
-  let newActionType;
-  if (Number(total) !== 0) {
-    newActionType = findHistoryTool.actionType;
-  } else {
-    newActionType = "restore";
-  }
-  newTag = {
-    code: findHistoryTool.code + "-2",
-    username: username,
-    total: total,
-    status: status,
-    date: new Date().toString(),
-    description: description,
-    actionType: newActionType,
-  };
+    let newTag = {
+      user: req.userId,
+      code: `${hist.code}-${hist.tags.length + 1}`,
+      action: "คืนสต๊อก",
+      total: hist.total,
+      date: new Date(),
+      description: description
+    }
+    hist.total = 0;
+    await hist.tags.unshift(newTag)
 
-  // เริ่มเก็บข้อมูล
-  findHistoryTool.total = total;
-  findHistoryTool.actionEdit = [...findHistoryTool.actionEdit, newTag];
+    await tool.save();
+    await hist.save();
 
-  try {
-    await findTool.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not save data tool.",
-      500
-    );
-    return next(error);
-  }
+    let hists = await HistoryTool.find()
+    .populate("tool")
+    .populate("user")
+    .populate("tags.user");
+    let newData =  await orderData(hists);
 
-  try {
-    await findHistoryTool.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Something went wrong, could not save data tool.",
-      500
-    );
-    return next(error);
+    let tools = await Tool.find();
+    let stt = await Stt.find();
+    covertTypeandCateTool(tools, stt);
+    io.emit("tool-actions", tools);
+
+
+    res.status(200).json(newData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("ไม่สามารถคืนอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
-  let historyTool = await HistoryTool.find();
-  res.status(201).json(historyTool);
-  console.log("restore tool successfully");
-  // console.log(findHistoryTool)
-  // console.log(findTool)
 };
 
 // ลบรายการอุปกรณ์
@@ -560,5 +497,5 @@ exports.getAllHistoryTools = getAllHistoryTools;
 exports.getTool = getTool;
 exports.actionTool = actionTool;
 exports.createTool = createTool;
-exports.editHistoryTool = editHistoryTool;
+exports.restoreTool = restoreTool;
 exports.deleteTool = deleteTool;

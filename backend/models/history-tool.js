@@ -25,21 +25,22 @@ const Schema = mongoose.Schema;
 
 const toolHistorySchema = new Schema({
     code: { type: String, required: true },
-    tid: {type: Schema.Types.ObjectId, required: true, ref: "Tool"},
-    uid: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    tool: {type: Schema.Types.ObjectId, required: true, ref: "Tool"},
+    user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     total: { type: Number, minlength: 7, required: true },
     actionType: { type: String, required: true },
     date: { type: String, required: true },
     exp: { type: String, required: true,  },
     description: { type: String },
     tags: [{
-        uid: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+        user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
         code: { type: String, required: true },
         action: { type: String, required: true },
         total: { type: String, required: true },
         date: { type: String, required: true },
         boardName: { type: String },
-        insuffiTotal: { type: String }
+        insuffiTotal: { type: String },
+        description: { type: String }
     }]
 });
 

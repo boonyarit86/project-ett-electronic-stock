@@ -56,6 +56,7 @@ const SettingToolDetail = React.lazy(() =>
 const EditTool = React.lazy(() => import("./tool/pages/EditTool"));
 const ToolLists = React.lazy(() => import("./tool/pages/ToolLists"));
 const DetailTool = React.lazy(() => import("./tool/pages/DetailTool"));
+const HistoryTool = React.lazy(() => import("./tool/pages/HistoryTool"));
 
 
 // import Purchase from "./shared/pages/Purchase";
@@ -84,6 +85,9 @@ function App() {
         </Route>
         <Route path="/tool/:tid" exact>
           <EditTool />
+        </Route>
+        <Route path="/historytool">
+          <HistoryTool />
         </Route>
         <Route path="/profile" exact>
           <Profile />
