@@ -57,6 +57,9 @@ const EditTool = React.lazy(() => import("./tool/pages/EditTool"));
 const ToolLists = React.lazy(() => import("./tool/pages/ToolLists"));
 const DetailTool = React.lazy(() => import("./tool/pages/DetailTool"));
 const HistoryTool = React.lazy(() => import("./tool/pages/HistoryTool"));
+const CreateBoard = React.lazy(() => import("./board/pages/CreateBoard"));
+const BoardLists = React.lazy(() => import("./board/pages/BoardLists"));
+
 
 
 // import Purchase from "./shared/pages/Purchase";
@@ -88,6 +91,12 @@ function App() {
         </Route>
         <Route path="/historytool">
           <HistoryTool />
+        </Route>
+        <Route path="/board/list">
+          <BoardLists />
+        </Route>
+        <Route path="/board/new">
+          <CreateBoard />
         </Route>
         <Route path="/profile" exact>
           <Profile />

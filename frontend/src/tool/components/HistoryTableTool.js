@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useForm } from "../../shared/hooks/form-hook";
 import { restoreToolAction } from "../../actions/toolActions";
-// import { createNotificationAction } from "../../actions/notificationActions";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { time } from "../../shared/utils/Time";
 
 // import Axios from "axios";
@@ -18,7 +17,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Avatar,
   Button,
 } from "@material-ui/core";
 // import ModalAction from "./ModalAction";
@@ -30,6 +28,7 @@ import {
 import RestoreIcon from "@material-ui/icons/Restore";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ModalSubmit from "./ModalSubmitTool";
+import ModalDescription from "./ModalDescription";
 
 // CSS
 // import "./TableTool.css";
@@ -84,8 +83,8 @@ const useStyles = makeStyles((theme) => ({
     margin: "10px",
   },
   btn: {
-    marginRight: "10px"
-  }
+    marginRight: "10px",
+  },
 }));
 
 export default function HistoryTableTool({ hists, auth, dispatch }) {
@@ -94,13 +93,11 @@ export default function HistoryTableTool({ hists, auth, dispatch }) {
   // ตัวแปรทั่วไปไว้เก็บค่าและกำหนดค่า
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [openModal, setOpenModal] = useState(false);
-  const [headerForm, setHeaderForm] = useState("");
-  const [tool, setTool] = useState({});
-  const [action, setAction] = useState(null);
   const [description, setDescription] = useState(null);
   const [openRestore, setOpenRestore] = useState(false);
+  const [openDescription, setOpenDescription] = useState(false);
   const [dataSubmit, setDataSubmit] = useState({});
+  const [dataDes, setDataDes] = useState({});
 
   // function ตรวจสอบ error ของ Input ต่างๆ
   const [formState, inputHandler] = useForm(
@@ -151,9 +148,13 @@ export default function HistoryTableTool({ hists, auth, dispatch }) {
   };
 
   const handleOpenDescription = (description) => {
-    // setData(description)
-    // setOpenDescription(true)
-    // setTypeAction(description.actionType)
+    setDataDes(description);
+    setOpenDescription(true);
+  };
+
+  const handleCloseDescription = () => {
+    setOpenDescription(false);
+    setDataDes({})
   };
 
   return (
@@ -244,13 +245,21 @@ export default function HistoryTableTool({ hists, auth, dispatch }) {
       </React.Fragment>
       {/* // } */}
 
-      { openRestore && <ModalSubmit
-        handleClosePrompt={handleCloseRestore}
-        handleSubmitPrompt={handleSubmitRestore}
-        openPrompt={openRestore}
-        setDescription={setDescription}
-        item={dataSubmit}
-      /> }
+      {openRestore && (
+        <ModalSubmit
+          handleClosePrompt={handleCloseRestore}
+          handleSubmitPrompt={handleSubmitRestore}
+          openPrompt={openRestore}
+          setDescription={setDescription}
+          item={dataSubmit}
+        />
+      )}
+
+      {openDescription && ( <ModalDescription
+        openPrompt={openDescription}
+        handleClosePrompt={handleCloseDescription}
+        data={dataDes}
+      />)}
 
       {/* Prompt Request & Add Form */}
     </div>

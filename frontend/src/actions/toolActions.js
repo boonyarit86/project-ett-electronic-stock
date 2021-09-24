@@ -45,7 +45,7 @@ export const getAllToolAction = (token, setTools, setDefaultValue) => async (dis
       headers: AuthToken(token),
     }).then((res) => {
       setTools(res.data);
-      setDefaultValue(res.data);
+      setDefaultValue && setDefaultValue(res.data);
       dispatch({ type: GET_ALL_TOOL_SUCCESS });
     });
   } catch (error) {

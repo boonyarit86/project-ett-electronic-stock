@@ -67,6 +67,7 @@ app.use(cors());
 app.use("/api/users", require("./routes/users-routes"));
 app.use("/api/stts", require("./routes/stt-routes"));
 app.use("/api/tools", require("./routes/tools-routes"));
+app.use("/api/boards", require("./routes/boards-routes"));
 // app.use((req, res, next) => {
   //   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
   // })

@@ -1,16 +1,15 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AuthContext } from "../../shared/context/auth-context";
-import { getAllToolAction } from "../../actions/toolActions";
+import { getAllBoardAction } from "../../actions/boardActions";
 import { io } from "socket.io-client";
 import { makeStyles } from "@material-ui/core/styles";
 
 // Components
-import TableTool from "../components/TableTool";
+import TableBoard from "../components/TableBoard";
 import Loading from "../../shared/components/UIElements/Loading";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import { ToastContainer } from "react-toastify";
-import SelectFilter from "../components/SelectFilter";
 import { TextField } from "@material-ui/core";
 
 // import "./ToolList.css";
@@ -22,32 +21,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ToolLists() {
+function BoardLists() {
   const auth = useContext(AuthContext);
   const classes = useStyles();
   const dispatch = useDispatch();
   const { isLoading, errorMsg, isLoadingActions, errorMsgActions } =
-    useSelector((state) => state.toolLists);
-  const [tools, setTools] = useState([]);
+    useSelector((state) => state.boardLists);
+  const [boards, setBoards] = useState([]);
   const [defaultValue, setDefaultValue] = useState([]);
-  const [valueFilterType, setValueFilterType] = useState("ทั้งหมด");
-  const [valueFilterStatus, setValueFilterStatus] = useState("ทั้งหมด");
   const [text, setText] = useState("");
 
   // Connect with Socket.io
   useEffect(() => {
     // console.log("Client: Socket.io stands by...");
-    // const socket = io("ws://localhost:5000");
-    const socket = io("https://ett-test.herokuapp.com");
+    const socket = io("ws://localhost:5000");
+    // const socket = io("https://ett-test.herokuapp.com");
     socket.on("connnection", () => {
       //   console.log("connected to server");
     });
 
-    socket.on("tool-actions", (newTool) => {
-      //   console.log("Client: tool-added");
-      setTools(newTool);
-      setDefaultValue(newTool);
-    });
+    // socket.on("board-actions", (newTool) => {
+    //   setBoards(newTool);
+    //   setDefaultValue(newTool);
+    // });
 
     socket.on("disconnect", () => {
       //   console.log("Socket disconnecting");
@@ -56,7 +52,7 @@ function ToolLists() {
 
   // Get tools
   useEffect(() => {
-    dispatch(getAllToolAction(auth.token, setTools, setDefaultValue));
+    dispatch(getAllBoardAction(auth.token, setBoards, setDefaultValue));
   }, []);
 
   // function ค้นหาชื่ออุปกรณ์ในตาราง
@@ -66,7 +62,7 @@ function ToolLists() {
     if (value.length > 0) {
       // หาข้อมูลโดยใช้ตัวแปร name เช่น props.data[0].name ของข้อมูลด้านบน
       const regex = new RegExp(`^${value}`, "i");
-      suggestions = tools.sort().filter((res) => regex.test(res.toolName));
+      suggestions = boards.sort().filter((res) => regex.test(res.boardName));
     }
 
     // ถ้าไม่ได้พิมพ์อะไรให้กำหนดข้อมูลเป็นค่า default
@@ -74,7 +70,7 @@ function ToolLists() {
       suggestions = defaultValue;
     }
     setText(value);
-    setTools(suggestions);
+    setBoards(suggestions);
   };
 
   if (isLoading) {
@@ -100,40 +96,18 @@ function ToolLists() {
           </Alert>
         </div>
       )}
-      <h1>รายการอุปกรณ์</h1>
-      <SelectFilter
-        label="ชนิด"
-        defaultValue={defaultValue}
-        data={tools}
-        setData={setTools}
-        filterType="type"
-        setValueFilterType={setValueFilterType}
-        valueFilterType={valueFilterType}
-        valueFilterStatus={valueFilterStatus}
-        setValueFilterStatus={setValueFilterStatus}
-      />
-      <SelectFilter
-        label="สถานะ"
-        defaultValue={defaultValue}
-        data={tools}
-        setData={setTools}
-        filterType="status"
-        setValueFilterType={setValueFilterType}
-        valueFilterType={valueFilterType}
-        valueFilterStatus={valueFilterStatus}
-        setValueFilterStatus={setValueFilterStatus}
-      />
+      <h1>รายการบอร์ด</h1>
       <TextField
-        label="ค้นหาชื่ออุปกรณ์"
+        label="ค้นหาชื่อบอร์ด"
         type="text"
         className={classes.input}
         value={text}
         onChange={onTextChanged}
       />
-      <TableTool tools={tools} auth={auth} dispatch={dispatch} />
+      <TableBoard boards={boards} auth={auth} dispatch={dispatch} />
       <ToastContainer />
     </div>
   );
 }
 
-export default ToolLists;
+export default BoardLists;
