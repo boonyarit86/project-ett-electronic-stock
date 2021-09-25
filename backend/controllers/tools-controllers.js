@@ -483,7 +483,7 @@ const deleteTool = async (req, res) => {
     io.emit("tool-actions", tools);
 
     res.status(200).send("delete success");
-  } catch (err) {
+  } catch (error) {
     console.error(error);
     res
       .status(500)

@@ -59,7 +59,8 @@ const DetailTool = React.lazy(() => import("./tool/pages/DetailTool"));
 const HistoryTool = React.lazy(() => import("./tool/pages/HistoryTool"));
 const CreateBoard = React.lazy(() => import("./board/pages/CreateBoard"));
 const BoardLists = React.lazy(() => import("./board/pages/BoardLists"));
-
+const DetailBoard = React.lazy(() => import("./board/pages/DetailBoard"));
+const EditBoard = React.lazy(() => import("./board/pages/EditBoard"));
 
 
 // import Purchase from "./shared/pages/Purchase";
@@ -97,6 +98,12 @@ function App() {
         </Route>
         <Route path="/board/new">
           <CreateBoard />
+        </Route>
+        <Route path="/:bid/board" exact>
+          <DetailBoard />
+        </Route>
+        <Route path="/board/:bid" exact>
+          <EditBoard />
         </Route>
         <Route path="/profile" exact>
           <Profile />

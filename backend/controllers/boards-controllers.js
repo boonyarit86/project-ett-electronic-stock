@@ -12,7 +12,7 @@ const Board = require("../models/board");
 const getAllBoards = async (req, res) => {
    // console.log(io)
    try {
-    let boardLists = await Board.find();
+    let boardLists = await Board.find().populate("tools.tool");
     res.status(200).json(boardLists);
   } catch (error) {
     console.error(error);
@@ -25,10 +25,11 @@ const getAllBoards = async (req, res) => {
 // รับข้อมูลบอร์ดที่ผู้ใช้เลือก
 const getBoard = async (req, res) => {
     try {
-        let board = await Board.findById(req.params.bid);
+        let board = await Board.find({_id: req.params.bid}).populate("tools.tool");
+        // let board = await boardLists.find()
         if (!board)
           return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
-        res.status(200).json(board);
+        res.status(200).json(board[0]);
       } catch (error) {
         console.error(error);
         res
@@ -105,7 +106,6 @@ const createBoard = async (req, res) => {
             newToolsArr = [...newToolsArr, { tool: convTools[r]._id, total: Number(convTools[r].total) }]
         }
     }
-
 
     let newBoard = new Board({
       boardName: boardName,
@@ -247,141 +247,177 @@ const actionBoard = async (req, res, next) => {
 };
 
 // แก้ไขข้อมูลบอร์ด
-const editBoard = async (req, res, next) => {
-  // let board;
-  // const { boardName, boardCode, type, images, imageProfile, description, oldImages, delImages, limit } = req.body;
-  // const tools = JSON.parse(req.body.tools)
-  // // ตัวแปรรูปภาพที่จะถูกลบ
-  // let delImgArr = []
-  // try {
-  //     board = await Board.findById(req.params.bid);
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not fetching data.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // board.boardName = boardName
-  // board.boardCode = boardCode
-  // board.type = type
-  // board.tools = tools
-  // board.limit = limit
-  // board.description = description
-  // // อัพโหลดโปรไฟล์อุปกรณ์
-  // // ถ้ารูปอุปกรณ์ถูกลบหรือไม่ได้กำหนดมา
-  // if (imageProfile === "false") {
-  //     // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
-  //     if (board.imageProfile.key) {
-  //         delImgArr = [...delImgArr, board.imageProfile.key]
-  //         board.imageProfile = { location: "/images/profile.png", key: false }
-  //         console.log("set default image and delete")
-  //     }
-  //     // ถ้าไม่มีรูปภาพก่อนหน้านี้ เพิ่มรูปภาพระบบเข้าไป ป้องกันค่าว่าง
-  //     else {
-  //         board.imageProfile = { location: "/images/profile.png", key: false }
-  //     }
-  // }
-  // // ผู้ใช้งานกำหนดรูปภาพใหม่
-  // else if (imageProfile === "true") {
-  //     // ถ้ามีรูปเก่าในระบบให้ลบ และเพิ่มรุปภาพใหม่เข้าไป
-  //     if (board.imageProfile.key) {
-  //         delImgArr = [...delImgArr, board.imageProfile.key]
-  //         board.imageProfile = { location: 'http://localhost:5000/' + req.files[0].path, key: req.files[0].path }
-  //     }
-  //     // ถ้าไม่มีรุปภาพเก่าในระบบ ให้เพิ่มอย่างเดียว
-  //     else {
-  //         console.log("add images to db")
-  //         board.imageProfile = { location: 'http://localhost:5000/' + req.files[0].path, key: req.files[0].path }
-  //     }
-  // }
-  // // กรณีผู้ใช้ไม่ได้แก้ไขรูปภาพโปรไฟล์
-  // else if (typeof (imageProfile) === "string") {
-  //     console.log("default image")
-  // }
-  // // Multi Images
-  // let newImgArr = []
-  // // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
-  // if (images === "true") {
-  //     console.log("have images")
-  //     // ทำการแยกรูปภาพโปรไฟล์อุปกรณ์ออกจากรายการ ถ้ามี
-  //     if (imageProfile === "true") {
-  //         for (var round = 0; round < req.files.length; round++) {
-  //             if (round !== 0) {
-  //                 newImgArr = [...newImgArr, { location: 'http://localhost:5000/' + req.files[round].path, key: req.files[round].path }]
-  //             }
-  //         }
-  //     } else {
-  //         console.log("Only many imges")
-  //         for (var round1 = 0; round1 < req.files.length; round1++) {
-  //             newImgArr = [...newImgArr, { location: 'http://localhost:5000/' + req.files[round1].path, key: req.files[round1].path }]
-  //         }
-  //     }
-  //     // เพิ่มรุปภาพเก่าไปยังที่เดิม
-  //     if (JSON.parse(oldImages).length !== 0) {
-  //         let convOldImages = JSON.parse(oldImages);
-  //         newImgArr = [...newImgArr, ...convOldImages]
-  //     }
-  //     if (JSON.parse(delImages).length !== 0) {
-  //         console.log("delete images section 1")
-  //         let convDelImages = JSON.parse(delImages)
-  //         for (var x = 0; x < convDelImages.length; x++) {
-  //             delImgArr = [...delImgArr, convDelImages[x].key]
-  //         }
-  //     }
-  //     board.images = newImgArr
-  // }
-  // // ถ้าไม่มีรูปภาพที่อัพมาใหม่ แต่เป็นรูปภาพเก่าที่ถูกลบจากฐานข้อมูล
-  // else {
-  //     console.log("have no images")
-  //     // เพิ่มรุปภาพเก่าไปยังที่เดิม
-  //     if (JSON.parse(oldImages).length !== 0) {
-  //         let convOldImages = JSON.parse(oldImages);
-  //         newImgArr = [...newImgArr, ...convOldImages]
-  //     }
-  //     // ย้ายข้อมูลรุปภาพที่จะถูกลบไปยังตัวแปรใหม่
-  //     if (JSON.parse(delImages).length !== 0) {
-  //         // console.log("delete images section 2")
-  //         let convDelImages = JSON.parse(delImages)
-  //         for (var x = 0; x < convDelImages.length; x++) {
-  //             delImgArr = [...delImgArr, convDelImages[x].key]
-  //         }
-  //     }
-  //     board.images = newImgArr
-  // }
-  // // ลบรูปภาพ
-  // if (delImgArr.length !== 0) {
-  //     for (var i = 0; i < delImgArr.length; i++) {
-  //         fs.unlink(delImgArr[i], err => {
-  //             if (err) console.log(err);
-  //             else console.log("delete image successfully")
-  //         });
-  //     }
-  // }
-  // In case of AWS
-  // if (delImgArr1.length !== 0) {
-  //     for (var i = 0; i < delImgArr1.length; i++) {
-  //         s3.deleteObject({
-  //             Bucket: 'demo-utcc/profile',
-  //             Key: delImgArr1[i]
-  //         }, (err, data) => {
-  //             if (err) console.log("can not delete an image in Aws S3")
-  //             else console.log("delete an image in Aws S3 successfully.")
-  //         })
-  //     }
-  // }
-  // try {
-  //     await board.save();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save data.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // res.status(201).json(board);
-  // // console.log(board);
-  // console.log("edit successfully")
+const editBoard = async (req, res) => {
+  const {
+    boardName,
+    boardCode,
+    type,
+    images,
+    avartar,
+    description,
+    oldImages,
+    delImages,
+    limit,
+    tools
+  } = req.body;
+  // ตัวแปรรูปภาพที่จะถูกลบ
+  let delImgArr = [];
+
+  if (Number(limit) <= 0)
+    return res.status(401).send("จำนวนต้องมีค่าอย่างน้อย 1");
+
+  try {
+    let board = await Board.findById(req.params.bid);
+    if (!board)
+      return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
+
+      let convTools = JSON.parse(tools);
+      let newToolsArr = []
+      for(let r=0; r < convTools.length; r++) {
+          let findTool = await Tool.findById(convTools[r]._id)
+          if(findTool) {
+              newToolsArr = [...newToolsArr, { tool: convTools[r]._id, total: Number(convTools[r].total) }]
+          }
+      }
+
+    board.boardName = boardName;
+    board.boardCode = boardCode;
+    board.type = type;
+    board.limit = limit;
+    board.description = description;
+    board.tools = newToolsArr;
+
+    // อัพโหลดโปรไฟล์อุปกรณ์
+    // ถ้ารูปอุปกรณ์ถูกลบหรือไม่ได้กำหนดมา
+    if (avartar === "false") {
+      // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
+      if (board.avartar.public_id) {
+        delImgArr = [...delImgArr, board.avartar.public_id];
+        board.avartar = {};
+        // console.log("set default image and delete");
+      }
+    }
+    // ผู้ใช้งานกำหนดรูปภาพใหม่
+    else if (avartar === "true") {
+      // ถ้ามีรูปเก่าในระบบให้ลบ และเพิ่มรุปภาพใหม่เข้าไป
+      if (board.avartar.public_id) {
+        delImgArr = [...delImgArr, board.avartar.public_id];
+        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
+          if (error) console.log("can not upload image on clound");
+          board.avartar = {
+            public_id: result.public_id,
+            url: result.secure_url,
+          };
+        });
+      }
+      // ถ้าไม่มีรุปภาพเก่าในระบบ ให้เพิ่มอย่างเดียว
+      else {
+        console.log("add only image to db");
+        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
+          if (error) console.log("can not upload image on clound");
+          board.avartar = {
+            public_id: result.public_id,
+            url: result.secure_url,
+          };
+        });
+      }
+    }
+    // Multi Images
+    let newImgArr = [];
+    // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
+    if (images === "true") {
+      // console.log("have images");
+      // ทำการแยกรูปภาพโปรไฟล์อุปกรณ์ออกจากรายการ ถ้ามี
+      if (avartar === "true") {
+        for (var round = 0; round < req.files.length; round++) {
+          if (round !== 0) {
+            await cloudinary.uploader.upload(
+              req.files[round].path,
+              (error, result) => {
+                if (error) {
+                  console.log("can not upload image on clound");
+                } else {
+                  newImgArr = [
+                    ...newImgArr,
+                    {
+                      url: result.secure_url,
+                      public_id: result.public_id,
+                    },
+                  ];
+                }
+              }
+            );
+          }
+        }
+      } else {
+        // console.log("Only many imges");
+        for (var round1 = 0; round1 < req.files.length; round1++) {
+          await cloudinary.uploader.upload(
+            req.files[round1].path,
+            (error, result) => {
+              if (error) console.log("can not upload image on clound");
+              newImgArr = [
+                ...newImgArr,
+                {
+                  public_id: result.public_id,
+                  url: result.secure_url,
+                },
+              ];
+            }
+          );
+        }
+      }
+      // เพิ่มรุปภาพเก่าไปยังที่เดิม
+      if (JSON.parse(oldImages).length !== 0) {
+        let convOldImages = JSON.parse(oldImages);
+        newImgArr = [...newImgArr, ...convOldImages];
+      }
+
+      if (JSON.parse(delImages).length !== 0) {
+        // console.log("delete images section 1");
+        let convDelImages = JSON.parse(delImages);
+        for (var x = 0; x < convDelImages.length; x++) {
+          delImgArr = [...delImgArr, convDelImages[x].public_id];
+        }
+      }
+      board.images = newImgArr;
+    }
+    // ถ้าไม่มีรูปภาพที่อัพมาใหม่ แต่เป็นรูปภาพเก่าที่ถูกลบจากฐานข้อมูล
+    else {
+      // console.log("have no images");
+      // เพิ่มรุปภาพเก่าไปยังที่เดิม
+      if (JSON.parse(oldImages).length !== 0) {
+        let convOldImages = JSON.parse(oldImages);
+        newImgArr = [...newImgArr, ...convOldImages];
+      }
+
+      if (JSON.parse(delImages).length !== 0) {
+        // console.log("delete images section 2");
+        let convDelImages = JSON.parse(delImages);
+        for (var x = 0; x < convDelImages.length; x++) {
+          delImgArr = [...delImgArr, convDelImages[x].public_id];
+        }
+      }
+      board.images = newImgArr;
+    }
+
+    // ลบรูปภาพออกจากระบบ
+    if (delImgArr.length !== 0) {
+      for (var i = 0; i < delImgArr.length; i++) {
+        await cloudinary.uploader.destroy(delImgArr[i], (error, res) => {
+          if (error) console.log("can not delete image");
+          else console.log("delete image");
+        });
+      }
+    }
+    await board.save();
+    res.status(200).json(board);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send("ไม่สามารถแก้ไขรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+  }
 };
 
 // การเบิกบอร์ด
@@ -1252,97 +1288,53 @@ const cancelRequestBoardandIncomplete = async (req, res, next) => {
 };
 
 // การลบรายการบอร์ด
-const deleteBoard = async (req, res, next) => {
-  // let boardId = req.params.bid;
-  // // หาข้อมูลบอร์ด
-  // let board;
-  // try {
-  //     board = await Board.findById(boardId);
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not find board by id.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // // ลบข้อมูลอุปกรณ์ที่อยู่ในประวัติการเบิกหรือเพิ่มอุปกรณ์
-  // // let hisboard;
-  // // try {
-  // //     hisboard = await HistoryBoard.find();
-  // // } catch (err) {
-  // //     const error = new HttpError(
-  // //         'Something went wrong, could not fetching data of history-tool.',
-  // //         500
-  // //     );
-  // //     return next(error);
-  // // }
-  // // for (var round = 0; round < hisboard.length; round++) {
-  // //     if (hisboard[round].bid === boardId) {
-  // //         hisboard[round].isDeleted = true
-  // //         // บันทึกข้อมูลอุปกรณ์
-  // //         try {
-  // //             await hisboard[round].save();
-  // //         } catch (err) {
-  // //             const error = new HttpError(
-  // //                 'Something went wrong, could not save data history-board.',
-  // //                 500
-  // //             );
-  // //             return next(error);
-  // //         }
-  // //     }
-  // // }
-  // // // ลบข้อมูลอุปกรณ์ที่อยู่ในหน้าอุปกรณ์คงค้าง
-  // // let incomplete;
-  // // try {
-  // //     incomplete = await IncompleteTool.find();
-  // // } catch (err) {
-  // //     const error = new HttpError(
-  // //         'Something went wrong, could not fetching data of incomplete board.',
-  // //         500
-  // //     );
-  // //     return next(error);
-  // // }
-  // // for (var round = 0; round < incomplete.length; round++) {
-  // //     if (incomplete[round].bid === boardId) {
-  // //         // console.log("delete incomplete", incomplete[round].tools.length)
-  // //         try {
-  // //             await incomplete[round].remove();
-  // //         } catch (err) {
-  // //             const error = new HttpError(
-  // //                 'Something went wrong, could not delete data tool.',
-  // //                 500
-  // //             );
-  // //             return next(error);
-  // //         }
-  // //     }
-  // // }
-  // // ลบรูปภาพของอุปกรณ์
-  // if (board.images.length !== 0) {
-  //     for (var i = 0; i < board.images.length; i++) {
-  //         fs.unlink(board.images[i].key, err => {
-  //             if (err) console.log("can not find path of images");
-  //             else console.log("delete images successfully")
-  //         });
-  //     }
-  // }
-  // // ลบรูปภาพโปรไฟล์ของอุปกรณ์
-  // if (board.imageProfile.key !== false) {
-  //     fs.unlink(board.imageProfile.key, err => {
-  //         if (err) console.log("can not find path of image");
-  //         else console.log("delete image successfully")
-  //     });
-  // }
-  // try {
-  //     await board.remove();
-  //     console.log("delete board successfully")
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not delete board by id.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // res.json(board)
+const deleteBoard = async (req, res) => {
+  let boardId = req.params.bid;
+
+  // หาข้อมูลอุปกรณ์
+  try {
+    let board = await Board.findById(boardId);
+    if (!board)
+      return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
+
+    // ลบรูปภาพของอุปกรณ์
+    if (board.images.length !== 0) {
+      for (var i = 0; i < board.images.length; i++) {
+        await cloudinary.uploader.destroy(
+          board.images[i].public_id,
+          (error, res) => {
+            if (error) console.log("can not delete image");
+            else console.log("delete images");
+          }
+        );
+      }
+    }
+
+    // ลบรูปภาพโปรไฟล์ของอุปกรณ์
+    if (board.avartar.public_id) {
+      await cloudinary.uploader.destroy(
+        board.avartar.public_id,
+        (error, res) => {
+          if (error) console.log("can not delete image");
+          else console.log("delete image");
+        }
+      );
+    }
+
+    await board.remove();
+
+    // let boards = await board.find();
+    // let stt = await Stt.find();
+    // covertTypeandCateboard(boards, stt);
+    // io.emit("board-actions", tools);
+
+    res.status(200).send("delete success");
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send("ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+  }
 };
 
 exports.getAllBoards = getAllBoards;

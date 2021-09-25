@@ -1,0 +1,15 @@
+.table-board-btn-action {
+    display: flex;
+}
+
+.table-board-btn-action button {
+    margin-right: 10px;
+}
+
+.table-board-btn-action button a {
+    color: #fff;
+}
+
+.table-board-modal-textarea {
+    margin: 10px 0;
+}

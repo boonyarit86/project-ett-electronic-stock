@@ -27,7 +27,7 @@ import AddIcon from "@material-ui/icons/Add";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 
 // CSS
-// import "./TableTool.css";
+import "./TableBoard.css";
 
 // ตัวกำหนดขนาด columns ของหน้านี้ เป็น function ของ material ui
 const columns = [

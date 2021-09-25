@@ -2,9 +2,18 @@ import {
   CREATE_BOARD_FAIL,
   CREATE_BOARD_REQUEST,
   CREATE_BOARD_SUCCESS,
+  DELETE_BOARD_FAIL,
+  DELETE_BOARD_REQUEST,
+  DELETE_BOARD_SUCCESS,
+  EDIT_BOARD_FAIL,
+  EDIT_BOARD_REQUEST,
+  EDIT_BOARD_SUCCESS,
   GET_ALL_BOARD_FAIL,
   GET_ALL_BOARD_REQUEST,
   GET_ALL_BOARD_SUCCESS,
+  GET_BOARD_FAIL,
+  GET_BOARD_REQUEST,
+  GET_BOARD_SUCCESS,
 } from "../constants/boardConstants";
 import catchErrors from "../shared/utils/catchErrors";
 import Axios from "axios";
@@ -76,3 +85,126 @@ export const createBoardAction =
       });
     }
   };
+
+export const getBoardAction = (token, bid) => async (dispatch) => {
+  dispatch({ type: GET_BOARD_REQUEST });
+  try {
+    await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/boards/${bid}`, {
+      headers: AuthToken(token),
+    }).then((res) => {
+      dispatch({ type: GET_BOARD_SUCCESS, payload: res.data });
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_BOARD_FAIL,
+      payload: catchErrors(error),
+    });
+  }
+};
+
+export const editBoardAction = (token, board, history) => async (dispatch) => {
+  dispatch({ type: EDIT_BOARD_REQUEST });
+  try {
+    let newImagesArr = [];
+    let formData = new FormData();
+    formData.append("boardName", board.boardName);
+    formData.append("boardCode", board.boardCode);
+    formData.append("type", board.type);
+    formData.append("tools", JSON.stringify(board.tools));
+    formData.append("limit", board.limit);
+    formData.append("description", board.description);
+    // กรณี ผู้ใช้ไม่ได้แก้ไขรูปภาพ
+    // console.log(board.imageProfile)
+    // if (typeof board.avartar === "string") {
+    //   console.log("no image");
+    //   formData.append("avartar", board.avartar);
+    // }
+    // กรณี ผู้ใช้ลบรูปภาพและไม่ได้อัพลงไปใหม่ หรือ ไม่มีรูปภาพอยู่แล้ว
+    if (board.avartar === null) {
+      console.log("no image");
+      formData.append("avartar", false);
+    }
+    // กรณี ผู้ใช้อัพโหลดรูปภาพใหม่
+    else if (board.avartar.name) {
+      // console.log("new image");
+      formData.append("avartar", true);
+      newImagesArr = [...newImagesArr, board.avartar];
+    }
+
+    // กรณีผู้ไม่ได้กำหนดรูปภาพรายละเอียดอุปกรณ์
+    let oldImages = [];
+    if (board.images.length === 0 || board.images.length === undefined) {
+      console.log("No imges")
+      formData.append("images", false);
+    } else {
+      let newImages = false;
+      for (var round = 0; round < board.images.length; round++) {
+        // เก็บรูปภาพเก่าที่ไม่ถูกลบ แยกออกไป เพื่อป้องกันการอัพโหลดรูปภาพซ้ำ
+        if (board.images[round].name === undefined) {
+          console.log("default images");
+          oldImages = [...oldImages, board.images[round]];
+        }
+        // เก็บรูปภาพใหม่ที่อัพมา แยกออกไป เพื่อรอการอัพโหลด
+        else if (board.images[round].name !== undefined) {
+          console.log("new images");
+          newImages = true;
+          newImagesArr = [...newImagesArr, board.images[round]];
+        }
+      }
+      // ถ้ามีรูปภาพใหม่ถูกอัพโหลด
+      if (newImages === true) {
+        formData.append("images", true);
+      }
+      // ถ้าไม่มีรูปภาพใหม่ถูกอัพโหลด
+      else {
+        console.log("no images");
+        formData.append("images", false);
+      }
+      console.log("statusImg: ", newImages);
+    }
+
+    // กำหนดรูปใหม่ที่ต้องการอัพโหลด
+    if (newImagesArr.length !== 0) {
+      for (var i = 0; i < newImagesArr.length; i++) {
+        formData.append("allImages", newImagesArr[i]);
+      }
+    }
+    // เก็บรูปภาพเก่่าไว้ที่นี้
+    formData.append("oldImages", JSON.stringify(oldImages));
+    formData.append("delImages", JSON.stringify(board.imagesDel));
+
+    await Axios.put(
+      `${process.env.REACT_APP_BACKEND_URL}/boards/edit/` + board.id,
+      formData,
+      {
+        headers: AuthToken(token),
+      }
+    ).then((res) => {
+      dispatch({ type: EDIT_BOARD_SUCCESS, payload: res.data });
+      history.push(`/${board.id}/board`);
+    });
+  } catch (error) {
+    dispatch({ type: EDIT_BOARD_FAIL, payload: catchErrors(error) });
+  }
+};
+
+export const deleteBoardAction = (token, bid, history) => async (dispatch) => {
+  dispatch({ type: DELETE_BOARD_REQUEST });
+  try {
+    await Axios.delete(
+      `${process.env.REACT_APP_BACKEND_URL}/boards/delete/${bid}`,
+      {
+        headers: AuthToken(token),
+      }
+    ).then((res) => {
+      dispatch({ type: DELETE_BOARD_SUCCESS });
+      history.push("/board/list");
+    });
+  } catch (error) {
+    dispatch({
+      type: DELETE_BOARD_FAIL,
+      payload: catchErrors(error)
+    });
+    notifyError(catchErrors(error));
+  }
+};

@@ -1,0 +1,46 @@
+form {
+    padding: 10px;
+}
+
+.edittool-input-group {
+    display: flex;
+    padding: 20px 0 0 0;
+}
+
+.edittool-input-group:last-child {
+    display: flex;
+}
+
+.edittool-input-group div:first-child {
+    padding-right: 5px;
+}
+
+.edittool-input-group div:last-child {
+    padding-left: 5px;
+}
+
+.edittool-toolSelected {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.edittool-select-group {
+    display: flex;
+}
+
+.edittool-select-group div {
+    width: 100%;
+}
+
+.edittool-select-group div:first-child {
+    padding-right: 5px;
+}
+
+.edittool-select-group div:last-child {
+    padding: 0 5px;
+}
+
+.edittool-btn-add {
+    margin: 10px 0;
+}

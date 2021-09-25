@@ -89,11 +89,13 @@ function DetailTool() {
                 <div>ไม่มีรูปภาพ</div>
               ) : tool.images.length <= 3 ? (
                 <div className="detailtool-list-img">
+                  { tool.avartar && (
                   <Avatar
                     variant="square"
                     src={tool.avartar.url}
                     onClick={() => setPreviewImg(tool.avartar.url)}
                   />
+                  )}
                   {tool.images.map((img, index) => (
                     <Avatar
                       variant="square"

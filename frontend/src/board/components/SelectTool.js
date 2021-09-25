@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // Function Select รายการอุปกรณ์
-function SelectTool({ data, toolsSelected, setToolsSelected }) {
+function SelectTool({ data, toolsSelected, setToolsSelected, initialValue }) {
   const classes = useStyles();
   const [total, setTotal] = useState("");
   const [tools, setTools] = useState([]);
@@ -70,7 +70,24 @@ function SelectTool({ data, toolsSelected, setToolsSelected }) {
     });
     setToolTypeList(arr);
     setTools(data);
-  }, []);
+
+    // Set initial value
+    let selectedToolInit = []
+    let toolInit = data;
+    if(initialValue) {
+      initialValue.map((x) => {
+        let findTool = toolInit.find((item) => item._id === x.tool._id);
+        if(findTool) {
+          findTool.total = x.total
+          selectedToolInit.push(findTool)
+          toolInit = toolInit.filter((item) => item._id !== x.tool._id)
+        }
+      })
+      setToolsSelected(selectedToolInit)
+      setTools(toolInit)
+    }
+
+  }, [initialValue]);
 
   const onChangeToolType = async (e) => {
     let arr = [];
