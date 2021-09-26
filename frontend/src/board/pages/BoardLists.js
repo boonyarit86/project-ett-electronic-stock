@@ -40,17 +40,17 @@ function BoardLists() {
       //   console.log("connected to server");
     });
 
-    // socket.on("board-actions", (newTool) => {
-    //   setBoards(newTool);
-    //   setDefaultValue(newTool);
-    // });
+    socket.on("board-actions", (newBoard) => {
+      setBoards(newBoard);
+      setDefaultValue(newBoard);
+    });
 
     socket.on("disconnect", () => {
       //   console.log("Socket disconnecting");
     });
   }, []);
 
-  // Get tools
+  // Get boards
   useEffect(() => {
     dispatch(getAllBoardAction(auth.token, setBoards, setDefaultValue));
   }, []);
@@ -88,6 +88,7 @@ function BoardLists() {
   }
   return (
     <div className="container-toollist">
+      <h1>รายการบอร์ด</h1>
       {isLoadingActions && <Loading loading={isLoadingActions} />}
       {!isLoadingActions && errorMsgActions && (
         <div style={{ margin: "10px" }}>
@@ -96,7 +97,6 @@ function BoardLists() {
           </Alert>
         </div>
       )}
-      <h1>รายการบอร์ด</h1>
       <TextField
         label="ค้นหาชื่อบอร์ด"
         type="text"

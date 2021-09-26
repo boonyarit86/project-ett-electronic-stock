@@ -1,7 +1,8 @@
-import { ACTION_BOARD_FAIL, ACTION_BOARD_REQUEST, ACTION_BOARD_SUCCESS, CREATE_BOARD_FAIL, CREATE_BOARD_REQUEST, CREATE_BOARD_SUCCESS, DELETE_BOARD_FAIL, DELETE_BOARD_REQUEST, DELETE_BOARD_SUCCESS, EDIT_BOARD_FAIL, EDIT_BOARD_REQUEST, EDIT_BOARD_SUCCESS, GET_ALL_BOARD_FAIL, GET_ALL_BOARD_REQUEST, GET_ALL_BOARD_SUCCESS, GET_BOARD_FAIL, GET_BOARD_REQUEST, GET_BOARD_SUCCESS } from "../constants/boardConstants";
+import { ACTION_BOARD_FAIL, ACTION_BOARD_REQUEST, ACTION_BOARD_SUCCESS, CHECK_BOARD_FAIL, CHECK_BOARD_REQUEST, CHECK_BOARD_SUCCESS, CREATE_BOARD_FAIL, CREATE_BOARD_REQUEST, CREATE_BOARD_SUCCESS, DELETE_BOARD_FAIL, DELETE_BOARD_REQUEST, DELETE_BOARD_SUCCESS, EDIT_BOARD_FAIL, EDIT_BOARD_REQUEST, EDIT_BOARD_SUCCESS, GET_ALL_BOARD_FAIL, GET_ALL_BOARD_REQUEST, GET_ALL_BOARD_SUCCESS, GET_BOARD_FAIL, GET_BOARD_REQUEST, GET_BOARD_SUCCESS, HISTORY_BOARD_LIST_FAIL, HISTORY_BOARD_LIST_REQUEST, HISTORY_BOARD_LIST_SUCCESS, RESTORE_HISTORY_BOARD_FAIL, RESTORE_HISTORY_BOARD_REQUEST, RESTORE_HISTORY_BOARD_SUCCESS } from "../constants/boardConstants";
 
 const initialState = {
   errorMsg: null,
+  msgs: null
 };
 
 export function boardListsReducers(state = initialState, action) {
@@ -13,6 +14,7 @@ export function boardListsReducers(state = initialState, action) {
       };
     case CREATE_BOARD_REQUEST:
     case ACTION_BOARD_REQUEST:
+    case CHECK_BOARD_REQUEST:
       return {
         ...state,
         isLoadingActions: true,
@@ -21,6 +23,7 @@ export function boardListsReducers(state = initialState, action) {
       return {
         ...state,
         isLoading: false,
+        msgs: null
       };
     case CREATE_BOARD_SUCCESS:
     case ACTION_BOARD_SUCCESS:
@@ -29,6 +32,13 @@ export function boardListsReducers(state = initialState, action) {
         isLoadingActions: false,
         errorMsgActions: null,
       };
+    case CHECK_BOARD_SUCCESS:
+      return {
+        ...state,
+        isLoadingActions: false,
+        msgs: action.payload,
+        errorMsgActions: null
+      }
     case GET_ALL_BOARD_FAIL:
       return {
         ...state,
@@ -37,10 +47,12 @@ export function boardListsReducers(state = initialState, action) {
       };
     case CREATE_BOARD_FAIL:
     case ACTION_BOARD_FAIL:
+    case CHECK_BOARD_FAIL:
       return {
         ...state,
         isLoadingActions: false,
         errorMsgActions: action.payload,
+        msgs: null
       };
     default:
       return state;
@@ -110,47 +122,47 @@ export function boardListReducers(state = {}, action) {
   }
 }
 
-// export function histsListsReducers(state = {}, action) {
-//   switch (action.type) {
-//     case HISTORY_TOOL_LIST_REQUEST:
-//       return {
-//         ...state,
-//         isLoading: true,
-//       };
-//     case RESTORE_HISTORY_TOOL_REQUEST:
-//       return {
-//         ...state,
-//         isLoadingActions: true
-//       }
-//     case HISTORY_TOOL_LIST_SUCCESS:
-//       return {
-//         ...state,
-//         isLoading: false,
-//         hists: action.payload,
-//         errorMsg: null,
-//         errorMsgActions: null
-//       };
-//       case RESTORE_HISTORY_TOOL_SUCCESS:
-//         return {
-//           ...state,
-//           isLoadingActions: false,
-//           hists: action.payload,
-//           errorMsgActions: null,
-//           errorMsg: null
-//         }
-//     case HISTORY_TOOL_LIST_FAIL:
-//       return {
-//         ...state,
-//         isLoading: false,
-//         errorMsg: action.payload,
-//       };
-//     case RESTORE_HISTORY_TOOL_FAIL:
-//       return {
-//         ...state,
-//         isLoadingActions: false,
-//         errorMsgActions: action.payload
-//       }
-//     default:
-//       return state;
-//   }
-// }
+export function hisbsListsReducers(state = {}, action) {
+  switch (action.type) {
+    case HISTORY_BOARD_LIST_REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case RESTORE_HISTORY_BOARD_REQUEST:
+      return {
+        ...state,
+        isLoadingActions: true
+      }
+    case HISTORY_BOARD_LIST_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        hisbs: action.payload,
+        errorMsg: null,
+        errorMsgActions: null
+      };
+      case RESTORE_HISTORY_BOARD_SUCCESS:
+        return {
+          ...state,
+          isLoadingActions: false,
+          hisbs: action.payload,
+          errorMsgActions: null,
+          errorMsg: null
+        }
+    case HISTORY_BOARD_LIST_FAIL:
+      return {
+        ...state,
+        isLoading: false,
+        errorMsg: action.payload,
+      };
+    case RESTORE_HISTORY_BOARD_FAIL:
+      return {
+        ...state,
+        isLoadingActions: false,
+        errorMsgActions: action.payload
+      }
+    default:
+      return state;
+  }
+}

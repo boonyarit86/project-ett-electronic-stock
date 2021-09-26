@@ -1,4 +1,10 @@
 import {
+  ACTION_BOARD_FAIL,
+  ACTION_BOARD_REQUEST,
+  ACTION_BOARD_SUCCESS,
+  CHECK_BOARD_FAIL,
+  CHECK_BOARD_REQUEST,
+  CHECK_BOARD_SUCCESS,
   CREATE_BOARD_FAIL,
   CREATE_BOARD_REQUEST,
   CREATE_BOARD_SUCCESS,
@@ -14,6 +20,12 @@ import {
   GET_BOARD_FAIL,
   GET_BOARD_REQUEST,
   GET_BOARD_SUCCESS,
+  HISTORY_BOARD_LIST_FAIL,
+  HISTORY_BOARD_LIST_REQUEST,
+  HISTORY_BOARD_LIST_SUCCESS,
+  RESTORE_HISTORY_BOARD_FAIL,
+  RESTORE_HISTORY_BOARD_REQUEST,
+  RESTORE_HISTORY_BOARD_SUCCESS,
 } from "../constants/boardConstants";
 import catchErrors from "../shared/utils/catchErrors";
 import Axios from "axios";
@@ -102,6 +114,44 @@ export const getBoardAction = (token, bid) => async (dispatch) => {
   }
 };
 
+export const checkBoardAction = (token, data, bid) => async (dispatch) => {
+  dispatch({ type: CHECK_BOARD_REQUEST });
+  try {
+    await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/boards/check/${bid}`, data, {
+      headers: AuthToken(token),
+    }).then((res) => {
+      dispatch({ type: CHECK_BOARD_SUCCESS, payload: res.data });
+    });
+  } catch (error) {
+    dispatch({
+      type: CHECK_BOARD_FAIL,
+      payload: catchErrors(error),
+    });
+  }
+};
+
+export const boardActions = (token, data, bid) => async (dispatch) => {
+  dispatch({ type: ACTION_BOARD_REQUEST });
+  try {
+    await Axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/boards/actions/${bid}`,
+      data,
+      {
+        headers: AuthToken(token),
+      }
+    ).then((res) => {
+      dispatch({ type: ACTION_BOARD_SUCCESS });
+      notifySuccess("ทำรายการสำเร็จ");
+    });
+  } catch (error) {
+    dispatch({
+      type: ACTION_BOARD_FAIL,
+      // payload: catchErrors(error),
+    });
+    notifyError(catchErrors(error));
+  }
+};
+
 export const editBoardAction = (token, board, history) => async (dispatch) => {
   dispatch({ type: EDIT_BOARD_REQUEST });
   try {
@@ -185,6 +235,43 @@ export const editBoardAction = (token, board, history) => async (dispatch) => {
     });
   } catch (error) {
     dispatch({ type: EDIT_BOARD_FAIL, payload: catchErrors(error) });
+  }
+};
+
+export const getAllHistoryBoardAction = (token) => async (dispatch) => {
+  dispatch({ type: HISTORY_BOARD_LIST_REQUEST });
+  try {
+    await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/boards/history`, {
+      headers: AuthToken(token),
+    }).then((res) => {
+      dispatch({ type: HISTORY_BOARD_LIST_SUCCESS, payload: res.data });
+    });
+  } catch (error) {
+    dispatch({
+      type: HISTORY_BOARD_LIST_FAIL,
+      payload: catchErrors(error),
+    });
+  }
+};
+
+export const restoreBoardAction = (token, data) => async (dispatch) => {
+  dispatch({ type: RESTORE_HISTORY_BOARD_REQUEST });
+  try {
+    await Axios.put(
+      `${process.env.REACT_APP_BACKEND_URL}/boards/history/restore`,
+      data,
+      {
+        headers: AuthToken(token),
+      }
+    ).then((res) => {
+      dispatch({ type: RESTORE_HISTORY_BOARD_SUCCESS, payload: res.data });
+      notifySuccess("ทำรายการสำเร็จ");
+    });
+  } catch (error) {
+    dispatch({
+      type: RESTORE_HISTORY_BOARD_FAIL,
+      payload: catchErrors(error)
+    });
   }
 };
 

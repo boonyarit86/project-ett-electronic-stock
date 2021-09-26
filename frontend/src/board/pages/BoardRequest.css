@@ -1,0 +1,36 @@
+.alert-errordata {
+    background-color: #fdecea;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.alert-successdata {
+    background-color: #edf7ed;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.valid-data {
+    display: flex;
+    width: 100%;
+}
+
+.valid-data p:first-child {
+    width: 60%;
+}
+
+.valid-data p:last-child {
+    width: 40%;
+    text-align: right;
+}
+
+.notify-success {
+    top: 80px;
+}
+
+@media (max-width: 500px) {
+    .notify-success {
+        width: 100%;
+        top: 80px;
+    }
+}

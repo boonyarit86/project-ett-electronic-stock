@@ -5,6 +5,7 @@ const io = require("../index.js");
 const { orderData } = require("../utils/covertData");
 
 const HistoryTool = require("../models/history-tool");
+const HistoryBoard = require("../models/history-board");
 const HistoryCnt = require("../models/history-cnt");
 const Board = require("../models/board");
 
@@ -39,42 +40,22 @@ const getBoard = async (req, res) => {
 };
 
 // รับข้อมูลการเบิกบอร์ดทั้งหมด
-const getAllHistoryBoards = async (req, res, next) => {
-  // let historyBoards;
-  // try {
-  //     historyBoards = await HistoryBoard.find();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not fetching history board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // ลบข้อมูลที่หมดอายุ
-  // for (var round = 0; round < historyBoards.length; round++) {
-  //     let expHistory = new Date(historyBoards[round].exp).getTime()
-  //     let currentDate = new Date().getTime();
-  //     if (expHistory < currentDate) {
-  //         try {
-  //             await historyBoards[round].remove()
-  //         } catch (err) {
-  //             const error = new HttpError(
-  //                 'Something went wrong, could not remove history-board that expired.',
-  //                 500
-  //             );
-  //             return next(error);
-  //         }
-  //     }
-  // }
-  // // รายการอุปกรณ์ไหนที่ถูกลบไปแล้ว จะไปแสดงผลในหน้าประวัติการใช้งานอุปกรณ์ด้วย แต่จะเก็บไว้ในฐานข้อมูลอย่างเดียว
-  // let filterData = historyBoards.filter((item) => item.isDeleted !== true)
-  // // เรียงลำดับข้อมูล โดยเอาวันที่ล่าสุดขึ้นมาก่อน
-  // let responseData = []
-  // for (var round = 0; round < filterData.length; round++) {
-  //     let index = filterData.length - 1 - round
-  //     responseData = [...responseData, filterData[index]]
-  // }
-  // res.json(responseData);
+const getAllHistoryBoards = async (req, res) => {
+  try {
+    let hisbs = await HistoryBoard.find()
+      .populate("board")
+      .populate("user")
+      .populate("tags.user");
+    let newData = await orderData(hisbs);
+    res.status(200).json(newData);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send(
+        "ไม่สามารถเรียกข้อมูลประวัติรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง"
+      );
+  }
 };
 
 // รับข้อมูลอุปกรณ์คงค้าง
@@ -142,108 +123,66 @@ const createBoard = async (req, res) => {
   }
 };
 
-// การเพิ่มบอร์ด
-const actionBoard = async (req, res, next) => {
-  // let board;
-  // let cnt;
-  // const { bid, description, username, status } = req.body;
-  // // ตัวแปรของจำนวนที่ต้องการเพิ่ม
-  // let total = Number(req.body.total);
-  // // หาข้อมูลบอร์ดที่ต้องเพิ่ม
-  // try {
-  //     board = await Board.findById(req.params.bid);
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not fetching data.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // ข้อมูลเลขที่การเบิก
-  // try {
-  //     cnt = await HistoryCnt.findById("608386543e4e3458083fb2c0");
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not find cntNumber.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // บอร์ดในสต๊อก + จำนวนที่ต้องการเพิ่ม
-  // board.total = board.total + total
-  // // สร้างแท๊กใหม่
-  // let createActionEditBoard = [
-  //     {
-  //         code: cnt.name + (cnt.cntNumber + 1) + "-1",
-  //         username: username,
-  //         total: total,
-  //         status: status,
-  //         date: new Date().toString(),
-  //         description: description,
-  //         actionType: "add"
-  //     }
-  // ]
-  // // บันทึกข้อมูลประวัติการเบิกของและเก็บข้อมูลไอดีของตารางอุปกรณ์ไม่ครบ
-  // let newHistoryBoard = new HistoryBoard({
-  //     code: cnt.name + (cnt.cntNumber + 1),
-  //     bid: board._id,
-  //     tid: [],
-  //     incompleteToolid: "none",
-  //     boardName: board.boardName,
-  //     boardCode: board.boardCode,
-  //     date: new Date(),
-  //     total: total,
-  //     username: username,
-  //     status: status,
-  //     actionType: "add",
-  //     exp: new Date(new Date().getTime() + (1000 * 60) * (1440 * 180)),
-  //     description: description,
-  //     actionEdit: createActionEditBoard,
-  //     tools: []
-  // })
-  // // บันทึกจำนวนอุปกรณ์ล่าสุดไปยังฐานข้อมูล
-  // try {
-  //     await board.save();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // บันทึกข้อมูลเลขที่การเบิก
-  // cnt.cntNumber = cnt.cntNumber + 1
-  // try {
-  //     await cnt.save();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save cntHistory.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // บันทึกข้อมูลการเบิก
-  // try {
-  //     await newHistoryBoard.save();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save history board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // let boardsList;
-  // try {
-  //     boardsList = await Board.find();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not fetching data.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // res.json(boardsList);
-  // console.log("update successfully")
+// การเบิก/เพิ่มบอร์ด
+const actionBoard = async (req, res) => {
+  // Tool: 614c2b3d246f3c25995dc745
+  // Board: 614c2b490e1240c5f3e5a6c5
+  const { total, description, actionType } = req.body;
+  const boardId = req.params.bid;
+  const boardTotal = Number(total);
+  if (boardTotal <= 0)
+    return res.status(401).send("จำนวนบอร์ดต้องมีค่าอย่างน้อย 1");
+
+  try {
+    let board = await Board.findById(boardId);
+    let cntBoard = await HistoryCnt.findById("614c2b490e1240c5f3e5a6c5");
+    if (!cntBoard)
+      return res
+        .status(401)
+        .send("ไม่สามารถกำหนดเลขที่การเบิกได้ โปรดลองทำรายการอีกครั้ง");
+    if (!board)
+      return res.status(401).send("รายการบอร์ดนี้ไม่มีอยู่ในฐานข้อมูล");
+    if (actionType === "เพิ่ม") {
+      board.total = board.total + boardTotal;
+    } else {
+      if (board.total < boardTotal)
+        return res.status(401).send("จำนวนบอร์ดที่เบิกมีมากกว่าในสต๊อก");
+      board.total = board.total - boardTotal;
+    }
+
+    let newHistoryBoard = new HistoryBoard({
+      code: `${cntBoard.name}${cntBoard.cntNumber}`,
+      board: boardId,
+      user: req.userId,
+      total: boardTotal,
+      actionType: actionType,
+      date: new Date(),
+      exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
+      description: description,
+      tags: [
+        {
+          user: req.userId,
+          code: `${cntBoard.name}${cntBoard.cntNumber}-1`,
+          action: actionType,
+          total: boardTotal,
+          date: new Date(),
+          description: description
+        },
+      ],
+    });
+
+    cntBoard.cntNumber = cntBoard.cntNumber + 1;
+
+    await board.save();
+    await newHistoryBoard.save();
+    await cntBoard.save();
+    let boards = await Board.find();
+    io.emit("board-actions", boards);
+    res.status(200).send(boards);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+  }
 };
 
 // แก้ไขข้อมูลบอร์ด
@@ -616,6 +555,106 @@ const requestBoard = async (req, res, next) => {
   // console.log(board)
   // console.log(newHistoryBoard)
 };
+
+// ยกเลิกการเบิกอุปกรณ์
+const restoreBoard = async (req, res) => {
+  const { hbid, bid, description } = req.body;
+
+  try {
+    let board = await Board.findById(bid);
+    if (!board)
+      return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
+    let hisb = await HistoryBoard.findById(hbid);
+    if (!hisb)
+      return res
+        .status(401)
+        .send("ไม่พบข้อมูลประวัติรายการบอร์ดนี้ในฐานข้อมูล");
+
+    if (hisb.actionType === "เพิ่ม") {
+      if (board.total < hisb.total)
+        return res.status(401).send("จำนวนบอร์ดในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
+      board.total = board.total - hisb.total;
+    } else {
+      board.total = board.total + hisb.total;
+    }
+
+    let newTag = {
+      user: req.userId,
+      code: `${hisb.code}-${hisb.tags.length + 1}`,
+      action: "คืนสต๊อก",
+      total: hisb.total,
+      date: new Date(),
+      description: description
+    }
+    hisb.total = 0;
+    await hisb.tags.unshift(newTag)
+
+    await board.save();
+    await hisb.save();
+
+    let hisbs = await HistoryBoard.find()
+    .populate("board")
+    .populate("user")
+    .populate("tags.user");
+    let newData =  await orderData(hisbs);
+
+    let boards = await Board.find();
+    io.emit("board-actions", boards);
+
+
+    res.status(200).json(newData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+  }
+};
+
+const checkBoardEquipment = async (req, res) => {
+
+  let total = Number(req.body.total);
+  let boardId = req.params.bid;
+  let errMsgList = {tools: []};
+  let successMsgList = {tools: [], board: null};
+
+  try{
+
+    if(total <= 0) return res.status(401).send("จำนวนที่ต้องการเบิกต้องมีค่าอย่างน้อย 1");
+
+    let board = await Board.find({_id: boardId}).populate("tools.tool");
+    if (!board)
+      return res.status(401).send("รายการบอร์ดนี้ไม่มีอยู่ในฐานข้อมูล");
+    if(board[0].total < total) {
+      let calTotalBoard = board[0].total - total
+      return res.status(401).send(`ขาดบอร์ดจำนวน ${calTotalBoard} บอร์ด`);
+    } else {
+      successMsgList.board = board[0].total - total 
+    }
+
+    for(let r=0; r < board[0].tools.length; r++) {
+      let data = board[0].tools[r]
+      let tool = await Tool.findById(data.tool._id);
+      // จำนวนที่ผู้ใช้กรอกมา * จำนวนอุปกรณ์ที่ต้องใช้ต่อ 1 บอร์ด
+      let allUsedTool = total * data.total; 
+      if(!tool) return res.status(401).send(`รายการอุปกรณ์บางอย่างไม่อยู่ในฐานข้อมูล โปรดตรวจสอบข้อมูลอีกครั้ง`);
+      if(allUsedTool > tool.total) {
+        let calInsuffTool = allUsedTool - tool.total;
+        let arr = { toolName: tool.toolName, insuffTool: calInsuffTool, usedTool: allUsedTool }
+        errMsgList.tools.push(arr);
+      } else {
+        let calToolInStock = tool.total - allUsedTool;
+        let arr = { toolName: tool.toolName, toolInStock: calToolInStock, usedTool: allUsedTool }
+        // console.log()
+        successMsgList.tools.push(arr)
+      }
+    }
+
+    res.status(200).json({success: successMsgList, error: errMsgList});
+
+  } catch(error) {
+    console.log(error);
+    res.status(500).send("ไม่สามารถตรวจสอบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+  }
+}
 
 // การเบิกบอร์ด กรณีของไม่ครบ
 const requestBoardandIncompleteTool = async (req, res, next) => {
@@ -1344,8 +1383,10 @@ exports.getIncompleteBoard = getIncompleteBoard;
 exports.editBoard = editBoard;
 exports.actionBoard = actionBoard;
 exports.requestBoard = requestBoard;
+exports.checkBoardEquipment = checkBoardEquipment;
 exports.requestBoardandIncompleteTool = requestBoardandIncompleteTool;
 exports.createBoard = createBoard;
+exports.restoreBoard = restoreBoard;
 exports.cancelRequestBoard = cancelRequestBoard;
 exports.cancelRequestBoardandIncomplete = cancelRequestBoardandIncomplete;
 // exports.updateIncompleteBoard = updateIncompleteBoard;

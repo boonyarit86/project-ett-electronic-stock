@@ -1,0 +1,32 @@
+#paper {
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.content {
+    width: 40%;
+    display: flex;
+}
+
+.head, .tag {
+    margin-right: 40px;
+}
+
+.head p, .tag p {
+    font-weight: bold;
+}
+
+.tagHistory {
+    width: 60%;
+    margin-right: 5px;
+    padding: 10px;
+    border: 1px solid #000000;
+    border-radius: 5px;
+    box-sizing: border-box;
+    display: flex;
+}
+
+.tagButton button:hover {
+    cursor: pointer;
+}

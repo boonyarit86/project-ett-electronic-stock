@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useForm } from "../../shared/hooks/form-hook";
-// import { toolActions } from "../../actions/toolActions";
+import { boardActions } from "../../actions/boardActions";
 // import { createNotificationAction } from "../../actions/notificationActions";
 import { Link } from "react-router-dom";
 // import Axios from "axios";
@@ -19,7 +19,7 @@ import {
   Avatar,
   Button,
 } from "@material-ui/core";
-// import ModalAction from "./ModalAction";
+import ModalAction from "./ModalAction";
 
 // Icon
 import RestorePageIcon from "@material-ui/icons/RestorePage";
@@ -81,7 +81,7 @@ export default function TableBoard({ boards, auth, dispatch }) {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [openModal, setOpenModal] = useState(false);
   const [headerForm, setHeaderForm] = useState("");
-  const [tool, setTool] = useState({});
+  const [board, setBoard] = useState({});
   const [action, setAction] = useState(null);
   const [description, setDescription] = useState("");
 
@@ -108,35 +108,37 @@ export default function TableBoard({ boards, auth, dispatch }) {
 
   // function เปิด prompt
   const handleOpenModal = (actionType, data) => {
-    // setHeaderForm(actionType + " อุปกรณ์ " + data.toolName);
-    // setOpenModal(true);
-    // setTool(data);
-    // setAction(actionType);
+    setHeaderForm(actionType + " บอร์ด " + data.boardName);
+    setOpenModal(true);
+    setBoard(data);
+    setAction(actionType);
   };
 
   // function ปิด prompt
   const handleCloseModal = () => {
-    // setOpenModal(false);
-    // setHeaderForm("");
-    // setTool({});
-    // setAction(null);
+    setOpenModal(false);
+    setHeaderForm("");
+    setBoard({});
+    setAction(null);
   };
+
 
   // function เบิกและเพิ่มอุปกรณ์
   const onSubmitActions = async (e) => {
-    // e.preventDefault();
-    // let toolTotal = Number(formState.inputs.total.value);
-    // const data = {
-    //   total: toolTotal,
-    //   actionType: action,
-    //   description: description,
-    // };
-    // dispatch(toolActions(auth.token, data, tool._id))
-    // setOpenModal(false);
-    // setDescription("");
-    // setTool({});
-    // setAction(null);
-    // setHeaderForm("")
+    e.preventDefault();
+    let boardTotal = Number(formState.inputs.total.value);
+    const data = {
+      total: boardTotal,
+      actionType: action,
+      description: description,
+    };
+    dispatch(boardActions(auth.token, data, board._id))
+    setOpenModal(false);
+    setDescription("");
+    setBoard({});
+    setAction(null);
+    setHeaderForm("")
+    // console.log(data);
   };
 
   return (
@@ -242,7 +244,7 @@ export default function TableBoard({ boards, auth, dispatch }) {
 
       {/* Prompt Request & Add Form */}
 
-      {/* <ModalAction
+      <ModalAction
         handleCloseModal={handleCloseModal}
         onSubmitActions={onSubmitActions}
         inputHandler={inputHandler}
@@ -252,7 +254,7 @@ export default function TableBoard({ boards, auth, dispatch }) {
         description={description}
         setDescription={setDescription}
         data={board}
-      /> */}
+      />
     </div>
   );
 }
