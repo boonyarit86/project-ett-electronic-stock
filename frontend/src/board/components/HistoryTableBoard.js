@@ -140,7 +140,13 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
       bid: dataSubmit.board._id,
       description: description,
     };
-    dispatch(restoreBoardAction(auth.token, data));
+    let path;
+    if(dataSubmit.actionType === "เบิก" || dataSubmit.actionType === "เพิ่ม") {
+      path = "restore"
+    } else if (dataSubmit.actionType === "เบิกบอร์ดแบบชุด") {
+      path = "restore/boardandtools"
+    }
+    dispatch(restoreBoardAction(auth.token, data, path));
     // console.log(data)
     setDescription(null);
     setOpenRestore(false);
@@ -154,7 +160,7 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
 
   const handleCloseDescription = () => {
     setOpenDescription(false);
-    setDataDes({})
+    setDataDes({});
   };
 
   return (
@@ -202,20 +208,17 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
                         <TableCell>{formatDate(hisb.exp)}</TableCell>
                         <TableCell>
                           <div>
-                            {auth.userStatus === "admin" &&
-                              hisb.actionType !== "เบิกจากบอร์ด" &&
-                              hisb.total !== 0 &&
-                              hisb.actionType !== "requestIncomplete" && (
-                                <Button
-                                  variant="contained"
-                                  color="secondary"
-                                  startIcon={<RestoreIcon />}
-                                  className={classes.btn}
-                                  onClick={() => handleOpenRestore(hisb)}
-                                >
-                                  ยกเลิก
-                                </Button>
-                              )}
+                            {auth.userStatus === "admin" && hisb.total !== 0 && (
+                              <Button
+                                variant="contained"
+                                color="secondary"
+                                startIcon={<RestoreIcon />}
+                                className={classes.btn}
+                                onClick={() => handleOpenRestore(hisb)}
+                              >
+                                ยกเลิก
+                              </Button>
+                            )}
                             <Button
                               variant="contained"
                               color="default"
@@ -255,11 +258,13 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
         />
       )}
 
-      {openDescription && ( <ModalDescription
-        openPrompt={openDescription}
-        handleClosePrompt={handleCloseDescription}
-        data={dataDes}
-      />)}
+      {openDescription && (
+        <ModalDescription
+          openPrompt={openDescription}
+          handleClosePrompt={handleCloseDescription}
+          data={dataDes}
+        />
+      )}
 
       {/* Prompt Request & Add Form */}
     </div>

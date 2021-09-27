@@ -152,6 +152,24 @@ export const boardActions = (token, data, bid) => async (dispatch) => {
   }
 };
 
+export const requestBoardAction = (token, data, history) => async (dispatch) => {
+  dispatch({ type: ACTION_BOARD_REQUEST });
+  try {
+    await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/boards/request`, data, {
+      headers: AuthToken(token),
+    }).then((res) => {
+      // console.log(res.data)
+      dispatch({ type: ACTION_BOARD_SUCCESS });
+      history.push("/board/list");
+    });
+  } catch (error) {
+    dispatch({
+      type: ACTION_BOARD_FAIL,
+      payload: catchErrors(error),
+    });
+  }
+};
+
 export const editBoardAction = (token, board, history) => async (dispatch) => {
   dispatch({ type: EDIT_BOARD_REQUEST });
   try {
@@ -254,11 +272,11 @@ export const getAllHistoryBoardAction = (token) => async (dispatch) => {
   }
 };
 
-export const restoreBoardAction = (token, data) => async (dispatch) => {
+export const restoreBoardAction = (token, data, path) => async (dispatch) => {
   dispatch({ type: RESTORE_HISTORY_BOARD_REQUEST });
   try {
     await Axios.put(
-      `${process.env.REACT_APP_BACKEND_URL}/boards/history/restore`,
+      `${process.env.REACT_APP_BACKEND_URL}/boards/history/${path}`,
       data,
       {
         headers: AuthToken(token),

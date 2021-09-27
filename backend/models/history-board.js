@@ -40,6 +40,7 @@ const boardHistorySchema = new Schema({
         description: { type: String },
         tools: [{
             tool: {type: Schema.Types.ObjectId, ref: "Tool"},
+            hist: {type: Schema.Types.ObjectId, ref: "ToolHistory"},
             total: { type: Number },
             insuffiTotal: { type: Number }
         }],

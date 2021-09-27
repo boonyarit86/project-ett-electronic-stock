@@ -36,7 +36,7 @@ const toolHistorySchema = new Schema({
         user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
         code: { type: String, required: true },
         action: { type: String, required: true },
-        total: { type: String, required: true },
+        total: { type: Number, required: true },
         date: { type: String, required: true },
         boardName: { type: String },
         insuffiTotal: { type: String },

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import {
   getAllBoardAction,
-  checkBoardAction
+  checkBoardAction,
+  requestBoardAction
 } from "../../actions/boardActions";
 // import { createNotificationAction } from "../../actions/notificationActions";
 import { makeStyles } from "@material-ui/core/styles";
@@ -21,6 +22,7 @@ import { Alert, AlertTitle } from "@material-ui/lab";
 
 // CSS
 import "./BoardRequest.css";
+import Messages from "../components/Messages";
 // import "react-toastify/dist/ReactToastify.css";
 
 // toast.configure();
@@ -64,7 +66,6 @@ function BoardRequest() {
   const [openAlert, setOpenAlert] = useState(false);
   const [validTool, setValidTool] = useState(false);
   const [toolSelected, setToolSelected] = useState(false);
-  const [validBoard, setvalidBoard] = useState(false);
   const [boardToltal, setBoardToltal] = useState({});
   const [description, setDescription] = useState("");
   const [notifications, setNotifications] = useState([]);
@@ -99,11 +100,9 @@ function BoardRequest() {
     e.preventDefault();
 
     // เตรียมข้อมูลการเบิกบอร์ดที่ต้องการส่งไปยัง backend
-    let data = {
-      bid: formState.inputs.boardId.value,
-      total: formState.inputs.total.value,
-      description: description,
-    };
+    if(msgs) {
+      dispatch(requestBoardAction(auth.token, {msgs: msgs, description: description}, history))
+    }
   };
 
   // function ตรวจสอบอุปกรณ์ของการเบิกบอร์ด
@@ -114,11 +113,11 @@ function BoardRequest() {
     dispatch(checkBoardAction(auth.token, data, boardId))
   };
 
-  console.log(msgs)
+  // console.log(msgs)
 
   // function จัดการ alert ของปุ่มตรวจสอบ
   const handleAlert = () => {
-    setvalidBoard(false);
+    // setvalidBoard(false);
     setToolSelected(false);
     setOpenAlert(false);
   };
@@ -148,7 +147,7 @@ function BoardRequest() {
           </Alert>
         </div>
       )}
-      <Paper className="createtool-form">
+      <Paper className="request-board-form">
         <form onSubmit={onSubmit}>
           <div>
             <SelectValidation
@@ -194,35 +193,7 @@ function BoardRequest() {
           >
             ตรวจสอบ
           </Button>
-
-          {/* {openAlert && validTool !== false ?
-                        <div className="alert-errordata">
-                            <h3>รายการอุปกรณ์ไม่ครบ</h3>
-                            {!validBoard &&
-                                <div className="valid-data">
-                                    <p>{boardToltal.boardName}</p>
-                                    <p>{boardToltal.total}</p>
-                                </div>
-                            }
-                            {validTool && validTool.map((item) => (
-                                <div key={item.id} className="valid-data">
-                                    <p>{item.toolName}</p>
-                                    <p>{item.total}</p>
-                                </div>
-                            ))}
-                        </div>
-                        : toolSelected ?
-                            <div className="alert-successdata">
-                                <h3>รายการอุปกรณ์ที่ต้องใช้</h3>
-                                {toolSelected && toolSelected.map((item) => (
-                                    <div key={item.id} className="valid-data">
-                                        <p>{item.toolName}</p>
-                                        <p>{item.total}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            : null
-                    } */}
+          { msgs && <Messages msgs={msgs} />}
 
           <Button
             type="submit"
@@ -230,7 +201,7 @@ function BoardRequest() {
             color="primary"
             fullWidth
             className={classes.button}
-            disabled={!validBoard}
+            disabled={!msgs}
           >
             ยืนยัน
           </Button>

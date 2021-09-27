@@ -203,7 +203,7 @@ export default function HistoryTableTool({ hists, auth, dispatch }) {
                         <TableCell>
                           <div>
                             {auth.userStatus === "admin" &&
-                              hist.actionType !== "เบิกจากบอร์ด" &&
+                              hist.actionType !== "เบิกอุปกรณ์พร้อมบอร์ด" &&
                               hist.total !== 0 &&
                               hist.actionType !== "requestIncomplete" && (
                                 <Button

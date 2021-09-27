@@ -31,6 +31,7 @@ export function boardListsReducers(state = initialState, action) {
         ...state,
         isLoadingActions: false,
         errorMsgActions: null,
+        msgs: null
       };
     case CHECK_BOARD_SUCCESS:
       return {
