@@ -22,7 +22,7 @@ export default function Messages({ msgs }) {
                   <tr key={item.toolName} className="tr-msg">
                     <td>{item.toolName}</td>
                     <td>{item.usedTool}</td>
-                    <td>{item.instuffTool}</td>
+                    <td>{item.insuffTotal}</td>
                   </tr>
                 ))}
               </tbody>

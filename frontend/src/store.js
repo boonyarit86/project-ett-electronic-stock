@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import { userDataReducers, authUserReducers } from "./reducers/userReducers";
 import { sttReducers } from "./reducers/sttReducers";
 import { toolListsReducers, toolListReducers, histsListsReducers } from "./reducers/toolReducers";
-import { boardListReducers, boardListsReducers, hisbsListsReducers } from "./reducers/boardReducers";
+import { boardListReducers, boardListsReducers, hisbsListsReducers, incompleteToolReducers } from "./reducers/boardReducers";
 
 const inititalState = [];
 const reducer = combineReducers({
@@ -15,7 +15,8 @@ const reducer = combineReducers({
     histLists: histsListsReducers,
     boardLists: boardListsReducers,
     boardList: boardListReducers,
-    hisbLists: hisbsListsReducers
+    hisbLists: hisbsListsReducers,
+    incompleteTool :incompleteToolReducers
 });
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

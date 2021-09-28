@@ -24,7 +24,7 @@ const Schema = mongoose.Schema;
 const boardHistorySchema = new Schema({
     code: { type: String, required: true },
     board: { type: Schema.Types.ObjectId, required: true, ref: "Board" },
-    insuffiToolId: { type: Schema.Types.ObjectId, ref: "InsuffiTool" },
+    insuffTool: { type: Schema.Types.ObjectId, ref: "InsuffTool" },
     user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     total: { type: Number, minlength: 7, required: true },
     actionType: { type: String, required: true },
@@ -42,7 +42,7 @@ const boardHistorySchema = new Schema({
             tool: {type: Schema.Types.ObjectId, ref: "Tool"},
             hist: {type: Schema.Types.ObjectId, ref: "ToolHistory"},
             total: { type: Number },
-            insuffiTotal: { type: Number }
+            insuffTotal: { type: Number }
         }],
     }]
 })

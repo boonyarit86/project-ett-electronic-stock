@@ -13,6 +13,7 @@ const {
   checkBoardEquipment,
   requestBoard,
   restoreBoardandTools,
+  getIncompleteTool,
 } = require("../controllers/boards-controllers");
 
 const router = express.Router();
@@ -20,6 +21,7 @@ const router = express.Router();
 // router.post('/history', toolsController.getAllHistoryTools);
 router.get("/", authMiddleware, getAllBoards);
 router.get("/history", authMiddleware, getAllHistoryBoards);
+router.get("/incompletetool", authMiddleware, getIncompleteTool);
 router.get("/:bid", authMiddleware, getBoard);
 
 router.post(

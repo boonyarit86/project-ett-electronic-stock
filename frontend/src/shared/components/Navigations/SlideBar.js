@@ -159,18 +159,6 @@ export default function SlideBar(props) {
             </Link>
             <Link
               className={classes.link}
-              to="/project/new"
-              onClick={closeHamburgur}
-            >
-              <ListItem button>
-                <ListItemIcon>
-                  <AddIcon />
-                </ListItemIcon>
-                <ListItemText primary="สร้างโปรเจค" />
-              </ListItem>
-            </Link>
-            <Link
-              className={classes.link}
               to="/board/request"
               onClick={closeHamburgur}
             >
@@ -195,20 +183,6 @@ export default function SlideBar(props) {
             <ListItemText primary="ประวัติการเบิก/เพิ่มบอร์ด" />
           </ListItem>
         </Link>
-        {user.status !== "none" && (
-          <Link
-            className={classes.link}
-            to="/historyproject"
-            onClick={closeHamburgur}
-          >
-            <ListItem button>
-              <ListItemIcon>
-                <RestorePageIcon />
-              </ListItemIcon>
-              <ListItemText primary="ประวัติการเบิกโปรเจค" />
-            </ListItem>
-          </Link>
-        )}
       </List>
       <Divider />
       <List>

@@ -1,20 +1,17 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
 
 const Schema = mongoose.Schema;
 
 const incompleteToolSchema = new Schema({
-    bid: {type: String, required: true},
-    boardName: { type: String, required: true },
-    boardCode: { type: String },
-    imageProfile: { type: String },
-    date: { type: String, required: true },
-    username: { type: String, required: true },
-    status: { type: String, required: true },
-    tools: { type: Array, required: true },
-    actionType: { type: String },
+    board: { type: Schema.Types.ObjectId, required: true, ref: "Board" },
+    hisb: { type: Schema.Types.ObjectId, required: true, ref: "BoardHistory" },
+    user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    tools: [{
+        tool: {type: Schema.Types.ObjectId, ref: "Tool"},
+        hist: {type: Schema.Types.ObjectId, ref: "ToolHistory"},
+        total: { type: Number },
+        insuffTotal: { type: Number }
+    }],
 });
 
-incompleteToolSchema.plugin(uniqueValidator);
-
-module.exports = mongoose.model('IncompleteTool', incompleteToolSchema);
+module.exports = mongoose.model('InsuffTool', incompleteToolSchema);

@@ -39,7 +39,7 @@ const toolHistorySchema = new Schema({
         total: { type: Number, required: true },
         date: { type: String, required: true },
         boardName: { type: String },
-        insuffiTotal: { type: String },
+        insuffTotal: { type: Number },
         description: { type: String }
     }]
 });

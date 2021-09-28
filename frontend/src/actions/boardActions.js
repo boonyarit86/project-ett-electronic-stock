@@ -23,6 +23,9 @@ import {
   HISTORY_BOARD_LIST_FAIL,
   HISTORY_BOARD_LIST_REQUEST,
   HISTORY_BOARD_LIST_SUCCESS,
+  INCOMPLETE_TOOL_FAIL,
+  INCOMPLETE_TOOL_REQUEST,
+  INCOMPLETE_TOOL_SUCCESS,
   RESTORE_HISTORY_BOARD_FAIL,
   RESTORE_HISTORY_BOARD_REQUEST,
   RESTORE_HISTORY_BOARD_SUCCESS,
@@ -121,6 +124,7 @@ export const checkBoardAction = (token, data, bid) => async (dispatch) => {
       headers: AuthToken(token),
     }).then((res) => {
       dispatch({ type: CHECK_BOARD_SUCCESS, payload: res.data });
+      console.log(res.data)
     });
   } catch (error) {
     dispatch({
@@ -311,5 +315,22 @@ export const deleteBoardAction = (token, bid, history) => async (dispatch) => {
       payload: catchErrors(error)
     });
     notifyError(catchErrors(error));
+  }
+};
+
+export const getIncompleteToolAction = (token) => async (dispatch) => {
+  dispatch({ type: INCOMPLETE_TOOL_REQUEST });
+  try {
+    await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/boards/incompletetool`, {
+      headers: AuthToken(token),
+    }).then((res) => {
+      dispatch({ type: INCOMPLETE_TOOL_SUCCESS, payload: res.data });
+      console.log(res.data)
+    });
+  } catch (error) {
+    dispatch({
+      type: INCOMPLETE_TOOL_FAIL,
+      payload: catchErrors(error),
+    });
   }
 };

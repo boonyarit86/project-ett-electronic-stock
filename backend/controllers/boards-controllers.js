@@ -8,6 +8,7 @@ const HistoryTool = require("../models/history-tool");
 const HistoryBoard = require("../models/history-board");
 const HistoryCnt = require("../models/history-cnt");
 const Board = require("../models/board");
+const InsufficientTool = require("../models/incomplete-tool");
 
 // ** -- Public Function -- **
 const covertTypeandCateTool = async (tools, stt) => {
@@ -87,18 +88,23 @@ const getAllHistoryBoards = async (req, res) => {
 };
 
 // รับข้อมูลอุปกรณ์คงค้าง
-const getIncompleteBoard = async (req, res, next) => {
-  // let incompleteTool;
-  // try {
-  //     incompleteTool = await IncompleteTool.find();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not fetching data about Incomplete Board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // res.json(incompleteTool);
+const getIncompleteTool = async (req, res) => {
+  try {
+    let lists = await InsufficientTool.find()
+      .populate("board")
+      .populate("user")
+      .populate("hisb")
+      .populate("tools.tool");
+    let newData = await orderData(lists);
+    res.status(200).json(newData);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .send(
+        "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง"
+      );
+  }
 };
 
 // สร้างรายการบอร์ด
@@ -397,7 +403,11 @@ const requestBoard = async (req, res) => {
   // console.log(msgs.success.tools[0].toolName)
   try {
     let usedToolList = [];
+    let incompleteToolList = [];
     let board = await Board.findById(msgs.success.board._id);
+    let actionType = "เบิกอุปกรณ์พร้อมบอร์ด";
+    let insuffTool_id = null;
+    let newInsuffiTool = null;
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
     board.total = msgs.success.board.boardInStock;
@@ -409,7 +419,7 @@ const requestBoard = async (req, res) => {
         .status(401)
         .send("ไม่สามารถกำหนดเลขที่การเบิกได้ โปรดลองทำรายการอีกครั้ง");
 
-    if (msgs.error.tools.length === 0) {
+    if (msgs.success.tools.length !== 0) {
       let tools = msgs.success.tools;
 
       for (let r = 0; r < tools.length; r++) {
@@ -460,6 +470,74 @@ const requestBoard = async (req, res) => {
       }
     }
 
+    if (msgs.error.tools.length !== 0) {
+      let tools = msgs.error.tools;
+      actionType = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
+
+      for (let r = 0; r < tools.length; r++) {
+        let tool = await Tool.findById(tools[r]._id);
+        if (!tool)
+          return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
+      }
+
+      for (let r = 0; r < tools.length; r++) {
+        let tool = await Tool.findById(tools[r]._id);
+        let newHistoryTool = new HistoryTool({
+          code: `${cntTool.name}${cntTool.cntNumber}`,
+          tool: tools[r]._id,
+          user: req.userId,
+          total: tool.total,
+          actionType: "เบิกอุปกรณ์พร้อมบอร์ด",
+          date: new Date(),
+          exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
+          description: description,
+          tags: [
+            {
+              user: req.userId,
+              code: `${cntTool.name}${cntTool.cntNumber}-1`,
+              action: "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)",
+              total: tool.total,
+              date: new Date(),
+              boardName: msgs.success.board.boardName,
+              description: description,
+              insuffTotal: tools[r].insuffTotal,
+            },
+          ],
+        });
+
+        usedToolList.push({
+          tool: tools[r]._id,
+          total: tool.total,
+          hist: newHistoryTool._id,
+          insuffTotal: tools[r].insuffTotal,
+        });
+        
+        incompleteToolList.push({
+          tool: tools[r]._id,
+          total: tool.total,
+          hist: newHistoryTool._id,
+          insuffTotal: tools[r].insuffTotal,
+        });
+        tool.total = 0;
+        cntTool.cntNumber = cntTool.cntNumber + 1;
+
+        // console.log("------Tool-In------");
+        // console.log(tool);
+        // console.log("------HistoryTool------");
+        // console.log(newHistoryTool);
+        await cntTool.save();
+        await newHistoryTool.save();
+        await tool.save();
+      }
+      newInsuffiTool = new InsufficientTool({
+        board: board._id,
+        user: req.userId,
+        tools: incompleteToolList
+      })
+
+      insuffTool_id = newInsuffiTool._id;
+    }
+
     let newHistoryBoard = new HistoryBoard({
       code: `${cntBoard.name}${cntBoard.cntNumber}`,
       board: msgs.success.board._id,
@@ -473,7 +551,7 @@ const requestBoard = async (req, res) => {
         {
           user: req.userId,
           code: `${cntBoard.name}${cntBoard.cntNumber}-1`,
-          action: "เบิกบอร์ดแบบชุด",
+          action: actionType,
           total: msgs.success.board.usedBoard,
           date: new Date(),
           description: description,
@@ -482,12 +560,20 @@ const requestBoard = async (req, res) => {
       ],
     });
 
+    if(insuffTool_id !== null) {
+      newHistoryBoard.insuffTool = insuffTool_id;
+      newInsuffiTool.hisb = newHistoryBoard._id;
+      await newInsuffiTool.save()
+    }
+
     cntBoard.cntNumber = cntBoard.cntNumber + 1;
 
     // console.log("------Board------");
     // console.log(board);
     // console.log("------HistoryBoard------");
     // console.log(newHistoryBoard);
+    // console.log("------InsuffTool------");
+    // console.log(newInsuffiTool);
     await cntBoard.save();
     await newHistoryBoard.save();
     await board.save();
@@ -523,7 +609,9 @@ const restoreBoard = async (req, res) => {
 
     if (hisb.actionType === "เพิ่ม") {
       if (board.total < hisb.total)
-        return res.status(401).send("จำนวนบอร์ดในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
+        return res
+          .status(401)
+          .send("จำนวนบอร์ดในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
       board.total = board.total - hisb.total;
     } else {
       board.total = board.total + hisb.total;
@@ -535,28 +623,29 @@ const restoreBoard = async (req, res) => {
       action: "คืนสต๊อก",
       total: hisb.total,
       date: new Date(),
-      description: description
-    }
+      description: description,
+    };
     hisb.total = 0;
-    await hisb.tags.unshift(newTag)
+    await hisb.tags.unshift(newTag);
 
     await board.save();
     await hisb.save();
 
     let hisbs = await HistoryBoard.find()
-    .populate("board")
-    .populate("user")
-    .populate("tags.user");
-    let newData =  await orderData(hisbs);
+      .populate("board")
+      .populate("user")
+      .populate("tags.user");
+    let newData = await orderData(hisbs);
 
     let boards = await Board.find();
     io.emit("board-actions", boards);
 
-
     res.status(200).json(newData);
   } catch (error) {
     console.error(error);
-    res.status(500).send("ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    res
+      .status(500)
+      .send("ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
 };
 
@@ -574,7 +663,7 @@ const restoreBoardandTools = async (req, res) => {
         .status(401)
         .send("ไม่พบข้อมูลประวัติรายการบอร์ดนี้ในฐานข้อมูล");
 
-    board.total = board.total + hisb.total
+    board.total = board.total + hisb.total;
 
     let newTag = {
       user: req.userId,
@@ -621,6 +710,12 @@ const restoreBoardandTools = async (req, res) => {
     // console.log(board);
     // console.log("-----HistoryBoard-----");
     // console.log(hisb);
+
+    if(hisb.insuffTool) {
+      let insuffTool = await InsufficientTool.findById(hisb.insuffTool);
+      if(!insuffTool) return
+      await insuffTool.remove();
+    }
 
     await hisb.save();
     await board.save();
@@ -684,11 +779,11 @@ const checkBoardEquipment = async (req, res) => {
             `รายการอุปกรณ์บางอย่างไม่อยู่ในฐานข้อมูล โปรดตรวจสอบข้อมูลอีกครั้ง`
           );
       if (allUsedTool > tool.total) {
-        let calInsuffTool = allUsedTool - tool.total;
+        let calInsuffTotal = allUsedTool - tool.total;
         let arr = {
           _id: tool._id,
           toolName: tool.toolName,
-          instuffTool: calInsuffTool,
+          insuffTotal: calInsuffTotal,
           usedTool: allUsedTool,
         };
         errMsgList.tools.push(arr);
@@ -1437,7 +1532,7 @@ const deleteBoard = async (req, res) => {
 exports.getAllBoards = getAllBoards;
 exports.getAllHistoryBoards = getAllHistoryBoards;
 exports.getBoard = getBoard;
-exports.getIncompleteBoard = getIncompleteBoard;
+exports.getIncompleteTool = getIncompleteTool;
 exports.editBoard = editBoard;
 exports.actionBoard = actionBoard;
 exports.requestBoard = requestBoard;

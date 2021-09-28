@@ -63,6 +63,7 @@ const DetailBoard = React.lazy(() => import("./board/pages/DetailBoard"));
 const EditBoard = React.lazy(() => import("./board/pages/EditBoard"));
 const HistoryBoard = React.lazy(() => import("./board/pages/HistoryBoard"));
 const BoardRequest = React.lazy(() => import("./board/pages/BoardRequest"));
+const BoardIncomplete = React.lazy(() => import("./board/pages/BoardIncomplete"));
 
 
 
@@ -110,6 +111,9 @@ function App() {
         </Route>
         <Route path="/board/:bid" exact>
           <EditBoard />
+        </Route>
+        <Route path="/boardincomplete">
+          <BoardIncomplete />
         </Route>
         <Route path="/historyboard">
           <HistoryBoard />

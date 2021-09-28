@@ -1,4 +1,4 @@
-import { ACTION_BOARD_FAIL, ACTION_BOARD_REQUEST, ACTION_BOARD_SUCCESS, CHECK_BOARD_FAIL, CHECK_BOARD_REQUEST, CHECK_BOARD_SUCCESS, CREATE_BOARD_FAIL, CREATE_BOARD_REQUEST, CREATE_BOARD_SUCCESS, DELETE_BOARD_FAIL, DELETE_BOARD_REQUEST, DELETE_BOARD_SUCCESS, EDIT_BOARD_FAIL, EDIT_BOARD_REQUEST, EDIT_BOARD_SUCCESS, GET_ALL_BOARD_FAIL, GET_ALL_BOARD_REQUEST, GET_ALL_BOARD_SUCCESS, GET_BOARD_FAIL, GET_BOARD_REQUEST, GET_BOARD_SUCCESS, HISTORY_BOARD_LIST_FAIL, HISTORY_BOARD_LIST_REQUEST, HISTORY_BOARD_LIST_SUCCESS, RESTORE_HISTORY_BOARD_FAIL, RESTORE_HISTORY_BOARD_REQUEST, RESTORE_HISTORY_BOARD_SUCCESS } from "../constants/boardConstants";
+import { ACTION_BOARD_FAIL, ACTION_BOARD_REQUEST, ACTION_BOARD_SUCCESS, EDIT_INCOMPLETE_TOOL_REQUEST, CHECK_BOARD_FAIL, CHECK_BOARD_REQUEST, CHECK_BOARD_SUCCESS, CREATE_BOARD_FAIL, CREATE_BOARD_REQUEST, CREATE_BOARD_SUCCESS, DELETE_BOARD_FAIL, DELETE_BOARD_REQUEST, DELETE_BOARD_SUCCESS, EDIT_BOARD_FAIL, EDIT_BOARD_REQUEST, EDIT_BOARD_SUCCESS, GET_ALL_BOARD_FAIL, GET_ALL_BOARD_REQUEST, GET_ALL_BOARD_SUCCESS, GET_BOARD_FAIL, GET_BOARD_REQUEST, GET_BOARD_SUCCESS, HISTORY_BOARD_LIST_FAIL, HISTORY_BOARD_LIST_REQUEST, HISTORY_BOARD_LIST_SUCCESS, INCOMPLETE_TOOL_REQUEST, RESTORE_HISTORY_BOARD_FAIL, RESTORE_HISTORY_BOARD_REQUEST, RESTORE_HISTORY_BOARD_SUCCESS, DELETE_INCOMPLETE_TOOL_REQUEST, INCOMPLETE_TOOL_SUCCESS, EDIT_INCOMPLETE_TOOL_SUCCESS, DELETE_INCOMPLETE_TOOL_SUCCESS, INCOMPLETE_TOOL_FAIL, EDIT_INCOMPLETE_TOOL_FAIL, DELETE_INCOMPLETE_TOOL_FAIL } from "../constants/boardConstants";
 
 const initialState = {
   errorMsg: null,
@@ -163,6 +163,54 @@ export function hisbsListsReducers(state = {}, action) {
         isLoadingActions: false,
         errorMsgActions: action.payload
       }
+    default:
+      return state;
+  }
+}
+
+export function incompleteToolReducers(state = {}, action) {
+  switch (action.type) {
+    case INCOMPLETE_TOOL_REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case EDIT_INCOMPLETE_TOOL_REQUEST:
+    case DELETE_INCOMPLETE_TOOL_REQUEST:
+      return {
+        ...state,
+        isLoadingActions: true,
+      };
+    case INCOMPLETE_TOOL_SUCCESS:
+      return {
+        ...state,
+        lists: action.payload,
+        isLoading: false,
+        errorMsgActions: null,
+        errorMsg: null
+      };
+    case EDIT_INCOMPLETE_TOOL_SUCCESS:
+    case DELETE_INCOMPLETE_TOOL_SUCCESS:
+      return {
+        ...state,
+        isLoadingActions: false,
+        lists: action.payload,
+        errorMsgActions: null,
+        errorMsg: null
+      };
+    case INCOMPLETE_TOOL_FAIL:
+      return {
+        ...state,
+        isLoading: false,
+        errorMsg: action.payload,
+      };
+    case EDIT_INCOMPLETE_TOOL_FAIL:
+    case DELETE_INCOMPLETE_TOOL_FAIL:
+      return {
+        ...state,
+        isLoadingActions: false,
+        errorMsgActions: action.payload,
+      };
     default:
       return state;
   }
