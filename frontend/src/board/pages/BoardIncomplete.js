@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { getIncompleteToolAction } from "../../actions/boardActions";
+import { getIncompleteToolAction, requestIncompleteToolActions } from "../../actions/boardActions";
 import { useForm } from "../../shared/hooks/form-hook";
 import { makeStyles } from '@material-ui/core/styles';
 import { AuthContext } from "../../shared/context/auth-context";
@@ -81,7 +81,7 @@ function BoardIncomplete() {
     const handleOpenInput = (item, tool) => {
         setOpenInput(true);
         let newData = {
-            boardId: item.board._id,
+            _id: item._id,
             hisbId: item.hisb._id,
             tool: tool
         }
@@ -102,7 +102,8 @@ function BoardIncomplete() {
         let newData = data;
         newData.description = description;
         newData.total = formState.inputs.total.value;
-        console.log(newData)
+        dispatch(requestIncompleteToolActions(auth.token, newData));
+        // console.log(newData)
 
         setOpenInput(false);
         setData(null)

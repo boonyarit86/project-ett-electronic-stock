@@ -99,11 +99,7 @@ const getIncompleteTool = async (req, res) => {
     res.status(200).json(newData);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .send(
-        "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง"
-      );
+    res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
 };
 
@@ -511,7 +507,7 @@ const requestBoard = async (req, res) => {
           hist: newHistoryTool._id,
           insuffTotal: tools[r].insuffTotal,
         });
-        
+
         incompleteToolList.push({
           tool: tools[r]._id,
           total: tool.total,
@@ -532,8 +528,8 @@ const requestBoard = async (req, res) => {
       newInsuffiTool = new InsufficientTool({
         board: board._id,
         user: req.userId,
-        tools: incompleteToolList
-      })
+        tools: incompleteToolList,
+      });
 
       insuffTool_id = newInsuffiTool._id;
     }
@@ -560,10 +556,10 @@ const requestBoard = async (req, res) => {
       ],
     });
 
-    if(insuffTool_id !== null) {
+    if (insuffTool_id !== null) {
       newHistoryBoard.insuffTool = insuffTool_id;
       newInsuffiTool.hisb = newHistoryBoard._id;
-      await newInsuffiTool.save()
+      await newInsuffiTool.save();
     }
 
     cntBoard.cntNumber = cntBoard.cntNumber + 1;
@@ -711,9 +707,9 @@ const restoreBoardandTools = async (req, res) => {
     // console.log("-----HistoryBoard-----");
     // console.log(hisb);
 
-    if(hisb.insuffTool) {
+    if (hisb.insuffTool) {
       let insuffTool = await InsufficientTool.findById(hisb.insuffTool);
-      if(!insuffTool) return
+      if (!insuffTool) return;
       await insuffTool.remove();
     }
 
@@ -810,269 +806,127 @@ const checkBoardEquipment = async (req, res) => {
 };
 
 // การเบิกบอร์ด กรณีของไม่ครบ
-const requestBoardandIncompleteTool = async (req, res, next) => {
-  // const { username, status, description, image } = req.body;
-  // let total = Number(req.body.total);
-  // let board;
-  // let toolList = []
-  // let toolIncomplete = []
-  // let newToolsId = []
-  // // หาข้อมูลบอร์ดที่ต้องการแก้
-  // try {
-  //     board = await Board.findById(req.params.bid);
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not find board by id.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // คำนวณอุปกรณ์ที่ใช้แล้วทำการแก้ไข
-  // for (var round = 0; round < board.tools.length; round++) {
-  //     let tool;
-  //     let toolId = board.tools[round].id;
-  //     let calTool;
-  //     let cntTool
-  //     // หาอุปกรณ์ที่ต้องการแก้
-  //     try {
-  //         tool = await Tool.findById(toolId);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find tool by id in process forLoop.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // ข้อมูลเลขที่การเบิกอุปกรณ์
-  //     try {
-  //         cntTool = await HistoryCnt.findById("608386350b3e6333741b6c01");
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find cntNumber.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // ผลลัพธ์จำนวนอุปกรณ์ที่ใช้
-  //     calTool = Number(board.tools[round].total) * total
-  //     // เก็บค่าว่าใช้อุปกรณ์อะไรบ้างในการเบิกบอร์ด
-  //     toolList = [...toolList,
-  //     {
-  //         id: tool._id,
-  //         toolName: tool.toolName,
-  //         toolCode: tool.toolCode,
-  //         type: tool.type,
-  //         category: tool.category,
-  //         size: tool.size,
-  //         total: calTool
-  //     }
-  //     ]
-  //     // ค่าติดลบที่ได้ จะเอาไปเก็บในอุปกรณ์คงค้าง 150 -200 = -50
-  //     let calSumTotal = tool.total - calTool
-  //     let sumTotal;
-  //     let newActionType;
-  //     if (calSumTotal < 0) {
-  //         sumTotal = tool.total
-  //         tool.total = 0
-  //         newActionType = "requestIncomplete"
-  //     } else {
-  //         sumTotal = calTool
-  //         tool.total = tool.total - calTool
-  //         newActionType = "requestFromBoard"
-  //     }
-  //     let createActionEdit = [
-  //         {
-  //             code: cntTool.name + (cntTool.cntNumber + 1) + "-1",
-  //             username: username,
-  //             total: sumTotal,
-  //             status: status,
-  //             date: new Date().toString(),
-  //             description: description,
-  //             actionType: newActionType
-  //         }
-  //     ]
-  //     // บันทึกข้อมูลประวัติการเบิกของครั้งแรกโดยไม่ได้เก็บข้อมูลไอดีของอุปกรณ์ไม่ครบ
-  //     let newHistory = new HistoryTool({
-  //         code: cntTool.name + (cntTool.cntNumber + 1),
-  //         tid: tool._id,
-  //         toolName: tool.toolName,
-  //         boardName: board.boardName,
-  //         boardCode: board.boardCode,
-  //         boardType: board.type,
-  //         type: tool.type,
-  //         category: tool.category,
-  //         size: tool.size,
-  //         date: new Date(),
-  //         total: sumTotal,
-  //         username: username,
-  //         status: status,
-  //         actionType: newActionType,
-  //         exp: new Date(new Date().getTime() + (1000 * 60) * (1440 * 180)),
-  //         description: description,
-  //         actionEdit: createActionEdit
-  //     })
-  //     try {
-  //         await tool.save()
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a tool in process forLoop.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // บันทึกข้อมูลเลขที่การเบิก
-  //     cntTool.cntNumber = cntTool.cntNumber + 1
-  //     try {
-  //         await cntTool.save();
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save cntHistory.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     try {
-  //         await newHistory.save()
-  //         newToolsId = [...newToolsId, newHistory._id]
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a history-tool in process forLoop.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // เก็บข้อมูลว่า ในการเบิกบอร์ดครั้งนี้ขาดอุปกรณ์อะไรบ้าง
-  //     if (calSumTotal < 0) {
-  //         let temArr = {
-  //             tid: tool._id,
-  //             htid: newHistory._id,
-  //             toolName: tool.toolName,
-  //             total: calSumTotal,
-  //             type: tool.type,
-  //             category: tool.category,
-  //             size: tool.size
-  //         }
-  //         toolIncomplete = [...toolIncomplete, temArr]
-  //     }
-  // }
-  // // บันทึกข้อมูลไปยัง ตารางอุปกรณ์ไม่ครบ
-  // let createIncompleteTool = new IncompleteTool({
-  //     bid: board._id,
-  //     username: username,
-  //     status: status,
-  //     imageProfile: image,
-  //     boardName: board.boardName,
-  //     boardCode: board.boardCode,
-  //     date: new Date().toString(),
-  //     tools: toolIncomplete,
-  //     actionType: "requestFromBoard"
-  // })
-  // try {
-  //     await createIncompleteTool.save()
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save a incompleTool.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // ทำการเอาไอดีของตารางอุปกรณ์ไม่ครบ ไปเพิ่มในข้อมูลประวัติการเบิกอุปกรณ์ สำหรับ อุปกรณ์ที่มีไม่พอ
-  // for (var round = 0; round < createIncompleteTool.tools.length; round++) {
-  //     let incomId = createIncompleteTool.tools[round].htid
-  //     let findhisTool;
-  //     try {
-  //         findhisTool = await HistoryTool.findById(incomId)
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a incompleTool.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     findhisTool.incompleteToolid = createIncompleteTool._id
-  //     try {
-  //         await findhisTool.save()
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a id incomplete in db of history-tool.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  // }
-  // let cntBoard;
-  // // ข้อมูลเลขที่การเบิกบอร์ด
-  // try {
-  //     cntBoard = await HistoryCnt.findById("608386543e4e3458083fb2c0");
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not find cntNumber.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // let createActionEditBoard = [
-  //     {
-  //         code: cntBoard.name + (cntBoard.cntNumber + 1) + "-1",
-  //         username: username,
-  //         total: total,
-  //         status: status,
-  //         date: new Date().toString(),
-  //         description: description,
-  //         actionType: "request"
-  //     }
-  // ]
-  // // บันทึกข้อมูลประวัติการเบิกของและเก็บข้อมูลไอดีของตารางอุปกรณ์ไม่ครบ
-  // let newHistoryBoard = new HistoryBoard({
-  //     code: cntBoard.name + (cntBoard.cntNumber + 1),
-  //     bid: board._id,
-  //     tid: newToolsId,
-  //     incompleteToolid: createIncompleteTool._id,
-  //     boardName: board.boardName,
-  //     boardCode: board.boardCode,
-  //     date: new Date(),
-  //     total: total,
-  //     username: username,
-  //     status: status,
-  //     actionType: "requestFromBoard",
-  //     exp: new Date(new Date().getTime() + (1000 * 60) * (1440 * 180)),
-  //     description: description,
-  //     actionEdit: createActionEditBoard,
-  //     tools: toolList
-  // })
-  // board.total = board.total - total
-  // try {
-  //     await newHistoryBoard.save()
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save a history-board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // try {
-  //     await board.save()
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save a board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // บันทึกข้อมูลเลขที่การเบิก
-  // cntBoard.cntNumber = cntBoard.cntNumber + 1
-  // try {
-  //     await cntBoard.save();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save cntHistory.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // res.status(201).json(board)
-  // console.log("request board and Incomplete successfully")
-  // console.log(newHistoryBoard)
+const requestIncompleteTool = async (req, res) => {
+  let { total, description, hisbId } = req.body;
+  let totalInput = Number(total);
+  let toolId = req.body.tool.tool._id;
+  let insuffTotal = req.body.tool.insuffTotal;
+  let histId = req.body.tool.hist;
+  let usedTotal = req.body.tool.total;
+  let newUsedTotal;
+  let newInsuffTotal;
+  let isToolOut = [];
+  let arr = [{ tool: {}, hist: {}, hisb: {}, incom: {} }];
+  try {
+    if (totalInput <= 0)
+      return res.status(401).send("จำนวนตัวเลขต้องมีค่าอย่างน้อย 1");
+    if (totalInput >= insuffTotal) {
+      totalInput = insuffTotal;
+      newInsuffTotal = 0;
+      newUsedTotal = totalInput + usedTotal;
+    } else {
+      newInsuffTotal = insuffTotal - totalInput;
+      newUsedTotal = usedTotal + totalInput;
+    }
+    let insuffiToolModel = await InsufficientTool.findById(req.params.incomid);
+    let tool = await Tool.findById(toolId);
+    if (!tool)
+      return res
+        .status(401)
+        .send("ไม่ข้อมูลอุปกรณ์นี้ในฐานข้อมูล โปรดตรวจสอบข้อมูลอีกครั้ง");
+    let hisb = await HistoryBoard.findById(hisbId);
+    let hist = await HistoryTool.findById(histId);
+    if (tool.total < totalInput)
+      return res
+        .status(401)
+        .send("จำนวนอุปกรณ์ในสต๊อกมีไม่เพียงพอ โปรดตรวจสอบข้อมูลอีกครั้ง");
+    tool.total = tool.total - totalInput;
+    // Edit tool-history
+    if (hist) {
+      let actionTypeTool = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
+      if (newInsuffTotal === 0) {
+        actionTypeTool = "เบิกอุปกรณ์พร้อมบอร์ด";
+      }
+      let newTag = {
+        user: req.userId,
+        code: `${hist.code}-${hist.tags.length + 1}`,
+        action: actionTypeTool,
+        total: newUsedTotal,
+        date: new Date(),
+        boardName: hist.tags[0].boardName,
+        description: description,
+        insuffTotal: newInsuffTotal,
+      };
+
+      await hist.tags.unshift(newTag);
+      // await hist.save();
+      arr[0].hist = hist;
+    }
+    // Edit board-history
+    if (hisb) {
+      let actionType = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
+      let newToolsArr = [];
+      for (let r = 0; r < hisb.tags[0].tools.length; r++) {
+        if (hisb.tags[0].tools[r].tool.toString() === toolId) {
+          newToolsArr.push({
+            tool: toolId,
+            hist: histId,
+            total: newUsedTotal,
+            insuffTotal: newInsuffTotal,
+          });
+          if (newInsuffTotal !== 0) {
+            isToolOut.push(hisb.tags[0].tools[r].tool.toString());
+          }
+        } else {
+          newToolsArr.push(hisb.tags[0].tools[r]);
+          if (
+            hisb.tags[0].tools[r].insuffTotal &&
+            hisb.tags[0].tools[r].insuffTotal !== 0
+          ) {
+            isToolOut.push(hisb.tags[0].tools[r].tool.toString());
+          }
+        }
+      }
+      // If there is no insufficient tool. Delete incomplete-tool document
+      if (insuffiToolModel) {
+        if (isToolOut.length === 0) {
+          console.log("delete");
+          actionType = "เบิกอุปกรณ์พร้อมบอร์ด";
+          // await insuffiToolModel.remove();
+        } else {
+          for (let r = 0; r < insuffiToolModel.tools.length; r++) {
+            if(insuffiToolModel.tools[r].tool.toString() === toolId) {
+              insuffiToolModel.tools[r].total = newUsedTotal;
+              insuffiToolModel.tools[r].insuffTotal = newInsuffTotal;
+            }
+            arr[0].incom = insuffiToolModel;
+            // await insuffiToolModel.save();
+          }
+        }
+      }
+      let newTag = {
+        user: req.userId,
+        code: `${hisb.code}-${hisb.tags.length + 1}`,
+        total: hisb.total,
+        date: new Date(),
+        description: description,
+        tools: newToolsArr,
+      };
+      newTag.action = actionType;
+      await hisb.tags.unshift(newTag);
+      // await hisb.save();
+      arr[0].hisb = hisb;
+    }
+
+    arr[0].tool = tool;
+    // await tool.save();
+    res.status(200).json(arr);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("เซิร์ฟเวอร์ขัดข้อง ไม่สามารถทำรายการได้");
+  }
+
+  // res.status(200).json([{id: "5555"}])
 };
 
 // การยกเลิกการเบิกบอร์ด
@@ -1537,7 +1391,7 @@ exports.editBoard = editBoard;
 exports.actionBoard = actionBoard;
 exports.requestBoard = requestBoard;
 exports.checkBoardEquipment = checkBoardEquipment;
-exports.requestBoardandIncompleteTool = requestBoardandIncompleteTool;
+exports.requestIncompleteTool = requestIncompleteTool;
 exports.createBoard = createBoard;
 exports.restoreBoard = restoreBoard;
 exports.restoreBoardandTools = restoreBoardandTools;

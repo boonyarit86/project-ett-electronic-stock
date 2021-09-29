@@ -334,3 +334,28 @@ export const getIncompleteToolAction = (token) => async (dispatch) => {
     });
   }
 };
+
+export const requestIncompleteToolActions = (token, data) => async (dispatch) => {
+  // console.log(data)
+  // dispatch({ type: ACTION_BOARD_REQUEST });
+  try {
+    await Axios.put(
+      `${process.env.REACT_APP_BACKEND_URL}/boards/update/incompletetool/${data._id}`,
+      data,
+      {
+        headers: AuthToken(token),
+      }
+    ).then((res) => {
+      console.log(res.data)
+      // dispatch({ type: ACTION_BOARD_SUCCESS });
+      // notifySuccess("ทำรายการสำเร็จ");
+    });
+  } catch (error) {
+    console.log(catchErrors(error))
+    // dispatch({
+    //   type: ACTION_BOARD_FAIL,
+    //   // payload: catchErrors(error),
+    // });
+    // notifyError(catchErrors(error));
+  }
+};

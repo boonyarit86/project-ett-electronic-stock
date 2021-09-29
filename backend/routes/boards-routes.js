@@ -14,6 +14,7 @@ const {
   requestBoard,
   restoreBoardandTools,
   getIncompleteTool,
+  requestIncompleteTool,
 } = require("../controllers/boards-controllers");
 
 const router = express.Router();
@@ -33,6 +34,7 @@ router.post(
 router.post("/request", authMiddleware, requestBoard);
 router.post("/check/:bid", authMiddleware, checkBoardEquipment);
 router.post("/actions/:bid", authMiddleware, actionBoard);
+router.put("/update/incompletetool/:incomid", authMiddleware, requestIncompleteTool);
 router.put("/history/restore", authMiddleware, restoreBoard);
 router.put("/history/restore/boardandtools", authMiddleware, restoreBoardandTools);
 router.put(
