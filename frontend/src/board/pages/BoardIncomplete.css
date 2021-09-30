@@ -9,6 +9,7 @@
     /* display: flex; */
     background-color: #EDF3F9;
     z-index: 1;
+    padding-top: 10px;
 }
 
 .figure-box {
@@ -147,5 +148,8 @@
 
     .cover-incomplete {
         width: 280px;
+    }
+    .headername-incomplete h3 {
+        margin-left: 20px;
     }
 }

@@ -200,7 +200,7 @@ export default function SlideBar(props) {
             </ListItem>
           </Link>
         )}
-        {user.status === "admin" && (
+        {/* {user.status === "admin" && (
           <Link
             className={classes.link}
             to="/purchase"
@@ -213,7 +213,7 @@ export default function SlideBar(props) {
               <ListItemText primary="หน้ารายการสั่งซื้อ" />
             </ListItem>
           </Link>
-        )}
+        )} */}
         {user.status === "admin" && (
           <Link
             className={classes.link}

@@ -25,6 +25,7 @@ const getTypeTool = async (req, res) => {
 const addTypeTool = async (req, res) => {
     let newType = req.body.type.toLowerCase();
     try {
+        if(newType.length === 0) return res.status(401).send("ตัวหนังสือต้องมีอย่างน้อย 1 ตัว");
         const AllData = await SttModel.find();
         const isType = await AllData.filter((item) => item.type === newType).length > 0;
         if(isType) return res.status(401).send("มีข้อมูลนี้แล้วในฐานข้อมูล");
@@ -41,6 +42,7 @@ const addCategoryTool = async (req, res) => {
     let typeToolId = req.params.tid;
     let newCategory = req.body.category.toLowerCase();
     try {
+        if(newCategory.length === 0) return res.status(401).send("ตัวหนังสือต้องมีอย่างน้อย 1 ตัว");
         let data = await SttModel.findById(typeToolId);
         if(!data) return res.status(401).send("ไม่พบข้อมูลในฐานข้อมูล");
         const isCategory = await data.categorys.filter((item) => item.category === newCategory).length > 0;

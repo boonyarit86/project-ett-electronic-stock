@@ -2,7 +2,7 @@ const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
 const cloudinary = require("../utils/cloudinary");
 const io = require("../index.js");
-const { orderData } = require("../utils/covertData");
+const { orderData, covertTypeandCateTool2 } = require("../utils/covertData");
 
 const HistoryTool = require("../models/history-tool");
 const HistoryBoard = require("../models/history-board");
@@ -53,13 +53,31 @@ const getAllBoards = async (req, res) => {
 // รับข้อมูลบอร์ดที่ผู้ใช้เลือก
 const getBoard = async (req, res) => {
   try {
-    let board = await Board.find({ _id: req.params.bid }).populate(
-      "tools.tool"
-    );
+    let board = await Board.findById(req.params.bid);
     // let board = await boardLists.find()
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
-    res.status(200).json(board[0]);
+
+    // Are those data available ?. if not, delete immaditly it.
+    // console.log(board[0].tools.length)
+    let newToolArr = []
+    for(let r=0; r < board.tools.length; r++) {
+      let tool = await Tool.findById(board.tools[r].tool);
+      if(tool) {
+        newToolArr.push(board.tools[r])
+      }
+    }
+    if(newToolArr.length !== board.tools.length) {
+      board.tools = newToolArr;
+      await board.save();
+    }
+
+    let stt = await Stt.find()
+    let data = await Board.find({ _id: req.params.bid }).populate(
+      "tools.tool"
+    );
+    covertTypeandCateTool2(data[0].tools, stt);
+    res.status(200).json(data[0]);
   } catch (error) {
     console.error(error);
     res
@@ -709,8 +727,9 @@ const restoreBoardandTools = async (req, res) => {
 
     if (hisb.insuffTool) {
       let insuffTool = await InsufficientTool.findById(hisb.insuffTool);
-      if (!insuffTool) return;
-      await insuffTool.remove();
+      if (insuffTool) {
+        await insuffTool.remove();
+      }
     }
 
     await hisb.save();
@@ -841,6 +860,7 @@ const requestIncompleteTool = async (req, res) => {
         .status(401)
         .send("จำนวนอุปกรณ์ในสต๊อกมีไม่เพียงพอ โปรดตรวจสอบข้อมูลอีกครั้ง");
     tool.total = tool.total - totalInput;
+    hist.total = newUsedTotal;
     // Edit tool-history
     if (hist) {
       let actionTypeTool = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
@@ -859,8 +879,8 @@ const requestIncompleteTool = async (req, res) => {
       };
 
       await hist.tags.unshift(newTag);
-      // await hist.save();
-      arr[0].hist = hist;
+      await hist.save();
+      // arr[0].hist = hist;
     }
     // Edit board-history
     if (hisb) {
@@ -892,15 +912,15 @@ const requestIncompleteTool = async (req, res) => {
         if (isToolOut.length === 0) {
           console.log("delete");
           actionType = "เบิกอุปกรณ์พร้อมบอร์ด";
-          // await insuffiToolModel.remove();
+          await insuffiToolModel.remove();
         } else {
           for (let r = 0; r < insuffiToolModel.tools.length; r++) {
             if(insuffiToolModel.tools[r].tool.toString() === toolId) {
               insuffiToolModel.tools[r].total = newUsedTotal;
               insuffiToolModel.tools[r].insuffTotal = newInsuffTotal;
             }
-            arr[0].incom = insuffiToolModel;
-            // await insuffiToolModel.save();
+            // arr[0].incom = insuffiToolModel;
+            await insuffiToolModel.save();
           }
         }
       }
@@ -914,423 +934,30 @@ const requestIncompleteTool = async (req, res) => {
       };
       newTag.action = actionType;
       await hisb.tags.unshift(newTag);
-      // await hisb.save();
-      arr[0].hisb = hisb;
+      await hisb.save();
+      // arr[0].hisb = hisb;
     }
 
-    arr[0].tool = tool;
-    // await tool.save();
-    res.status(200).json(arr);
+    // arr[0].tool = tool;
+    await tool.save();
+    let tools = await Tool.find();
+    let stt = await Stt.find();
+    covertTypeandCateTool(tools, stt);
+    io.emit("tool-actions", tools);
+
+    let lists = await InsufficientTool.find()
+      .populate("board")
+      .populate("user")
+      .populate("hisb")
+      .populate("tools.tool");
+    let newData = await orderData(lists);
+    res.status(200).json(newData);
   } catch (error) {
     console.log(error);
     res.status(500).send("เซิร์ฟเวอร์ขัดข้อง ไม่สามารถทำรายการได้");
   }
 
   // res.status(200).json([{id: "5555"}])
-};
-
-// การยกเลิกการเบิกบอร์ด
-const cancelRequestBoard = async (req, res, next) => {
-  // const { username, description, status } = req.body;
-  // // หาข้อมูลประวัติการเบิกบอร์ด
-  // let histboard;
-  // try {
-  //     histboard = await HistoryBoard.findById(req.params.htbid);
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not find a histboard.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // เริ่มค้นหาข้อมูล ประวัติการเบิกอุปกรณ์
-  // for (var round = 0; round < histboard.tid.length; round++) {
-  //     let histool;
-  //     let tool;
-  //     try {
-  //         histool = await HistoryTool.findById(histboard.tid[round]);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find a histool in forLoop.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     if (histool.isDeleted === false) {
-  //         // เริ่มขั้นตอนการคืนอุปกรณ์ไปยังสต๊อก
-  //         try {
-  //             tool = await Tool.findById(histool.tid);
-  //         } catch (err) {
-  //             const error = new HttpError(
-  //                 'Something went wrong, could not find a tool in forLoop.',
-  //                 500
-  //             );
-  //             return next(error);
-  //         }
-  //         let createActionEditTool =
-  //         {
-  //             code: histool.code + "-2",
-  //             username: username,
-  //             total: 0,
-  //             status: status,
-  //             date: new Date().toString(),
-  //             description: description,
-  //             actionType: "restore",
-  //         }
-  //         tool.total = tool.total + histool.total
-  //         histool.actionEdit = [...histool.actionEdit, createActionEditTool]
-  //         histool.total = 0
-  //         // หลังจากแก้ไขข้อมูลแล้วให้เริ่มบันทึกข้อมูล
-  //         try {
-  //             await tool.save()
-  //         } catch (err) {
-  //             const error = new HttpError(
-  //                 'Something went wrong, could not save a tool in process forLoop.',
-  //                 500
-  //             );
-  //             return next(error);
-  //         }
-  //         try {
-  //             await histool.save()
-  //         } catch (err) {
-  //             const error = new HttpError(
-  //                 'Something went wrong, could not save a histool in process forLoop.',
-  //                 500
-  //             );
-  //             return next(error);
-  //         }
-  //     } else {
-  //         console.log("no data tool")
-  //     }
-  // }
-  // // เริ่มแก้ไขข้อมูลบอร์ด
-  // let board;
-  // try {
-  //     board = await Board.findById(histboard.bid);
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not find a board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // board.total = board.total + histboard.total
-  // try {
-  //     await board.save()
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save a board.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // เริ่มแก้ไขข้อมูลประวัติการเบิกบอร์ด
-  // let createActionEditBoard =
-  // {
-  //     code: histboard.code + "-2",
-  //     username: username,
-  //     total: 0,
-  //     status: status,
-  //     date: new Date().toString(),
-  //     description: description,
-  //     actionType: "restore"
-  // }
-  // histboard.total = 0;
-  // histboard.actionEdit = [...histboard.actionEdit, createActionEditBoard]
-  // try {
-  //     await histboard.save()
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not save a hisboard.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // // ส่งข้อมูลไปยัง frontend
-  // let histbList;
-  // try {
-  //     histbList = await HistoryBoard.find();
-  // } catch (err) {
-  //     const error = new HttpError(
-  //         'Something went wrong, could not fetch data of hisboard.',
-  //         500
-  //     );
-  //     return next(error);
-  // }
-  // res.status(200).json(histbList);
-  // console.log("restore succussfully")
-};
-
-// การยกเลิกเบิกบอร์ด กรณี อุปกรณ์ไม่ครบ
-const cancelRequestBoardandIncomplete = async (req, res, next) => {
-  //     const { username, status, toolsId, description, incompleteId } = req.body
-  //     let histboard;
-  //     try {
-  //         histboard = await HistoryBoard.findById(req.params.htbid);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find a histboard.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     for (var round = 0; round < toolsId.length; round++) {
-  //         let histool;
-  //         let sum;
-  //         // หาค่าจำนวนอุปกรณ์ที่ใช้ไปก่อนหน้านี้
-  //         try {
-  //             histool = await HistoryTool.findById(toolsId[round]);
-  //         } catch (err) {
-  //             const error = new HttpError(
-  //                 'Something went wrong, could not find a history-tool in forLoop.',
-  //                 500
-  //             );
-  //             return next(error);
-  //         }
-  //         if (histool.isDeleted === false) {
-  //             // หาอุปกรณ์ต่อโดยใช้ข้อมูลในประวัติอุปกรณ์ในการค้นหา
-  //             try {
-  //                 tool = await Tool.findById(histool.tid);
-  //             } catch (err) {
-  //                 const error = new HttpError(
-  //                     'Something went wrong, could not find a tool in forLoop.',
-  //                     500
-  //                 );
-  //                 return next(error);
-  //             }
-  //             let createActionEditTool =
-  //             {
-  //                 code: histool.code + "-" + (histool.actionEdit.length + 1),
-  //                 username: username,
-  //                 total: 0,
-  //                 status: status,
-  //                 date: new Date().toString(),
-  //                 description: description,
-  //                 actionType: "restore",
-  //             }
-  //             // คืนของไปยังสต๊อก
-  //             sum = tool.total + histool.total
-  //             tool.total = sum
-  //             histool.actionEdit = [...histool.actionEdit, createActionEditTool]
-  //             histool.total = 0
-  //             // หลังจากแก้ไขข้อมูลแล้วให้เริ่มบันทึกข้อมูล
-  //             try {
-  //                 await tool.save()
-  //             } catch (err) {
-  //                 const error = new HttpError(
-  //                     'Something went wrong, could not save a tool in process forLoop.',
-  //                     500
-  //                 );
-  //                 return next(error);
-  //             }
-  //             try {
-  //                 await histool.save()
-  //             } catch (err) {
-  //                 const error = new HttpError(
-  //                     'Something went wrong, could not save a histool in process forLoop.',
-  //                     500
-  //                 );
-  //                 return next(error);
-  //             }
-  //         } else {
-  //             console.log("no data tool")
-  //         }
-  //     }
-  //     // ลบหน้าอุปกรณ์คงค้าง
-  //     let incompleteBoard;
-  //     // console.log(incompleteId)
-  //     try {
-  //         incompleteBoard = await IncompleteTool.findById(incompleteId);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find a tool in forLoop.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     try {
-  //         await incompleteBoard.remove()
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not delete a incompleteBoard.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // แก้ไขข้อมูลหน้ารายการอุปกรณ์
-  //     let board;
-  //     try {
-  //         board = await Board.findById(histboard.bid);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find a board.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     board.total = board.total + histboard.total
-  //     try {
-  //         await board.save()
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a board.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // เริ่มแก้ไขข้อมูลประวัติการเบิกบอร์ด
-  //     let createActionEditBoard =
-  //     {
-  //         code: histboard.code + "-" + (histboard.actionEdit.length + 1),
-  //         username: username,
-  //         total: 0,
-  //         status: status,
-  //         date: new Date().toString(),
-  //         description: description,
-  //         actionType: "restore"
-  //     }
-  //     histboard.total = 0;
-  //     histboard.actionEdit = [...histboard.actionEdit, createActionEditBoard]
-  //     try {
-  //         await histboard.save()
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a hisboard.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // ส่งข้อมูลไปยัง frontend
-  //     let histbList;
-  //     try {
-  //         histbList = await HistoryBoard.find();
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not fetch data of hisboard.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     res.status(200).json(histbList);
-  //     console.log("restore succussfully")
-  // }
-  // // การคืนของ กรณี อุปกรณ์ไม่ครบ
-  // const updateIncompleteBoard = async (req, res, next) => {
-  //     const { tid, htid, description, username, status, tools } = req.body;
-  //     let total = Number(req.body.total)
-  //     let tool;
-  //     let histool;
-  //     let incompleteBoard;
-  //     // หาข้อมูลอุปกรณ์
-  //     try {
-  //         tool = await Tool.findById(tid);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find a tool.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     try {
-  //         histool = await HistoryTool.findById(htid);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find a history-tool.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     try {
-  //         incompleteBoard = await IncompleteTool.findById(req.params.incompleteId);
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not find a IncompleteBoard.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     // เริ่มแก้ไขจำนวนอุปกรณ์ในสต๊อก
-  //     let calTotalTool = tool.total - total
-  //     let newAction;
-  //     if (calTotalTool !== 0) {
-  //         newAction = "requestIncomplete"
-  //     } else {
-  //         newAction = "requestFromBoard"
-  //     }
-  //     // console.log(calTotalTool)
-  //     tool.total = calTotalTool
-  //     // เริ่มแก้ไขประวัติการเบิกบอร์ด
-  //     let createActionEdit =
-  //     {
-  //         code: histool.code + "-" + (histool.actionEdit.length + 1),
-  //         username: username,
-  //         total: total,
-  //         status: status,
-  //         date: new Date().toString(),
-  //         description: description,
-  //         actionType: newAction
-  //     }
-  //     let calHistool = histool.total + total
-  //     // console.log(calHistool)
-  //     histool.total = calHistool
-  //     histool.actionEdit = [...histool.actionEdit, createActionEdit]
-  //     // เริ่มแก้ไขข้อมูลหน้าอุปกรณ์ไม่ครบ
-  //     if (tools.length > 0) {
-  //         incompleteBoard.tools = tools
-  //         // console.log("leng > 0")
-  //         // console.log(tools)
-  //         try {
-  //             await incompleteBoard.save()
-  //             console.log("save success")
-  //         } catch (err) {
-  //             const error = new HttpError(
-  //                 'Something went wrong, could not save a incompleteBoard.',
-  //                 500
-  //             );
-  //             return next(error);
-  //         }
-  //     } else if (tools.length === 0) {
-  //         console.log("leng = 0")
-  //         try {
-  //             await incompleteBoard.remove()
-  //         } catch (err) {
-  //             const error = new HttpError(
-  //                 'Something went wrong, could not delete a incompleteBoard.',
-  //                 500
-  //             );
-  //             return next(error);
-  //         }
-  //     }
-  //     try {
-  //         await tool.save()
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a tool.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     try {
-  //         await histool.save()
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not save a history-tool.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     let incompleteBoardList;
-  //     try {
-  //         incompleteBoardList = await IncompleteTool.find();
-  //     } catch (err) {
-  //         const error = new HttpError(
-  //             'Something went wrong, could not fetching a incomplete-tool.',
-  //             500
-  //         );
-  //         return next(error);
-  //     }
-  //     res.status(200).json(incompleteBoardList);
-  //     console.log("update incompleteBoard successfully")
 };
 
 // การลบรายการบอร์ด
@@ -1395,7 +1022,5 @@ exports.requestIncompleteTool = requestIncompleteTool;
 exports.createBoard = createBoard;
 exports.restoreBoard = restoreBoard;
 exports.restoreBoardandTools = restoreBoardandTools;
-exports.cancelRequestBoard = cancelRequestBoard;
-exports.cancelRequestBoardandIncomplete = cancelRequestBoardandIncomplete;
 // exports.updateIncompleteBoard = updateIncompleteBoard;
 exports.deleteBoard = deleteBoard;

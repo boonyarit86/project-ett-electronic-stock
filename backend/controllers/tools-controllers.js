@@ -11,7 +11,6 @@ const HistoryCnt = require("../models/history-cnt");
 // const IncompleteTool = require("../models/incomplete-tool");
 // const historyTool = require('../models/history-tool');
 
-
 // ** -- Public Function -- **
 const covertTypeandCateTool = async (tools, stt) => {
   let arrTool = await tools.map((item) => {
@@ -185,7 +184,7 @@ const actionTool = async (req, res) => {
           action: actionType,
           total: toolTotal,
           date: new Date(),
-          description: description
+          description: description,
         },
       ],
     });
@@ -402,7 +401,9 @@ const restoreTool = async (req, res) => {
 
     if (hist.actionType === "เพิ่ม") {
       if (tool.total < hist.total)
-        return res.status(401).send("จำนวนอุปกรณ์ในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
+        return res
+          .status(401)
+          .send("จำนวนอุปกรณ์ในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
       tool.total = tool.total - hist.total;
     } else {
       tool.total = tool.total + hist.total;
@@ -414,25 +415,24 @@ const restoreTool = async (req, res) => {
       action: "คืนสต๊อก",
       total: hist.total,
       date: new Date(),
-      description: description
-    }
+      description: description,
+    };
     hist.total = 0;
-    await hist.tags.unshift(newTag)
+    await hist.tags.unshift(newTag);
 
     await tool.save();
     await hist.save();
 
     let hists = await HistoryTool.find()
-    .populate("tool")
-    .populate("user")
-    .populate("tags.user");
-    let newData =  await orderData(hists);
+      .populate("tool")
+      .populate("user")
+      .populate("tags.user");
+    let newData = await orderData(hists);
 
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);
     io.emit("tool-actions", tools);
-
 
     res.status(200).json(newData);
   } catch (error) {

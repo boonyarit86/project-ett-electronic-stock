@@ -54,12 +54,14 @@ export function sttReducers(state = initialState, action) {
       return {
         ...state,
         isLoadingEdit: false,
+        errorMsgEdit: null,
         lists: [...state.lists, action.payload],
       };
     case ADD_CATEGORY_SUCCESS:
       return {
         ...state,
         isLoadingEdit: false,
+        errorMsgEdit: null,
         lists: state.lists.map((item) => {
           if (item._id === action.payload.tid) {
             item.categorys = action.payload.categorys;
@@ -72,6 +74,7 @@ export function sttReducers(state = initialState, action) {
       return {
         ...state,
         isLoadingEdit: false,
+        errorMsgEdit: null,
         lists: state.lists.map((item) => {
           if (item._id === action.payload.tid) {
             item.type = action.payload.text;
@@ -84,6 +87,7 @@ export function sttReducers(state = initialState, action) {
         return {
             ...state,
             isLoadingEdit: false,
+            errorMsgEdit: null,
             lists: state.lists.map((item) => {
                 item.categorys = item.categorys.map((cate) => {
                     if(cate._id === action.payload.cid) {

@@ -14,6 +14,9 @@ import {
   EDIT_BOARD_FAIL,
   EDIT_BOARD_REQUEST,
   EDIT_BOARD_SUCCESS,
+  EDIT_INCOMPLETE_TOOL_FAIL,
+  EDIT_INCOMPLETE_TOOL_REQUEST,
+  EDIT_INCOMPLETE_TOOL_SUCCESS,
   GET_ALL_BOARD_FAIL,
   GET_ALL_BOARD_REQUEST,
   GET_ALL_BOARD_SUCCESS,
@@ -337,7 +340,7 @@ export const getIncompleteToolAction = (token) => async (dispatch) => {
 
 export const requestIncompleteToolActions = (token, data) => async (dispatch) => {
   // console.log(data)
-  // dispatch({ type: ACTION_BOARD_REQUEST });
+  dispatch({ type: EDIT_INCOMPLETE_TOOL_REQUEST });
   try {
     await Axios.put(
       `${process.env.REACT_APP_BACKEND_URL}/boards/update/incompletetool/${data._id}`,
@@ -347,15 +350,15 @@ export const requestIncompleteToolActions = (token, data) => async (dispatch) =>
       }
     ).then((res) => {
       console.log(res.data)
-      // dispatch({ type: ACTION_BOARD_SUCCESS });
+      dispatch({ type: EDIT_INCOMPLETE_TOOL_SUCCESS, payload: res.data });
       // notifySuccess("ทำรายการสำเร็จ");
     });
   } catch (error) {
-    console.log(catchErrors(error))
-    // dispatch({
-    //   type: ACTION_BOARD_FAIL,
-    //   // payload: catchErrors(error),
-    // });
+    // console.log(catchErrors(error))
+    dispatch({
+      type: EDIT_INCOMPLETE_TOOL_FAIL,
+      payload: catchErrors(error)
+    });
     // notifyError(catchErrors(error));
   }
 };

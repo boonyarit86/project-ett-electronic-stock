@@ -37,7 +37,7 @@ function ModalIncompleteBoard(props) {
         <Modal
             aria-labelledby="transition-modal-title"
             aria-describedby="transition-modal-description"
-            className="modal-action-board"
+            className="modal-action"
             open={openPrompt}
             onClose={handleClosePrompt}
             closeAfterTransition
@@ -67,7 +67,7 @@ function ModalIncompleteBoard(props) {
                             className={classes.textarea}
                             onChange={(e) => setDescription(e.target.value)}
                         />
-                        <div className="modal-action-board-btn-group">
+                        <div className="modal-action-btn-group">
                             <Button type="submit" variant="contained" color="primary" disabled={!formState.isValid}>อัพเดต</Button>
                             <Button variant="contained" color="secondary" onClick={handleClosePrompt}>ยกเลิก</Button>
                         </div>

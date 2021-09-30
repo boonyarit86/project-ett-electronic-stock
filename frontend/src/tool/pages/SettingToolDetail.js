@@ -39,6 +39,9 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     textAlign: "center"
+  },
+  paper: {
+    padding: "10px 20px"
   }
 }));
 
@@ -152,7 +155,7 @@ function SettingTool() {
           </Alert>
         </div>
       )}
-      <Paper className="createtool-form">
+      <Paper className={classes.paper}>
         <h3 className={classes.header}>ตั่งค่าอินพุตชนิดและประเภทของอุปกรณ์</h3>
         <InputAdd
           onSubmit={handleAddType}
