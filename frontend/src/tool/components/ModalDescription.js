@@ -99,8 +99,8 @@ function ModalDescription(props) {
               <div className="tagDetail">
                 <p>{data.tags.length - tagIndex}</p>
                 <p>{data.tags[tagIndex].code}</p>
-                <p>{data.tags[tagIndex].user.name}</p>
-                <p>{data.tags[tagIndex].user.status}</p>
+                <p>{data.tags[tagIndex].user ? data.tags[tagIndex].user.name : "ไม่มีข้อมูล"}</p>
+                <p>{data.tags[tagIndex].user ? data.tags[tagIndex].user.status : "ไม่มีข้อมูล"}</p>
                 <p>{data.tags[tagIndex].action}</p>
                 <p>{data.tags[tagIndex].total}</p>
                 <p>{formatDate(data.tags[tagIndex].date)}</p>

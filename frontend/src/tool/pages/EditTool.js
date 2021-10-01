@@ -75,16 +75,21 @@ function EditTool() {
 
   useEffect(async () => {
     if (tool && lists.length !== 0) {
-      let findDataType = await lists.find((item) => item._id === tool.type);
-      let findDataCate = await findDataType.categorys.find(
-        (item) => item._id === tool.category
-      );
-      if(!findDataCate) {
-        setCategory("")
+      let findDataType = await lists.find((item) => item._id === tool.type || item.type === tool.type);
+      if(findDataType) {
+        let findDataCate = await findDataType.categorys.find(
+          (item) => item._id === tool.category || item.category === tool.category
+        );
+        if(!findDataCate) {
+          setCategory("")
+        } else {
+          setCategory(findDataCate);
+        }
+        setType(findDataType);
       } else {
-        setCategory(findDataCate);
+        setType("")
+        setCategory("")
       }
-      setType(findDataType);
     }
   }, [tool && lists]);
 
@@ -185,7 +190,7 @@ function EditTool() {
               />
             </div>
             <div className="edittool-input-group">
-              {type && (<SelectTypeValidator
+              {type !== false && (<SelectTypeValidator
                 id="type"
                 filterName="ชนิด"
                 validators={[VALIDATOR_REQUIRE()]}

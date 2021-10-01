@@ -191,8 +191,8 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
                         <TableCell>{hisb.code}</TableCell>
                         <TableCell>{formatDate(hisb.date)}</TableCell>
                         <TableCell>{hisb.board.boardName}</TableCell>
-                        <TableCell>{hisb.user.name}</TableCell>
-                        <TableCell>{hisb.user.status}</TableCell>
+                        <TableCell>{hisb.user ? hisb.user.name : "ไม่มีข้อมูล"}</TableCell>
+                        <TableCell>{hisb.user ? hisb.user.status : "ไม่มีข้อมูล"}</TableCell>
                         <TableCell>
                           {hisb.actionType === "เพิ่ม" ? (
                             <span className={classes.actionAdd}>

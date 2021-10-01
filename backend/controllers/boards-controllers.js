@@ -60,22 +60,20 @@ const getBoard = async (req, res) => {
 
     // Are those data available ?. if not, delete immaditly it.
     // console.log(board[0].tools.length)
-    let newToolArr = []
-    for(let r=0; r < board.tools.length; r++) {
+    let newToolArr = [];
+    for (let r = 0; r < board.tools.length; r++) {
       let tool = await Tool.findById(board.tools[r].tool);
-      if(tool) {
-        newToolArr.push(board.tools[r])
+      if (tool) {
+        newToolArr.push(board.tools[r]);
       }
     }
-    if(newToolArr.length !== board.tools.length) {
+    if (newToolArr.length !== board.tools.length) {
       board.tools = newToolArr;
       await board.save();
     }
 
-    let stt = await Stt.find()
-    let data = await Board.find({ _id: req.params.bid }).populate(
-      "tools.tool"
-    );
+    let stt = await Stt.find();
+    let data = await Board.find({ _id: req.params.bid }).populate("tools.tool");
     covertTypeandCateTool2(data[0].tools, stt);
     res.status(200).json(data[0]);
   } catch (error) {
@@ -93,8 +91,22 @@ const getAllHistoryBoards = async (req, res) => {
       .populate("board")
       .populate("user")
       .populate("tags.user");
-    let newData = await orderData(hisbs);
-    res.status(200).json(newData);
+
+    // Sort from latest date to oldest date and Check expairation of data.
+    let responseData = [];
+    for (var round = 0; round < hisbs.length; round++) {
+      if (hisbs[round].board !== null) {
+        let expHistory = new Date(hisbs[round].exp).getTime();
+        let currentDate = new Date().getTime();
+        if (expHistory < currentDate) {
+          await hisbs[round].remove();
+        } else {
+          responseData.unshift(hisbs[round]);
+        }
+      }
+    }
+
+    res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     res
@@ -649,12 +661,25 @@ const restoreBoard = async (req, res) => {
       .populate("board")
       .populate("user")
       .populate("tags.user");
-    let newData = await orderData(hisbs);
+
+     // Sort from latest date to oldest date and Check expairation of data.
+    let responseData = [];
+    for (var round = 0; round < hisbs.length; round++) {
+      if (hisbs[round].board !== null) {
+        let expHistory = new Date(hisbs[round].exp).getTime();
+        let currentDate = new Date().getTime();
+        if (expHistory < currentDate) {
+          await hisbs[round].remove();
+        } else {
+          responseData.unshift(hisbs[round]);
+        }
+      }
+    }
 
     let boards = await Board.find();
     io.emit("board-actions", boards);
 
-    res.status(200).json(newData);
+    res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     res
@@ -739,7 +764,20 @@ const restoreBoardandTools = async (req, res) => {
       .populate("board")
       .populate("user")
       .populate("tags.user");
-    let newData = await orderData(hisbs);
+
+     // Sort from latest date to oldest date and Check expairation of data.
+    let responseData = [];
+    for (var round = 0; round < hisbs.length; round++) {
+      if (hisbs[round].board !== null) {
+        let expHistory = new Date(hisbs[round].exp).getTime();
+        let currentDate = new Date().getTime();
+        if (expHistory < currentDate) {
+          await hisbs[round].remove();
+        } else {
+          responseData.unshift(hisbs[round]);
+        }
+      }
+    }
 
     let boards = await Board.find();
     io.emit("board-actions", boards);
@@ -748,7 +786,7 @@ const restoreBoardandTools = async (req, res) => {
     covertTypeandCateTool(tools, stt);
     io.emit("tool-actions", tools);
 
-    res.status(200).json(newData);
+    res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     res
@@ -915,7 +953,7 @@ const requestIncompleteTool = async (req, res) => {
           await insuffiToolModel.remove();
         } else {
           for (let r = 0; r < insuffiToolModel.tools.length; r++) {
-            if(insuffiToolModel.tools[r].tool.toString() === toolId) {
+            if (insuffiToolModel.tools[r].tool.toString() === toolId) {
               insuffiToolModel.tools[r].total = newUsedTotal;
               insuffiToolModel.tools[r].insuffTotal = newInsuffTotal;
             }

@@ -157,7 +157,7 @@ function BoardIncomplete() {
                   </div>
                   <div>
                     <p>
-                      {item.user.name} ({item.user.status})
+                      {item.user ? `${item.user.name} (${item.user.status})` : "ไม่มีข้อมูล"}
                     </p>
                     <p>{formatDate(item.hisb.date)}</p>
                   </div>

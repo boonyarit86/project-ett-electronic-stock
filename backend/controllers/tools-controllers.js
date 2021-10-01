@@ -2,7 +2,10 @@ const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
 const cloudinary = require("../utils/cloudinary");
 const io = require("../index.js");
-const { orderData } = require("../utils/covertData");
+const {
+  covertTypeandCateTool2,
+  covertTypeandCateTool3,
+} = require("../utils/covertData");
 
 const HistoryTool = require("../models/history-tool");
 const HistoryCnt = require("../models/history-cnt");
@@ -60,8 +63,22 @@ const getAllHistoryTools = async (req, res) => {
       .populate("tool")
       .populate("user")
       .populate("tags.user");
-    let newData = await orderData(hists);
-    res.status(200).json(newData);
+
+    // Sort from latest date to oldest date and Check expairation of data.
+    let responseData = [];
+    for (var round = 0; round < hists.length; round++) {
+      if (hists[round].tool !== null) {
+        let expHistory = new Date(hists[round].exp).getTime();
+        let currentDate = new Date().getTime();
+        if (expHistory < currentDate) {
+          await hists[round].remove();
+        } else {
+          responseData.unshift(hists[round]);
+        }
+      }
+    }
+
+    res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     res
@@ -78,6 +95,8 @@ const getTool = async (req, res) => {
     let tool = await Tool.findById(req.params.tid);
     if (!tool)
       return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
+    let stt = await Stt.find();
+    covertTypeandCateTool3(tool, stt);
     res.status(200).json(tool);
   } catch (error) {
     console.error(error);
@@ -427,14 +446,27 @@ const restoreTool = async (req, res) => {
       .populate("tool")
       .populate("user")
       .populate("tags.user");
-    let newData = await orderData(hists);
+      
+    // Sort from latest date to oldest date and Check expairation of data.
+    let responseData = [];
+    for (var round = 0; round < hists.length; round++) {
+      if (hists[round].tool !== null) {
+        let expHistory = new Date(hists[round].exp).getTime();
+        let currentDate = new Date().getTime();
+        if (expHistory < currentDate) {
+          await hists[round].remove();
+        } else {
+          responseData.unshift(hists[round]);
+        }
+      }
+    }
 
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);
     io.emit("tool-actions", tools);
 
-    res.status(200).json(newData);
+    res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     res.status(500).send("ไม่สามารถคืนอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");

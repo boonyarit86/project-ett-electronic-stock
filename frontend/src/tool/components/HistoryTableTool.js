@@ -185,8 +185,8 @@ export default function HistoryTableTool({ hists, auth, dispatch }) {
                         <TableCell>{hist.code}</TableCell>
                         <TableCell>{formatDate(hist.date)}</TableCell>
                         <TableCell>{hist.tool.toolName}</TableCell>
-                        <TableCell>{hist.user.name}</TableCell>
-                        <TableCell>{hist.user.status}</TableCell>
+                        <TableCell>{hist.user ? hist.user.name : "ไม่มีข้อมูล"}</TableCell>
+                        <TableCell>{hist.user ? hist.user.status : "ไม่มีข้อมูล"}</TableCell>
                         <TableCell>
                           {hist.actionType === "เพิ่ม" ? (
                             <span className={classes.actionAdd}>
