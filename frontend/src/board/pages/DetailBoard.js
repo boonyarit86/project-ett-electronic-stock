@@ -5,7 +5,7 @@ import { AuthContext } from "../../shared/context/auth-context";
 import { deleteBoardAction, getBoardAction } from "../../actions/boardActions";
 
 // Component
-// import { SlideImagePreview } from '../../shared/components/UIElements/SlideImagePreview';
+import SlideImagePreview from '../../shared/components/UIElements/SlideImagePreview';
 import ModalSubmit from "../components/ModalSubmit";
 import { Avatar, Button, Divider } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
@@ -95,7 +95,7 @@ function DetailBoard() {
               </div>
               {board.images.length === 0 ? (
                 <div>ไม่มีรูปภาพ</div>
-              ) : board.images.length <= 3 ? (
+              ) : board.images.length <= 2 ? (
                 <div className="detailboard-list-img">
                   {board.avartar && (
                   <Avatar
@@ -114,7 +114,13 @@ function DetailBoard() {
                   ))}
                 </div>
               ) : (
-                <div></div>
+                <div>
+                  <SlideImagePreview
+                        setPreviewImg={setPreviewImg}
+                        images={board.images}
+                        image={board.avartar}
+                      />
+                </div>
               )}
             </div>
             <div>

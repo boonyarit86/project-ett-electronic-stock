@@ -16,7 +16,7 @@ const userSchema = new Schema({
     default: "none",
     required: true,
   },
-  unreadNotification: { type: Boolean, default: false }
+  unreadNotification: { type: Number, default: 0 }
 });
 
 module.exports = mongoose.model("User", userSchema);

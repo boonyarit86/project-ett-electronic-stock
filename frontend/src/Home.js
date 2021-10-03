@@ -10,6 +10,9 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 // CSS
 import "./Home.css";
 
+
+
+
 function Home() {
   const auth = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -50,7 +53,7 @@ function Home() {
       <h1>
         Welcome {user.name} ({user.status})
       </h1>
-      <div>
+      {/* <div>
         <h2>เกี่ยวกับบริษัท</h2>
         <div className="home-img">
           <img src="/images/ett-pic.jpg" />
@@ -73,7 +76,7 @@ function Home() {
             อีทีที
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

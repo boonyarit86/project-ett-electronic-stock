@@ -1,48 +1,52 @@
-import React, { useEffect } from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react';
+import React, { useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
 // import Swiper from 'swiper/react/swiper';
 // import SwiperSlide from "swiper/react/swiper-slide";
-import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
+import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from "swiper";
 
-// import 'swiper/components/navigation/navigation.scss';
-// import 'swiper/swiper.scss';
-// import 'swiper/components/pagination/pagination.scss';
-// import 'swiper/components/scrollbar/scrollbar.scss';
-// import 'swiper/css'
+import "swiper/components/navigation/navigation.scss";
+import "swiper/swiper.scss";
+import "swiper/components/pagination/pagination.scss";
+import "swiper/components/scrollbar/scrollbar.scss";
 
-// import "./SlideImagePreview.css";
+import "./SlideImagePreview.css";
 
-// SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
-
-//
-
-import "swiper/css";
-import "swiper/css/pagination"
-import "swiper/css/navigation"
-
-// import "./styles.css";
+SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
 // component รูปภาพแบบสไลค์
 const SlideImagePreview = (props) => {
-    const { images, setPreviewImg } = props;
+  const { images, setPreviewImg, image } = props;
 
-    return (
-        <Swiper
-            spaceBetween={20}
-            slidesPerView={4}
-            navigation
-            // pagination={{ clickable: true }}
-            scrollbar={{ draggable: true }}
-            style={{width: "90%"}}
+  return (
+    <Swiper
+      spaceBetween={20}
+      slidesPerView={4}
+      navigation
+      // pagination={{ clickable: true }}
+      scrollbar={{ draggable: true }}
+      style={{ width: "90%" }}
+    >
+      {image && (
+        <SwiperSlide
+          className="slide-img"
+          onClick={() => setPreviewImg(image.url)}
+          style={{ padding: 0 }}
         >
-            {images !== undefined && images.map((slide, index) => (
-                <SwiperSlide className="slide-img" key={index} onClick={() => setPreviewImg(slide.location)} style={{padding: 0}}  >
-                    <img src={slide.location} alt={index} />
-                </SwiperSlide>
-            ))}
-        </Swiper>
-    )
-
-}
+          <img src={image.url} alt={""} />
+        </SwiperSlide>
+      )}
+      {images.map((slide, index) => (
+        <SwiperSlide
+          className="slide-img"
+          key={index}
+          onClick={() => setPreviewImg(slide.url)}
+          style={{ padding: 0 }}
+        >
+          <img src={slide.url} alt={index} />
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  );
+};
 
 export default SlideImagePreview;

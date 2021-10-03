@@ -5,7 +5,7 @@ import { AuthContext } from "../../shared/context/auth-context";
 import { getToolAction, deleteToolAction } from "../../actions/toolActions";
 
 // Component
-// import SlideImagePreview from "../../shared/components/UIElements/SlideImagePreview";
+import SlideImagePreview from "../../shared/components/UIElements/SlideImagePreview";
 import ModalSubmit from "../components/ModalSubmit";
 import { Avatar, Button } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
@@ -87,7 +87,7 @@ function DetailTool() {
               </div>
               {tool.images.length === 0 ? (
                 <div>ไม่มีรูปภาพ</div>
-              ) : tool.images.length <= 3 ? (
+              ) : tool.images.length <= 2 ? (
                 <div className="detailtool-list-img">
                   { tool.avartar && (
                   <Avatar
@@ -107,43 +107,14 @@ function DetailTool() {
                 </div>
               ) : (
                 <div>
-                  {/* <SlideImagePreview
+                  <SlideImagePreview
                         setPreviewImg={setPreviewImg}
                         images={tool.images}
-                      /> */}
+                        image={tool.avartar}
+                      />
                 </div>
               )}
             </div>
-            {/* <div>
-            {tool.imageProfile === undefined ? (
-              <div>Loading...</div>
-            ) : (
-              <div className="introl-img">
-                <img src={previewImg || tool.imageProfile.location} alt="" />
-              </div>
-            )}
-            {tool.images === undefined || tool.images.length === 0 ? (
-              <div>ไม่มีรูปภาพ</div>
-            ) : tool.images.length <= 3 ? (
-              <div className="detailtool-list-img">
-                {tool.images.map((img, index) => (
-                  <Avatar
-                    variant="square"
-                    src={img.location}
-                    key={index}
-                    onClick={() => setPreviewImg(img.location)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div>
-                <SlideImagePreview
-                  setPreviewImg={setPreviewImg}
-                  images={tool.images}
-                />
-              </div>
-            )}
-          </div> */}
             <div>
               <h2>{tool.toolName}</h2>
               <div className="detailtool-list">
