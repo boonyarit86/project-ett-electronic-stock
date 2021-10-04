@@ -9,7 +9,7 @@ const toolSchema = new Schema({
     type: { type: String, ref: "Stt", required: true },
     category: { type: String },
     size: { type: String },
-    limit: { type: Number, minlength: 7},
+    limit: { type: Number, minlength: 7, default: 0},
     avartar: { url: {type: String}, public_id: {type: String} },
     images: [{ url: {type: String}, public_id: {type: String} }],
     description: { type: String },

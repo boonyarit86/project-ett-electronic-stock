@@ -1,11 +1,13 @@
 const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
+const Notification = require("../models/notification");
 const cloudinary = require("../utils/cloudinary");
 const io = require("../index.js");
 const {
   covertTypeandCateTool2,
   covertTypeandCateTool3,
 } = require("../utils/covertData");
+const { createNotificationTool } = require("../utilsServer/notificationActions");
 
 const HistoryTool = require("../models/history-tool");
 const HistoryCnt = require("../models/history-cnt");
@@ -185,6 +187,7 @@ const actionTool = async (req, res) => {
       if (tool.total < toolTotal)
         return res.status(401).send("จำนวนอุปกรณ์ที่เบิกมีมากกว่าในสต๊อก");
       tool.total = tool.total - toolTotal;
+      await createNotificationTool(tool)
     }
 
     let newHistoryTool = new HistoryTool({
@@ -210,9 +213,9 @@ const actionTool = async (req, res) => {
 
     cnt.cntNumber = cnt.cntNumber + 1;
 
-    await tool.save();
-    await newHistoryTool.save();
-    await cnt.save();
+    // await tool.save();
+    // await newHistoryTool.save();
+    // await cnt.save();
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);

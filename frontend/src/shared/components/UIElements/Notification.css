@@ -1,0 +1,42 @@
+/* .container-notification {
+    width: 250px;
+    height: 100px;
+} */
+.container-notification h2 {
+    margin-left: 10px;
+}
+
+.list-notification {
+    flex-direction: column;
+    padding: 10px;
+}
+
+.list-notification:hover {
+    background-color: #f2f3f5;
+}
+
+.detail-notification {
+    display: flex;
+    width: 200px;
+    align-items: center;
+}
+
+.profile-detail-notification {
+    margin-left: 5px;
+}
+
+.profile-detail-notification p {
+    font-weight: bold;
+}
+
+.profile-detail-notification p span {
+    font-weight: normal;
+}
+
+.text-notification {
+    width: 230px;
+}
+
+.text-notification p:last-child {
+    color: #1877f2;    
+}

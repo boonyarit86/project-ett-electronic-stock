@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "../../context/auth-context";
 import { getUserByIdAction } from "../../../actions/userActions";
+import Axios from "axios";
 // import { useHttpClient } from "../../hooks/http-hook";
 // import { getNotificationAction, clearNotificationAction } from "../../../actions/notificationActions";
 // import { toolListAction } from "../../../actions/toolActions";
@@ -34,6 +35,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import SettingsIcon from '@material-ui/icons/Settings';
 import MoreIcon from "@material-ui/icons/MoreVert";
+import Notification from "../UIElements/Notification";
 
 // CSS
 import "./Nav.css";
@@ -124,12 +126,26 @@ export default function Nav2() {
   const [Hamburgur, setHamburgur] = React.useState(false);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const [data, setData] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 //   const [tools, setTools] = useState([]);
 //   const [boards, setBoards] = useState([]);
 //   const [notificationList, setNotificationList] = useState([]);
 
   useEffect(() => {
     dispatch(getUserByIdAction(auth.token));
+  }, []);
+
+  useEffect(() => {
+    let reqNotification = async () => {
+      try {
+        await Axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/notifications`
+        ).then((res) => {
+          setNotifications(res.data);
+        });
+      } catch (error) {}
+    };
+    reqNotification();
   }, []);
 
   const isMenuOpen = Boolean(anchorEl);
@@ -236,50 +252,7 @@ export default function Nav2() {
       open={isNotifiOpen}
       onClose={handleNotificationClose}
     >
-      {/* <MenuItem onClick={handleNotificationClose} className={classes.menuNotification} > */}
-      <div className="container-notification">
-        <h2>ล่าสุด</h2>
-        {/* {notifications.length !== 0 && notifications.map((item, index) => {
-                    let lastDate = new Date(new Date(notifications[notifications.length - 1 - index].date).getTime() + 1000 * 60 * 1440).getTime();
-                    let currentDate = new Date().getTime()
-                    if (lastDate > currentDate) {
-                        return (
-                            <div className="list-notification" key={index}>
-                                <div className="detail-notification">
-                                    <Avatar alt="" src="/images/profile.png" />
-                                    <div className="profile-detail-notification"><p>{notifications[notifications.length - 1 - index].username} <span>({notifications[notifications.length - 1 - index].status})</span></p></div>
-                                </div>
-                                <div className="text-notification">
-                                    <p>{notifications[notifications.length - 1 - index].post}</p>
-                                    <p>{formatDate(notifications[notifications.length - 1 - index].date)} {formatTime(notifications[notifications.length - 1 - index].date)}</p>
-                                </div>
-                            </div>
-                        )
-                    }
-                })} */}
-
-        <h2>ก่อนหน้านี้</h2>
-        {/* {notifications.length !== 0 && notifications.map((item, index) => {
-                    let lastDate = new Date(new Date(notifications[notifications.length - 1 - index].date).getTime() + 1000 * 60 * 1440).getTime();
-                    let currentDate = new Date().getTime()
-                    if (lastDate < currentDate) {
-                        return (
-                            <React.Fragment key={index}>
-                                <div className="list-notification">
-                                    <div className="detail-notification">
-                                        <Avatar alt="" src="/images/profile.png" />
-                                        <div className="profile-detail-notification"><p>{notifications[notifications.length - 1 - index].username} <span>({notifications[notifications.length - 1 - index].status})</span></p></div>
-                                    </div>
-                                    <div className="text-notification">
-                                        <p>{notifications[notifications.length - 1 - index].post}</p>
-                                        <p>{formatDate(notifications[notifications.length - 1 - index].date)}</p>
-                                    </div>
-                                </div>
-                            </React.Fragment>
-                        )
-                    }
-                })} */}
-      </div>
+     <Notification notifications={notifications} /> 
     </Menu>
   );
 
