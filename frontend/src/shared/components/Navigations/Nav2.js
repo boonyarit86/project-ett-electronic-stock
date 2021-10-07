@@ -6,11 +6,7 @@ import { useHistory } from "react-router-dom";
 import { AuthContext } from "../../context/auth-context";
 import { getUserByIdAction } from "../../../actions/userActions";
 import Axios from "axios";
-// import { useHttpClient } from "../../hooks/http-hook";
-// import { getNotificationAction, clearNotificationAction } from "../../../actions/notificationActions";
-// import { toolListAction } from "../../../actions/toolActions";
-// import { boardListAction } from "../../../actions/boardActions";
-// import { time } from "../../util/Time";
+import { io } from "socket.io-client";
 
 // Component
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -24,8 +20,6 @@ import {
   Toolbar,
   AppBar,
   TextField,
-  Card,
-  CardContent,
 } from "@material-ui/core";
 import SlideBar from "./SlideBar";
 // import Loading from "../UIElements/Loading";
@@ -33,7 +27,7 @@ import SlideBar from "./SlideBar";
 // Icon
 import MenuIcon from "@material-ui/icons/Menu";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import SettingsIcon from '@material-ui/icons/Settings';
+import SettingsIcon from "@material-ui/icons/Settings";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import Notification from "../UIElements/Notification";
 
@@ -106,10 +100,10 @@ const useStyles = makeStyles((theme) => ({
       display: "none",
     },
   },
-  menuNotification: {
-    width: "250px",
-    overflow: "initial",
-  },
+  // menuNotification: {
+  //   width: "250px",
+  //   overflow: "initial",
+  // },
 }));
 
 export default function Nav2() {
@@ -127,14 +121,31 @@ export default function Nav2() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const [data, setData] = useState([]);
   const [notifications, setNotifications] = useState([]);
-//   const [tools, setTools] = useState([]);
-//   const [boards, setBoards] = useState([]);
-//   const [notificationList, setNotificationList] = useState([]);
+  const [unreadNotification, setUnReadNotification] = useState(0);
 
+  // User Data
   useEffect(() => {
-    dispatch(getUserByIdAction(auth.token));
+    dispatch(getUserByIdAction(auth.token, setUnReadNotification));
   }, []);
 
+  // Socket IO
+  useEffect(() => {
+    // const socket = io("ws://localhost:5000");
+    const socket = io("https://ett-test.herokuapp.com");
+    socket.on("notification-actions", (newNotification) => {
+      //   console.log("Client: tool-added");
+      setNotifications(newNotification);
+    });
+    socket.on("unreadNotification-actions", async (data) => {
+      //   console.log("Client: tool-added");
+      let findData = await data.find((item) => item._id === auth.userId);
+      if (findData) {
+        setUnReadNotification(findData.unreadNotification);
+      }
+    });
+  }, []);
+
+  // Notification
   useEffect(() => {
     let reqNotification = async () => {
       try {
@@ -146,6 +157,45 @@ export default function Nav2() {
       } catch (error) {}
     };
     reqNotification();
+  }, []);
+
+  // Search
+  useEffect(() => {
+    let reqSearchData = async () => {
+      let tools = [];
+      let boards = [];
+      let newArr = [];
+      try {
+        await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/tools/`, {
+          headers: { Authorization: `Bearer ${auth.token}` },
+        }).then((res) => {
+          tools = res.data;
+        });
+        await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/boards/`, {
+          headers: { Authorization: `Bearer ${auth.token}` },
+        }).then((res) => {
+          boards = res.data;
+        });
+      } catch (error) {}
+      if (tools.length !== 0) {
+        await tools.map((tool) => {
+          let newData = { id: tool._id, name: tool.toolName, status: "tool" };
+          newArr = [...newArr, newData];
+        });
+      }
+      if (boards.length !== 0) {
+        await boards.map((board) => {
+          let newData = {
+            id: board._id,
+            name: board.boardName,
+            status: "board",
+          };
+          newArr = [...newArr, newData];
+        });
+      }
+      setData(newArr)
+    };
+    reqSearchData();
   }, []);
 
   const isMenuOpen = Boolean(anchorEl);
@@ -166,11 +216,14 @@ export default function Nav2() {
   const handleNotificationOpen = async (event) => {
     // console.log(event.currentTarget)
     setAnchorElNoti(event.currentTarget);
-    // try {
-    //     await dispatch(clearNotificationAction(auth.userId))
-    // } catch (error) {
-
-    // }
+    setUnReadNotification(0);
+    try {
+      await Axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/notifications`,
+        {},
+        { headers: { Authorization: `Bearer ${auth.token}` } }
+      ).then((res) => {});
+    } catch (error) {}
   };
 
   const handleMobileMenuClose = () => {
@@ -252,7 +305,7 @@ export default function Nav2() {
       open={isNotifiOpen}
       onClose={handleNotificationClose}
     >
-     <Notification notifications={notifications} /> 
+      <Notification notifications={notifications} />
     </Menu>
   );
 
@@ -267,7 +320,9 @@ export default function Nav2() {
       onClose={handleSettingMenuClose}
     >
       <Link to={"/setting1/tool1"}>
-        <MenuItem onClick={handleSettingMenuClose}>ชนิด&ประเภทของอุปกรณ์</MenuItem>
+        <MenuItem onClick={handleSettingMenuClose}>
+          ชนิด&ประเภทของอุปกรณ์
+        </MenuItem>
       </Link>
     </Menu>
   );
@@ -318,7 +373,7 @@ export default function Nav2() {
       </MenuItem>
       <MenuItem onClick={handleNotificationOpen}>
         <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
+          <Badge badgeContent={unreadNotification} color="secondary">
             <NotificationsIcon />
           </Badge>
         </IconButton>
@@ -331,7 +386,10 @@ export default function Nav2() {
           aria-haspopup="true"
           color="inherit"
         >
-          <Avatar alt="" src={user.avartar ? user.avartar.url : "/images/profile.png"} />
+          <Avatar
+            alt=""
+            src={user.avartar ? user.avartar.url : "/images/profile.png"}
+          />
         </IconButton>
         <p>โปรไฟล์</p>
       </MenuItem>
@@ -360,19 +418,6 @@ export default function Nav2() {
             </Link>
           </Typography>
 
-          {/* Search Icon */}
-          {/* <div className={classes.search}> */}
-          {/* <div className={classes.searchIcon}>
-                            <SearchIcon />
-                        </div> */}
-          {/* <InputBase
-                            placeholder="ค้นหา…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                        /> */}
           <div className={classes.search} id="nav-search">
             <Autocomplete
               // freeSolo
@@ -397,7 +442,7 @@ export default function Nav2() {
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-          <IconButton
+            <IconButton
               aria-label="setting"
               color="inherit"
               onClick={handleSettingMenuOpen}
@@ -412,7 +457,7 @@ export default function Nav2() {
               color="inherit"
               onClick={handleNotificationOpen}
             >
-              <Badge badgeContent={0} color="secondary">
+              <Badge badgeContent={unreadNotification} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -427,7 +472,10 @@ export default function Nav2() {
               color="inherit"
             >
               {/* <AccountCircle /> */}
-              <Avatar alt="" src={user.avartar ? user.avartar.url : "/images/profile.png"} />
+              <Avatar
+                alt=""
+                src={user.avartar ? user.avartar.url : "/images/profile.png"}
+              />
             </IconButton>
           </div>
 

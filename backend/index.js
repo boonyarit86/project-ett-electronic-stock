@@ -4,7 +4,6 @@ const http = require("http");
 const socketIO = require("socket.io");
 const mongoose = require("mongoose");
 const path = require("path");
-const Notification = require("./models/notification"); 
 // const HistoryCnt = require("./models/history-cnt");
 
 // const usersRoutes = require("./routes/users-routes");
@@ -68,19 +67,11 @@ app.use("/api/users", require("./routes/users-routes"));
 app.use("/api/stts", require("./routes/stt-routes"));
 app.use("/api/tools", require("./routes/tools-routes"));
 app.use("/api/boards", require("./routes/boards-routes"));
-app.get("/api/notifications", async (req, res) => {
-  try {
-    let notifications = await Notification.find().populate("user");
-    res.status(200).json(notifications)
-  } catch (error) {
-    console.log(error)
-    res.status(500).send("เซิร์ฟเวอร์ขัดข้อง ไม่สามารถดึงข้อมูลการแจ้งเตือนได้")
-  }
-})
+app.use("/api/notifications", require("./routes/notifications-routes"));
 // app.use((req, res, next) => {
-  //   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
-  // })
-  
-  server.listen(process.env.PORT || 5000, () => {
-    console.log(`Server up and running on port 5000`);
-  });
+//   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+// })
+
+server.listen(process.env.PORT || 5000, () => {
+  console.log(`Server up and running on port 5000`);
+});

@@ -40,3 +40,7 @@
 .text-notification p:last-child {
     color: #1877f2;    
 }
+
+@media (max-width: 500px) {
+   
+}

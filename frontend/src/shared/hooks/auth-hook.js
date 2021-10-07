@@ -5,12 +5,14 @@ let logoutTimer;
 export const useAuth = () => {
     const [token, setToken] = useState(false);
     const [userStatus, setUserStatus] = useState(false);
+    const [userId, setUserId] = useState(false);
     const [tokenExpirationDate, setTokenExpirationDate] = useState(false);
 
     // function กำหนดตัวแปรเกียวกับโปรไฟล์แบบ global และ กำหนด token json ให้ผู้ใช้มีระยะเวลาใช้งานเว็บแค่ 1 ชั่วโมง หลังจากนั้นระบบจะทำการ logout auto
-    const login = useCallback((token, uStatus, expirationDate) => {
+    const login = useCallback((token, uStatus, uid, expirationDate) => {
         setToken(token);
         setUserStatus(uStatus);
+        setUserId(uid);
 
         // 60000(มิลลิเซก) * 1 = 1 นาที 
         // (1000 * 60) * 60 = 1 ชั่วโมง
@@ -22,6 +24,7 @@ export const useAuth = () => {
             JSON.stringify({
                 token: token,
                 userStatus: uStatus,
+                userId: uid,
                 expiration: tokenExpirationDate.toISOString()
             })
         );
@@ -51,9 +54,9 @@ export const useAuth = () => {
             storedData.token &&
             new Date(storedData.expiration) > new Date()
         ) {
-            login(storedData.token, storedData.userStatus, new Date(storedData.expiration));
+            login(storedData.token, storedData.userStatus, storedData.userId, new Date(storedData.expiration));
         }
     }, [login]);
 
-    return { token, userStatus, login, logout  };
+    return { token, userStatus, login, logout, userId  };
 };

@@ -95,7 +95,7 @@ const login = async (req, res) => {
     if (existingUser.status === "none") {
       return res.status(403).send("Waiting for approvement");
     }
-
+    console.log(existingUser)
     let token;
     token = jwt.sign(
       { userId: existingUser.id },
@@ -103,7 +103,7 @@ const login = async (req, res) => {
       { expiresIn: "1h" },
       (err, token) => {
         if (err) throw err;
-        res.status(200).json({token, userStatus: existingUser.status});
+        res.status(200).json({token, userStatus: existingUser.status, userId: existingUser.id});
       }
     );
   } catch (error) {

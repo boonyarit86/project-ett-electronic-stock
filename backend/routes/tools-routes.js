@@ -6,7 +6,7 @@ const { createTool, getAllTools, actionTool, getTool, editTool, deleteTool, getA
 const router = express.Router();
 
 // router.post('/history', toolsController.getAllHistoryTools);
-router.get('/', getAllTools);
+router.get('/', authMiddleware, getAllTools);
 router.get('/history', authMiddleware, getAllHistoryTools);
 router.get('/:tid', authMiddleware, getTool);
 

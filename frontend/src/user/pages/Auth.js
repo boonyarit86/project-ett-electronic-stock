@@ -126,7 +126,7 @@ function Auth() {
       try {
         setLoading(true);
         await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/users/login`, data).then(
-          (res) => auth.login(res.data.token, res.data.userStatus)
+          (res) => auth.login(res.data.token, res.data.userStatus, res.data.userId)
         );
         setLoading(false);
       } catch (error) {

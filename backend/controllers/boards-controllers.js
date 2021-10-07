@@ -9,6 +9,8 @@ const HistoryBoard = require("../models/history-board");
 const HistoryCnt = require("../models/history-cnt");
 const Board = require("../models/board");
 const InsufficientTool = require("../models/incomplete-tool");
+const { createNotificationTool, createNotificationBoard } = require("../utilsServer/notificationActions");
+
 
 // ** -- Public Function -- **
 const covertTypeandCateTool = async (tools, stt) => {
@@ -205,10 +207,15 @@ const actionBoard = async (req, res) => {
       return res.status(401).send("รายการบอร์ดนี้ไม่มีอยู่ในฐานข้อมูล");
     if (actionType === "เพิ่ม") {
       board.total = board.total + boardTotal;
+      if(board.total > board.limit) {
+        board.isAlert = false;
+      }
     } else {
       if (board.total < boardTotal)
         return res.status(401).send("จำนวนบอร์ดที่เบิกมีมากกว่าในสต๊อก");
       board.total = board.total - boardTotal;
+      await createNotificationBoard(board)
+
     }
 
     let newHistoryBoard = new HistoryBoard({
@@ -485,11 +492,12 @@ const requestBoard = async (req, res) => {
           hist: newHistoryTool._id,
         });
         cntTool.cntNumber = cntTool.cntNumber + 1;
-
+        
         // console.log("------Tool------");
         // console.log(tool);
         // console.log("------HistoryTool------");
         // console.log(newHistoryTool);
+        await createNotificationTool(tool)
         await cntTool.save();
         await newHistoryTool.save();
         await tool.save();
@@ -551,6 +559,7 @@ const requestBoard = async (req, res) => {
         // console.log(tool);
         // console.log("------HistoryTool------");
         // console.log(newHistoryTool);
+        await createNotificationTool(tool)
         await cntTool.save();
         await newHistoryTool.save();
         await tool.save();
@@ -600,6 +609,7 @@ const requestBoard = async (req, res) => {
     // console.log(newHistoryBoard);
     // console.log("------InsuffTool------");
     // console.log(newInsuffiTool);
+    await createNotificationBoard(board)
     await cntBoard.save();
     await newHistoryBoard.save();
     await board.save();
@@ -639,8 +649,12 @@ const restoreBoard = async (req, res) => {
           .status(401)
           .send("จำนวนบอร์ดในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
       board.total = board.total - hisb.total;
+      await createNotificationBoard(board)
     } else {
       board.total = board.total + hisb.total;
+      if(board.total > board.limit) {
+        board.isAlert = false;
+      }
     }
 
     let newTag = {
@@ -741,6 +755,9 @@ const restoreBoardandTools = async (req, res) => {
       // console.log(tool);
       // console.log("-----HistoryTool-----");
       // console.log(hist);
+      if(tool.total > tool.limit) {
+        tool.isAlert = false;
+      }
       await hist.save();
       await tool.save();
     }
@@ -757,6 +774,9 @@ const restoreBoardandTools = async (req, res) => {
       }
     }
 
+    if(board.total > board.limit) {
+      board.isAlert = false;
+    }
     await hisb.save();
     await board.save();
 
@@ -977,6 +997,7 @@ const requestIncompleteTool = async (req, res) => {
     }
 
     // arr[0].tool = tool;
+    await createNotificationTool(tool);
     await tool.save();
     let tools = await Tool.find();
     let stt = await Stt.find();

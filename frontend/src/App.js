@@ -70,7 +70,7 @@ const BoardIncomplete = React.lazy(() => import("./board/pages/BoardIncomplete")
 // import Purchase from "./shared/pages/Purchase";
 
 function App() {
-  const { token, userStatus, login, logout } = useAuth();
+  const { token, userStatus, login, logout, userId } = useAuth();
   let routes;
 
   if (token) {
@@ -151,6 +151,7 @@ function App() {
         isLoggedIn: !!token,
         token: token,
         userStatus: userStatus,
+        userId: userId,
         login: login,
         logout: logout,
       }}

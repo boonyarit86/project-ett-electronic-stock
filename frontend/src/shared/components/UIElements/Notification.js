@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import calculateTime from "../../utils/calculateTime";
 import { Avatar } from "@material-ui/core";
 

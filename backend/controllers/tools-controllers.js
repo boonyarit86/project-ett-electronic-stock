@@ -183,6 +183,9 @@ const actionTool = async (req, res) => {
       return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
     if (actionType === "เพิ่ม") {
       tool.total = tool.total + toolTotal;
+      if(tool.total > tool.limit) {
+        tool.isAlert = false;
+      }
     } else {
       if (tool.total < toolTotal)
         return res.status(401).send("จำนวนอุปกรณ์ที่เบิกมีมากกว่าในสต๊อก");
@@ -213,9 +216,9 @@ const actionTool = async (req, res) => {
 
     cnt.cntNumber = cnt.cntNumber + 1;
 
-    // await tool.save();
-    // await newHistoryTool.save();
-    // await cnt.save();
+    await tool.save();
+    await newHistoryTool.save();
+    await cnt.save();
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);
@@ -427,8 +430,12 @@ const restoreTool = async (req, res) => {
           .status(401)
           .send("จำนวนอุปกรณ์ในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
       tool.total = tool.total - hist.total;
+      await createNotificationTool(tool)
     } else {
       tool.total = tool.total + hist.total;
+      if(tool.total > tool.limit) {
+        tool.isAlert = false;
+      }
     }
 
     let newTag = {
