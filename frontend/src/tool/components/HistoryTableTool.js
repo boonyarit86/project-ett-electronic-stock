@@ -28,7 +28,7 @@ import {
 import RestoreIcon from "@material-ui/icons/Restore";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ModalSubmit from "./ModalSubmitTool";
-import ModalDescription from "./ModalDescription";
+import ModalDescription from "./ModalDescription2";
 
 // CSS
 // import "./TableTool.css";
