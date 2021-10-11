@@ -29,6 +29,7 @@ function DetailBoard() {
   const boardId = useParams().bid;
   const [previewImg, setPreviewImg] = useState(null);
   const [openPrompt, setOpenPrompt] = useState(false);
+  const [imgIndex, setImgIndex] = useState(99);
 
   // เรียกข้อมูลจากฐานข้อมูล
   useEffect(() => {
@@ -43,6 +44,11 @@ function DetailBoard() {
   const handleClosePrompt = () => {
     setOpenPrompt(false);
   };
+
+  const onChangeImg = (img, index) => {
+    setPreviewImg(img);
+    setImgIndex(index)
+  }
 
   // Function ลบรายการบอร์ด
   const handleSubmitPrompt = async (e) => {
@@ -101,7 +107,8 @@ function DetailBoard() {
                   <Avatar
                     variant="square"
                     src={board.avartar.url}
-                    onClick={() => setPreviewImg(board.avartar.url)}
+                    style={{border: imgIndex === 99 ? "2px solid #ff5733" : "1px solid #000"}}
+                    onClick={() => onChangeImg(board.avartar.url, 99)}
                   />
                   )}
                   {board.images.map((img, index) => (
@@ -109,7 +116,8 @@ function DetailBoard() {
                       variant="square"
                       src={img.url}
                       key={index}
-                      onClick={() => setPreviewImg(img.url)}
+                      style={{border: imgIndex === index ? "2px solid #ff5733" : "1px solid #000"}}
+                      onClick={() => onChangeImg(img.url, index)}
                     />
                   ))}
                 </div>

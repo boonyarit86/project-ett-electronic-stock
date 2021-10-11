@@ -33,12 +33,6 @@ import "./TableBoard.css";
 const columns = [
   { label: "รูปภาพ", minWidth: 60 },
   { label: "ชื่อบอร์ด", minWidth: 120 },
-  { label: "รหัสบอร์ด", minWidth: 100 },
-  {
-    label: "ชนิด",
-    minWidth: 100,
-    align: "left",
-  },
   {
     label: "สถานะ",
     minWidth: 80,
@@ -47,6 +41,12 @@ const columns = [
   {
     label: "จำนวน",
     minWidth: 70,
+    align: "left",
+  },
+  { label: "รหัสบอร์ด", minWidth: 100 },
+  {
+    label: "ชนิด",
+    minWidth: 100,
     align: "left",
   },
   {
@@ -174,12 +174,6 @@ export default function TableBoard({ boards, auth, dispatch }) {
                           <p>{board.boardName}</p>
                         </TableCell>
                         <TableCell align="left">
-                          <p>{board.boardCode}</p>
-                        </TableCell>
-                        <TableCell align="left">
-                          <p>{board.type}</p>
-                        </TableCell>
-                        <TableCell align="left">
                           {Number(board.total) > Number(board.limit) ? (
                             <p>มี</p>
                           ) : Number(board.total) === 0 ? (
@@ -190,6 +184,12 @@ export default function TableBoard({ boards, auth, dispatch }) {
                         </TableCell>
                         <TableCell align="left">
                           <p>{board.total}</p>
+                        </TableCell>
+                        <TableCell align="left">
+                          <p>{board.boardCode}</p>
+                        </TableCell>
+                        <TableCell align="left">
+                          <p>{board.type}</p>
                         </TableCell>
                         <TableCell align="left">
                           <div className="table-board-btn-action">

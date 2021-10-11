@@ -39,7 +39,8 @@ const boardHistorySchema = new Schema({
         total: { type: Number, minlength: 7, required: true },
         description: { type: String },
         tools: [{
-            tool: {type: Schema.Types.ObjectId, ref: "Tool"},
+            tid: {type: Schema.Types.ObjectId, ref: "Tool"},
+            toolName: {type: String},
             hist: {type: Schema.Types.ObjectId, ref: "ToolHistory"},
             total: { type: Number },
             insuffTotal: { type: Number }

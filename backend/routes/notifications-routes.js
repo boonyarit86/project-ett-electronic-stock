@@ -2,14 +2,24 @@ const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
 const Notification = require("../models/notification");
 const User = require("../models/user");
-const { orderData } = require("../utils/covertData");
 
 const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     let notifications = await Notification.find().populate("user");
-    let newArr = await orderData(notifications)
-    res.status(200).json(newArr);
+
+    let responseData = [];
+    for (var round = 0; round < notifications.length; round++) {
+        let expHistory = new Date(notifications[round].date).getTime() + 1000 * 60 * (1440 * 7);
+        let currentDate = new Date().getTime();
+        if (expHistory < currentDate) {
+          await notifications[round].remove();
+        } else {
+          responseData.unshift(notifications[round]);
+        }
+    }
+    
+    res.status(200).json(responseData);
   } catch (error) {
     console.log(error);
     res

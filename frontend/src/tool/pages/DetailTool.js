@@ -31,6 +31,8 @@ function DetailTool() {
   // ตัวแปรเก็บค่า
   const [previewImg, setPreviewImg] = useState(null);
   const [openPrompt, setOpenPrompt] = useState(false);
+  const [imgIndex, setImgIndex] = useState(99);
+
   // เรียกข้อมูลจากฐานข้อมูล
   useEffect(() => {
     dispatch(getToolAction(auth.token, toolId));
@@ -50,6 +52,11 @@ function DetailTool() {
     setOpenPrompt(false);
     dispatch(deleteToolAction(auth.token, toolId, history));
   };
+
+  const onChangeImg = (img, index) => {
+    setPreviewImg(img);
+    setImgIndex(index)
+  }
 
   if (isLoading) {
     return <Loading loading={isLoading} />;
@@ -93,7 +100,8 @@ function DetailTool() {
                   <Avatar
                     variant="square"
                     src={tool.avartar.url}
-                    onClick={() => setPreviewImg(tool.avartar.url)}
+                    style={{border: imgIndex === 99 ? "2px solid #ff5733" : "1px solid #000"}}
+                    onClick={() => onChangeImg(tool.avartar.url, 99)}
                   />
                   )}
                   {tool.images.map((img, index) => (
@@ -101,7 +109,8 @@ function DetailTool() {
                       variant="square"
                       src={img.url}
                       key={index}
-                      onClick={() => setPreviewImg(img.url)}
+                      style={{border: imgIndex === index ? "2px solid #ff5733" : "1px solid #000"}}
+                      onClick={() => onChangeImg(img.url, index)}
                     />
                   ))}
                 </div>

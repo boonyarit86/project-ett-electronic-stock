@@ -33,6 +33,16 @@ import "./TableTool.css";
 const columns = [
   { label: "รูปภาพ", minWidth: 60 },
   { label: "ชื่ออุปกรณ์", minWidth: 120 },
+  {
+    label: "สถานะ",
+    minWidth: 80,
+    align: "left",
+  },
+  {
+    label: "จำนวน",
+    minWidth: 70,
+    align: "left",
+  },
   { label: "รหัสอุปกรณ์", minWidth: 100 },
   {
     label: "ชนิด",
@@ -47,16 +57,6 @@ const columns = [
   {
     label: "ขนาด",
     minWidth: 60,
-    align: "left",
-  },
-  {
-    label: "สถานะ",
-    minWidth: 80,
-    align: "left",
-  },
-  {
-    label: "จำนวน",
-    minWidth: 70,
     align: "left",
   },
   {
@@ -182,6 +182,18 @@ export default function TableTool({ tools, auth, dispatch }) {
                           <p>{tool.toolName}</p>
                         </TableCell>
                         <TableCell align="left">
+                          {Number(tool.total) > Number(tool.limit) ? (
+                            <p>มี</p>
+                          ) : Number(tool.total) === 0 ? (
+                            <p style={{ color: "red" }}>หมด</p>
+                          ) : (
+                            <p style={{ color: "orange" }}>กำลังจะหมด</p>
+                          )}
+                        </TableCell>   
+                        <TableCell align="left">
+                          <p>{tool.total}</p>
+                        </TableCell>
+                        <TableCell align="left">
                           <p>{tool.toolCode}</p>
                         </TableCell>
                         <TableCell align="left">
@@ -192,19 +204,7 @@ export default function TableTool({ tools, auth, dispatch }) {
                         </TableCell>
                         <TableCell align="left">
                           <p>{tool.size}</p>
-                        </TableCell>
-                        <TableCell align="left">
-                          {Number(tool.total) > Number(tool.limit) ? (
-                            <p>มี</p>
-                          ) : Number(tool.total) === 0 ? (
-                            <p style={{ color: "red" }}>หมด</p>
-                          ) : (
-                            <p style={{ color: "orange" }}>กำลังจะหมด</p>
-                          )}
-                        </TableCell>
-                        <TableCell align="left">
-                          <p>{tool.total}</p>
-                        </TableCell>
+                        </TableCell>                    
                         <TableCell align="left">
                           <div className="table-tool-btn-action">
                             <Button

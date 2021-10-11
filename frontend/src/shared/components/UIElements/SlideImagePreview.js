@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 // import Swiper from 'swiper/react/swiper';
 // import SwiperSlide from "swiper/react/swiper-slide";
@@ -16,6 +16,12 @@ SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 // component รูปภาพแบบสไลค์
 const SlideImagePreview = (props) => {
   const { images, setPreviewImg, image } = props;
+  const [imgIndex, setImgIndex] = useState(99);
+
+  const onChangImg = (img, index) => {
+    setPreviewImg(img);
+    setImgIndex(index);
+  }
 
   return (
     <Swiper
@@ -29,8 +35,8 @@ const SlideImagePreview = (props) => {
       {image && (
         <SwiperSlide
           className="slide-img"
-          onClick={() => setPreviewImg(image.url)}
-          style={{ padding: 0 }}
+          onClick={() => onChangImg(image.url, 99)}
+          style={{ padding: 0, border: imgIndex === 99 ? "2px solid #ff5733" : "1px solid #000" }}
         >
           <img src={image.url} alt={""} />
         </SwiperSlide>
@@ -39,8 +45,8 @@ const SlideImagePreview = (props) => {
         <SwiperSlide
           className="slide-img"
           key={index}
-          onClick={() => setPreviewImg(slide.url)}
-          style={{ padding: 0 }}
+          onClick={() => onChangImg(slide.url, index)}
+          style={{ padding: 0, border: imgIndex === index ? "2px solid #ff5733" : "1px solid #000" }}
         >
           <img src={slide.url} alt={index} />
         </SwiperSlide>

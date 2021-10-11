@@ -25,6 +25,8 @@ function ModalDescription(props) {
   const { handleClosePrompt, openPrompt, data } = props;
   const classes = useStyles();
   const [tagIndex, setTagIndex] = useState(0);
+  const [btnIndex, setBtnIndex] = useState(0);
+
   // const [index, setIndex] = useState("")
 
   // function เกี่ยวกับเวลา
@@ -33,6 +35,7 @@ function ModalDescription(props) {
   // function เปลี่ยน tag
   const sendTagHistoryTool = (index) => {
     setTagIndex(data.tags.length - 1 - index);
+    setBtnIndex(index);
   };
 
   console.log(data.tags);
@@ -65,14 +68,20 @@ function ModalDescription(props) {
               <p>ชนิด</p>
             </div>
             <div>
-              {/* <p>{data.tool.type}</p> */}
-              <p>lorem sfds sdvsv sdvsvvdds vdsvs vdsv</p>
+              <p>{data.board.type}</p>
             </div>
           </div>
           <hr />
           {data.tags.map((tag, index) => (
             <div className="tags-box" key={index}>
-              <button onClick={() => sendTagHistoryTool(index)} style={{border: index === tagIndex  && "1px solid #34aadc"  }}>
+              <button
+                onClick={() => sendTagHistoryTool(index)}
+                style={{
+                  color: index === btnIndex && "#fff",
+                  backgroundColor: index === btnIndex && "#385898",
+                  border: index === btnIndex  && "3px solid #385898"
+                }}
+              >
                 {index + 1}
               </button>
             </div>
@@ -127,9 +136,7 @@ function ModalDescription(props) {
           )}
           <div className="content-row">
             <div>
-              <p>
-                จำนวน
-              </p>
+              <p>จำนวน</p>
             </div>
             <div>
               <p>{data.tags[tagIndex].total}</p>
@@ -154,25 +161,33 @@ function ModalDescription(props) {
           <hr />
           {data.actionType === "เบิกบอร์ดแบบชุด" && (
             <>
-            <h4>รายการอุปกรณ์</h4>
-            <table className="modal-description-table">
-              <thead>
-                <tr>
-                  <th>ชื่อ</th>
-                  <th>จำนวนที่ใช้</th>
-                  {data.tags[tagIndex].action !== "คืนสต๊อก" && ( <th>จำนวนค้าง</th> )}
-                </tr>
-              </thead>
-              <tbody>
-                {data.tags[tagIndex].tools.map((tool) => (
+              <h4>รายการอุปกรณ์</h4>
+              <table className="modal-description-table">
+                <thead>
                   <tr>
-                    <th>{tool.tool}</th>
-                    <th>{tool.total}</th>
-                    {data.tags[tagIndex].action !== "คืนสต๊อก" && ( <th>{tool.insuffTotal}</th> )}
+                    <th>ชื่อ</th>
+                    <th>
+                      {data.tags[tagIndex].action !== "คืนสต๊อก"
+                        ? "จำนวนที่ใช้"
+                        : "จำนวนที่คืน"}
+                    </th>
+                    {data.tags[tagIndex].action !== "คืนสต๊อก" && (
+                      <th>จำนวนค้าง</th>
+                    )}
                   </tr>
-                )) }
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {data.tags[tagIndex].tools.map((tool) => (
+                    <tr key={tool.tool}>
+                      <th>{tool.toolName}</th>
+                      <th>{tool.total}</th>
+                      {data.tags[tagIndex].action !== "คืนสต๊อก" && (
+                        <th style={{color: "red"}}>{tool.insuffTotal}</th>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </>
           )}
         </div>

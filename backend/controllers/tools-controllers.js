@@ -1,9 +1,9 @@
 const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
-const Notification = require("../models/notification");
 const cloudinary = require("../utils/cloudinary");
 const io = require("../index.js");
 const {
+  covertTypeandCateTool,
   covertTypeandCateTool2,
   covertTypeandCateTool3,
 } = require("../utils/covertData");
@@ -11,36 +11,6 @@ const { createNotificationTool } = require("../utilsServer/notificationActions")
 
 const HistoryTool = require("../models/history-tool");
 const HistoryCnt = require("../models/history-cnt");
-// const Board = require("../models/board");
-// const HistoryBoard = require("../models/history-board");
-// const IncompleteTool = require("../models/incomplete-tool");
-// const historyTool = require('../models/history-tool');
-
-// ** -- Public Function -- **
-const covertTypeandCateTool = async (tools, stt) => {
-  let arrTool = await tools.map((item) => {
-    let data = stt.find((x) => x._id.toString() === item.type);
-    if (data) {
-      let cate = data.categorys.find((x) => x._id.toString() === item.category);
-      if (cate) {
-        item.category = cate.category;
-      } else {
-        item.category = "ไม่ได้กำหนด";
-      }
-      item.type = data.type;
-      return item;
-    } else {
-      item.type = "ไม่ได้กำหนด";
-      item.category = "ไม่ได้กำหนด";
-      return item;
-    }
-    // return item
-  });
-  // console.log(arrTool)
-  return arrTool;
-};
-
-// ** -- Public Function -- **
 
 // รับข้อมูลรายการอุปกรณ์ทั้งหมด
 const getAllTools = async (req, res) => {
@@ -79,6 +49,9 @@ const getAllHistoryTools = async (req, res) => {
         }
       }
     }
+
+    let stt = await Stt.find();
+    covertTypeandCateTool2(responseData, stt);
 
     res.status(200).json(responseData);
   } catch (error) {
@@ -399,7 +372,6 @@ const editTool = async (req, res) => {
         });
       }
     }
-    console.log(tool);
     await tool.save();
     res.status(200).json(tool);
   } catch (error) {
@@ -470,10 +442,11 @@ const restoreTool = async (req, res) => {
         }
       }
     }
-
+    
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);
+    covertTypeandCateTool2(responseData, stt);
     io.emit("tool-actions", tools);
 
     res.status(200).json(responseData);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, Link } from "react-router-dom";
 import { useForm } from "../../shared/hooks/form-hook";
 import { VALIDATOR_REQUIRE } from "../../shared/utils/validators";
 import { Container, Paper, TextField, Button } from "@material-ui/core";
@@ -75,20 +75,23 @@ function EditTool() {
 
   useEffect(async () => {
     if (tool && lists.length !== 0) {
-      let findDataType = await lists.find((item) => item._id === tool.type || item.type === tool.type);
-      if(findDataType) {
+      let findDataType = await lists.find(
+        (item) => item._id === tool.type || item.type === tool.type
+      );
+      if (findDataType) {
         let findDataCate = await findDataType.categorys.find(
-          (item) => item._id === tool.category || item.category === tool.category
+          (item) =>
+            item._id === tool.category || item.category === tool.category
         );
-        if(!findDataCate) {
-          setCategory("")
+        if (!findDataCate) {
+          setCategory("");
         } else {
           setCategory(findDataCate);
         }
         setType(findDataType);
       } else {
-        setType("")
-        setCategory("")
+        setType("");
+        setCategory("");
       }
     }
   }, [tool && lists]);
@@ -144,7 +147,7 @@ function EditTool() {
         </div>
       )}
       <>
-        <h1>แก้ไข {tool.toolName}</h1>
+        <h1>แก้ไขข้อมูล {tool.toolName}</h1>
         <Paper>
           <form onSubmit={onSubmit}>
             <Input
@@ -190,18 +193,20 @@ function EditTool() {
               />
             </div>
             <div className="edittool-input-group">
-              {type !== false && (<SelectTypeValidator
-                id="type"
-                filterName="ชนิด"
-                validators={[VALIDATOR_REQUIRE()]}
-                errorText="โปรดเลือกข้อมูล."
-                onInput={inputHandler}
-                data={lists}
-                setCategory={setCategory}
-                initialValue={type}
-                initialValid={true}
-                required
-              />)}
+              {type !== false && (
+                <SelectTypeValidator
+                  id="type"
+                  filterName="ชนิด"
+                  validators={[VALIDATOR_REQUIRE()]}
+                  errorText="โปรดเลือกข้อมูล."
+                  onInput={inputHandler}
+                  data={lists}
+                  setCategory={setCategory}
+                  initialValue={type}
+                  initialValid={true}
+                  required
+                />
+              )}
 
               {category !== false && (
                 <SelectCategory
@@ -241,6 +246,16 @@ function EditTool() {
             >
               อัพเดต
             </Button>
+            <Link to={`/${toolId}/tool`}>
+              <Button
+                type="button"
+                variant="contained"
+                className={classes.margin}
+                fullWidth
+              >
+                ยกเลิก
+              </Button>
+            </Link>
           </form>
         </Paper>
       </>

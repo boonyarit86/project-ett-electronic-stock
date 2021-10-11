@@ -1,56 +1,62 @@
 #paper {
-    width: 500px;
-    height: 450px;
-    overflow: hidden;
-    overflow-y: scroll;
+  width: 500px;
+  height: 450px;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .content-row {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
 .content-row div {
-    width: 50%;
-    height: auto;
-    /* overflow: hidden; */
+  width: 50%;
+  height: auto;
+  /* overflow: hidden; */
 }
 
 .content-row p {
-    /* line-height: 5px; */
-    margin: 10px 0;
+  /* line-height: 5px; */
+  margin: 10px 0;
 }
 
 .content-row div:first-child p {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .tags-box {
-    display: inline-block;
+  display: inline-block;
 }
 
 .modal-description-table {
-    width: 100%;
-    border: 1px solid #ccc;
+  width: 100%;
+  border: 1px solid #ccc;
 }
 
 .modal-description-table thead {
-    background: #EAE6EB
+  background: #eae6eb;
 }
 
-.modal-description-table tbody tr th, .modal-description-table thead tr th {
-    text-align: left;
+.modal-description-table tbody tr th,
+.modal-description-table thead tr th {
+  text-align: left;
+  padding-left: 5px;
+}
+
+.modal-description-table tbody tr th {
+  font-weight: normal;
 }
 
 @media (max-width: 600px) {
-    #paper {
-        width: 350px;
-    }
+  #paper {
+    width: 350px;
+  }
 }
 
-
 @media (max-width: 500px) {
-    #paper {
-        width: 250px;
-    }
+  #paper {
+    width: 250px;
+    overflow-x: scroll;
+  }
 }

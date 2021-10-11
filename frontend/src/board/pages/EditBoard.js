@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, Link } from "react-router-dom";
 import { useForm } from "../../shared/hooks/form-hook";
 import { VALIDATOR_REQUIRE } from "../../shared/utils/validators";
 import { Container, Paper, TextField, Button } from "@material-ui/core";
@@ -115,7 +115,7 @@ function EditBoard() {
         </div>
       )}
       <>
-        <h1>แก้ไข {board.boardName}</h1>
+        <h1>แก้ไขข้อมูล {board.boardName}</h1>
         <Paper>
           <form onSubmit={onSubmit}>
             <Input
@@ -197,6 +197,16 @@ function EditBoard() {
             >
               อัพเดต
             </Button>
+            <Link to={`/${boardId}/board`}>
+              <Button
+                type="button"
+                variant="contained"
+                className={classes.margin}
+                fullWidth
+              >
+                ยกเลิก
+              </Button>
+            </Link>
           </form>
         </Paper>
       </>

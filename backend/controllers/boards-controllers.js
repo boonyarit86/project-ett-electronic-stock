@@ -2,41 +2,23 @@ const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
 const cloudinary = require("../utils/cloudinary");
 const io = require("../index.js");
-const { orderData, covertTypeandCateTool2 } = require("../utils/covertData");
+const {
+  orderData,
+  covertTypeandCateTool,
+  covertTypeandCateTool2,
+  covertTypeandCateTool3,
+  covertHistoryBoardByCheckingDate
+} = require("../utils/covertData");
 
 const HistoryTool = require("../models/history-tool");
 const HistoryBoard = require("../models/history-board");
 const HistoryCnt = require("../models/history-cnt");
 const Board = require("../models/board");
 const InsufficientTool = require("../models/incomplete-tool");
-const { createNotificationTool, createNotificationBoard } = require("../utilsServer/notificationActions");
-
-
-// ** -- Public Function -- **
-const covertTypeandCateTool = async (tools, stt) => {
-  let arrTool = await tools.map((item) => {
-    let data = stt.find((x) => x._id.toString() === item.type);
-    if (data) {
-      let cate = data.categorys.find((x) => x._id.toString() === item.category);
-      if (cate) {
-        item.category = cate.category;
-      } else {
-        item.category = "ไม่ได้กำหนด";
-      }
-      item.type = data.type;
-      return item;
-    } else {
-      item.type = "ไม่ได้กำหนด";
-      item.category = "ไม่ได้กำหนด";
-      return item;
-    }
-    // return item
-  });
-  // console.log(arrTool)
-  return arrTool;
-};
-
-// ** -- Public Function -- **
+const {
+  createNotificationTool,
+  createNotificationBoard,
+} = require("../utilsServer/notificationActions");
 
 // รับข้อมูลบอร์ดทั้งหมด
 const getAllBoards = async (req, res) => {
@@ -96,18 +78,7 @@ const getAllHistoryBoards = async (req, res) => {
 
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    for (var round = 0; round < hisbs.length; round++) {
-      if (hisbs[round].board !== null) {
-        let expHistory = new Date(hisbs[round].exp).getTime();
-        let currentDate = new Date().getTime();
-        if (expHistory < currentDate) {
-          await hisbs[round].remove();
-        } else {
-          responseData.unshift(hisbs[round]);
-        }
-      }
-    }
-
+    covertHistoryBoardByCheckingDate(hisbs, responseData)
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
@@ -207,15 +178,14 @@ const actionBoard = async (req, res) => {
       return res.status(401).send("รายการบอร์ดนี้ไม่มีอยู่ในฐานข้อมูล");
     if (actionType === "เพิ่ม") {
       board.total = board.total + boardTotal;
-      if(board.total > board.limit) {
+      if (board.total > board.limit) {
         board.isAlert = false;
       }
     } else {
       if (board.total < boardTotal)
         return res.status(401).send("จำนวนบอร์ดที่เบิกมีมากกว่าในสต๊อก");
       board.total = board.total - boardTotal;
-      await createNotificationBoard(board)
-
+      await createNotificationBoard(board);
     }
 
     let newHistoryBoard = new HistoryBoard({
@@ -487,17 +457,18 @@ const requestBoard = async (req, res) => {
         });
 
         usedToolList.push({
-          tool: tools[r]._id,
+          tid: tool._id,
+          toolName: tool.toolName,
           total: tools[r].usedTool,
           hist: newHistoryTool._id,
         });
         cntTool.cntNumber = cntTool.cntNumber + 1;
-        
+
         // console.log("------Tool------");
         // console.log(tool);
         // console.log("------HistoryTool------");
         // console.log(newHistoryTool);
-        await createNotificationTool(tool)
+        await createNotificationTool(tool);
         await cntTool.save();
         await newHistoryTool.save();
         await tool.save();
@@ -540,14 +511,15 @@ const requestBoard = async (req, res) => {
         });
 
         usedToolList.push({
-          tool: tools[r]._id,
+          tid: tool._id,
+          toolName: tool.toolName,
           total: tool.total,
           hist: newHistoryTool._id,
           insuffTotal: tools[r].insuffTotal,
         });
 
         incompleteToolList.push({
-          tool: tools[r]._id,
+          tool: tool._id,
           total: tool.total,
           hist: newHistoryTool._id,
           insuffTotal: tools[r].insuffTotal,
@@ -559,7 +531,7 @@ const requestBoard = async (req, res) => {
         // console.log(tool);
         // console.log("------HistoryTool------");
         // console.log(newHistoryTool);
-        await createNotificationTool(tool)
+        await createNotificationTool(tool);
         await cntTool.save();
         await newHistoryTool.save();
         await tool.save();
@@ -609,7 +581,7 @@ const requestBoard = async (req, res) => {
     // console.log(newHistoryBoard);
     // console.log("------InsuffTool------");
     // console.log(newInsuffiTool);
-    await createNotificationBoard(board)
+    await createNotificationBoard(board);
     await cntBoard.save();
     await newHistoryBoard.save();
     await board.save();
@@ -649,10 +621,10 @@ const restoreBoard = async (req, res) => {
           .status(401)
           .send("จำนวนบอร์ดในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
       board.total = board.total - hisb.total;
-      await createNotificationBoard(board)
+      await createNotificationBoard(board);
     } else {
       board.total = board.total + hisb.total;
-      if(board.total > board.limit) {
+      if (board.total > board.limit) {
         board.isAlert = false;
       }
     }
@@ -676,19 +648,9 @@ const restoreBoard = async (req, res) => {
       .populate("user")
       .populate("tags.user");
 
-     // Sort from latest date to oldest date and Check expairation of data.
+    // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    for (var round = 0; round < hisbs.length; round++) {
-      if (hisbs[round].board !== null) {
-        let expHistory = new Date(hisbs[round].exp).getTime();
-        let currentDate = new Date().getTime();
-        if (expHistory < currentDate) {
-          await hisbs[round].remove();
-        } else {
-          responseData.unshift(hisbs[round]);
-        }
-      }
-    }
+    covertHistoryBoardByCheckingDate(hisbs, responseData)
 
     let boards = await Board.find();
     io.emit("board-actions", boards);
@@ -732,7 +694,7 @@ const restoreBoardandTools = async (req, res) => {
 
     for (let r = 0; r < hisb.tags[0].tools.length; r++) {
       let data = hisb.tags[0].tools[r];
-      let tool = await Tool.findById(data.tool);
+      let tool = await Tool.findById(data.tid);
       let hist = await HistoryTool.findById(data.hist);
       if (tool) {
         tool.total = tool.total + data.total;
@@ -755,7 +717,7 @@ const restoreBoardandTools = async (req, res) => {
       // console.log(tool);
       // console.log("-----HistoryTool-----");
       // console.log(hist);
-      if(tool.total > tool.limit) {
+      if (tool.total > tool.limit) {
         tool.isAlert = false;
       }
       await hist.save();
@@ -774,7 +736,7 @@ const restoreBoardandTools = async (req, res) => {
       }
     }
 
-    if(board.total > board.limit) {
+    if (board.total > board.limit) {
       board.isAlert = false;
     }
     await hisb.save();
@@ -785,19 +747,9 @@ const restoreBoardandTools = async (req, res) => {
       .populate("user")
       .populate("tags.user");
 
-     // Sort from latest date to oldest date and Check expairation of data.
+    // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    for (var round = 0; round < hisbs.length; round++) {
-      if (hisbs[round].board !== null) {
-        let expHistory = new Date(hisbs[round].exp).getTime();
-        let currentDate = new Date().getTime();
-        if (expHistory < currentDate) {
-          await hisbs[round].remove();
-        } else {
-          responseData.unshift(hisbs[round]);
-        }
-      }
-    }
+    covertHistoryBoardByCheckingDate(hisbs, responseData)
 
     let boards = await Board.find();
     io.emit("board-actions", boards);
@@ -945,15 +897,16 @@ const requestIncompleteTool = async (req, res) => {
       let actionType = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
       let newToolsArr = [];
       for (let r = 0; r < hisb.tags[0].tools.length; r++) {
-        if (hisb.tags[0].tools[r].tool.toString() === toolId) {
+        if (hisb.tags[0].tools[r].tid.toString() === toolId) {
           newToolsArr.push({
-            tool: toolId,
+            tid: tool._id,
+            toolName: tool.toolName,
             hist: histId,
             total: newUsedTotal,
             insuffTotal: newInsuffTotal,
           });
           if (newInsuffTotal !== 0) {
-            isToolOut.push(hisb.tags[0].tools[r].tool.toString());
+            isToolOut.push(hisb.tags[0].tools[r].tid);
           }
         } else {
           newToolsArr.push(hisb.tags[0].tools[r]);
@@ -961,7 +914,7 @@ const requestIncompleteTool = async (req, res) => {
             hisb.tags[0].tools[r].insuffTotal &&
             hisb.tags[0].tools[r].insuffTotal !== 0
           ) {
-            isToolOut.push(hisb.tags[0].tools[r].tool.toString());
+            isToolOut.push(hisb.tags[0].tools[r].tid);
           }
         }
       }

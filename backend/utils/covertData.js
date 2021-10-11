@@ -1,9 +1,34 @@
+const Tool = require("../models/tool");
+
 const orderData = (data) => {
   let responseData = [];
   for (var round = 0; round < data.length; round++) {
       responseData.unshift(data[round]);
   }
   return responseData;
+};
+
+const covertTypeandCateTool = async (tools, stt) => {
+  let arrTool = await tools.map((item) => {
+    let data = stt.find((x) => x._id.toString() === item.type);
+    if (data) {
+      let cate = data.categorys.find((x) => x._id.toString() === item.category);
+      if (cate) {
+        item.category = cate.category;
+      } else {
+        item.category = "ไม่ได้กำหนด";
+      }
+      item.type = data.type;
+      return item;
+    } else {
+      item.type = "ไม่ได้กำหนด";
+      item.category = "ไม่ได้กำหนด";
+      return item;
+    }
+    // return item
+  });
+  // console.log(arrTool)
+  return arrTool;
 };
 
 const covertTypeandCateTool2 = async (tools, stt) => {
@@ -48,9 +73,26 @@ const covertTypeandCateTool3 = async (tool, stt) => {
   }
 };
 
+// Sort from latest date to oldest date and Check expairation of data.
+const covertHistoryBoardByCheckingDate = async (hisbs, responseData) => {
+    for (var round = 0; round < hisbs.length; round++) {
+      if (hisbs[round].board !== null) {
+        let expHistory = new Date(hisbs[round].exp).getTime();
+        let currentDate = new Date().getTime();
+        if (expHistory < currentDate) {
+          await hisbs[round].remove();
+        } else {          
+          responseData.unshift(hisbs[round]);
+        }
+      }
+    }
+}
+
 exports.orderData = orderData;
+exports.covertTypeandCateTool = covertTypeandCateTool;
 exports.covertTypeandCateTool2 = covertTypeandCateTool2;
 exports.covertTypeandCateTool3 = covertTypeandCateTool3;
+exports.covertHistoryBoardByCheckingDate = covertHistoryBoardByCheckingDate;
 
 // Sort from latest date to oldest date and Check expairation of data.
 // const orderData = (data) => {

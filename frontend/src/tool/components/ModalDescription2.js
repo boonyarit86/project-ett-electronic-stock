@@ -25,6 +25,7 @@ function ModalDescription(props) {
   const { handleClosePrompt, openPrompt, data } = props;
   const classes = useStyles();
   const [tagIndex, setTagIndex] = useState(0);
+  const [btnIndex, setBtnIndex] = useState(0);
   // const [index, setIndex] = useState("")
 
   // function เกี่ยวกับเวลา
@@ -33,9 +34,8 @@ function ModalDescription(props) {
   // function เปลี่ยน tag
   const sendTagHistoryTool = (index) => {
     setTagIndex(data.tags.length - 1 - index);
+    setBtnIndex(index)
   };
-
-  console.log(tagIndex);
 
   const newModal = (
     <Modal
@@ -65,8 +65,8 @@ function ModalDescription(props) {
               <p>ชนิด</p>
             </div>
             <div>
-              {/* <p>{data.tool.type}</p> */}
-              <p>lorem sfds sdvsv sdvsvvdds vdsvs vdsv</p>
+              <p>{data.tool.type}</p>
+              {/* <p>lorem sfds sdvsv sdvsvvdds vdsvs vdsv</p> */}
             </div>
           </div>
           <div className="content-row">
@@ -74,8 +74,8 @@ function ModalDescription(props) {
               <p>ประเภท</p>
             </div>
             <div>
-              {/* <p>{data.tool.category}</p> */}
-              <p>lorem sfds sdvsv sdvsvvdds vdsvs vdsv</p>
+              <p>{data.tool.category}</p>
+              {/* <p>lorem sfds sdvsv sdvsvvdds vdsvs vdsv</p> */}
             </div>
           </div>
           <div className="content-row">
@@ -89,7 +89,14 @@ function ModalDescription(props) {
           <hr />
           {data.tags.map((tag, index) => (
             <div className="tags-box" key={index}>
-              <button onClick={() => sendTagHistoryTool(index)} style={{border: index === tagIndex  && "1px solid #34aadc"  }}>
+              <button
+                onClick={() => sendTagHistoryTool(index)}
+                style={{
+                  color: index === btnIndex && "#fff",
+                  backgroundColor: index === btnIndex && "#385898",
+                  border: index === btnIndex  && "3px solid #385898"
+                }}
+              >
                 {index + 1}
               </button>
             </div>

@@ -10,7 +10,7 @@
 
 .container-detailtool div:first-child .introl-img {
     width: 90%;
-    height: auto;
+    height: 300px;
     object-fit: cover;
 }
 
@@ -96,8 +96,5 @@
         grid-template-columns: 100%;
         border: 1px solid #ccc;
         border-radius: 5px;
-    }
-    .container-detailtool div:first-child .introl-img {
-        height: 350px;
     }
 }

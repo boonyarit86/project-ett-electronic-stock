@@ -14,7 +14,7 @@ const getUsers = async (req, res) => {
     users = await UserModel.find();
   } catch (error) {
     console.log(error);
-    res.status(500).send("can not retrieve All user lists due to server error");
+    res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
   res.status(200).json(users);
 };
@@ -27,7 +27,7 @@ const getUser = async (req, res) => {
     user = await UserModel.findById(userId);
   } catch (error) {
     console.log(error);
-    res.status(500).send("can not retrieve user due to server error");
+    res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
   res.status(200).json(user);
 };
@@ -39,17 +39,17 @@ const signup = async (req, res) => {
 
   const { name, email, password } = req.body;
 
-  if (!isEmail(email)) return res.status(401).send("Invalid Email");
+  if (!isEmail(email)) return res.status(401).send("รูปแบบอีเมล์ไม่ถูกต้อง");
 
   if (password.length < 6) {
-    return res.status(401).send("Password must be at least 6 characters");
+    return res.status(401).send("รหัสผ่านต้องมีอย่างน้อย 6 ตัว");
   }
 
   try {
     let user;
     user = await UserModel.findOne({ email: email.toLowerCase() });
     if (user) {
-      res.status("401").send("This email has already registerd");
+      res.status("401").send("อีเมล์นี้ได้ถูกใช้งานแล้ว");
     }
 
     let hashedPassword = await bcrypt.hash(password, 10);
@@ -63,7 +63,7 @@ const signup = async (req, res) => {
     res.status(201).json(user);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Can not register due to server error");
+    res.status(500).send("ไม่สามารถสมัครสมาชิกได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
 };
 
@@ -71,10 +71,10 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!isEmail(email)) return res.status(401).send("Invalid Email");
+  if (!isEmail(email)) return res.status(401).send("รูปแบบอีเมล์ไม่ถูกต้อง");
 
   if (password.length < 6) {
-    return res.status(401).send("Password must be at least 6 characters");
+    return res.status(401).send("รหัสผ่านต้องมีอย่างน้อย 6 ตัว");
   }
 
   try {
@@ -83,19 +83,19 @@ const login = async (req, res) => {
       "+password"
     );
 
-    if (!existingUser) return res.status(401).send("There is no user ");
+    if (!existingUser) return res.status(401).send("ไม่มีข้อมูลผู้ใช้ในระบบ");
 
     let isValidPassword = false;
     isValidPassword = await bcrypt.compare(password, existingUser.password);
 
     if (!isValidPassword) {
-      return res.status(401).send("password is incorrect");
+      return res.status(401).send("รหัสผ่านไม่ถูกต้อง");
     }
 
     if (existingUser.status === "none") {
-      return res.status(403).send("Waiting for approvement");
+      return res.status(403).send("กำลังรอการอนุมัติ");
     }
-    console.log(existingUser)
+
     let token;
     token = jwt.sign(
       { userId: existingUser.id },
@@ -108,7 +108,7 @@ const login = async (req, res) => {
     );
   } catch (error) {
     console.error(error);
-    res.status(500).send("Can not login due to server error");
+    res.status(500).send("ไม่สามารถเข้าสู่ระบบได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
 };
 
@@ -116,13 +116,13 @@ const login = async (req, res) => {
 const editProfile = async (req, res) => {
   const { email, name, password, oldPassword } = req.body;
 
-  if (!isEmail(email)) return res.status(401).send("Invalid Email");
+  if (!isEmail(email)) return res.status(401).send("รูปแบบอีเมล์ไม่ถูกต้อง");
 
   let findData;
   // หาข้อมูล document ที่ต้องการแกไข
   try {
     findData = await UserModel.findById(req.params.uid).select("+password");
-    if (!findData) return res.status(401).send("Not found user");
+    if (!findData) return res.status(401).send("ไม่พบข้อมูลผู้ใช้งานในระบบ โปรดลองใหม่อีกครั้ง");
 
     // แก้ไขข้อมูล
     findData.email = email;
@@ -131,21 +131,21 @@ const editProfile = async (req, res) => {
     if (password !== "") {
       
       if (password.length < 6) {
-        return res.status(401).send("Password must be at least 6 characters");
+        return res.status(401).send("รหัสผ่านต้องมีอย่างน้อย 6 ตัว");
       }
 
       let isValidPassword = false;
       isValidPassword = await bcrypt.compare(oldPassword, findData.password);
   
       if (!isValidPassword) {
-        return res.status(401).send("password is incorrect");
+        return res.status(401).send("รหัสผ่านไม่ถูกต้อง");
       }
       let hashedPassword;
       hashedPassword = await bcrypt.hash(password, 12);
       if (!hashedPassword)
         return res
           .status(401)
-          .send("can not hashed password. please try to use new password");
+          .send("ไม่สามารถเปลี่ยนรหัสผ่านได้ โปรดใช้รหัสผ่านอย่างอื่น");
       findData.password = hashedPassword;
     }
 
@@ -156,7 +156,7 @@ const editProfile = async (req, res) => {
         await cloudinary.uploader.destroy(findData.avartar.public_id);
       }
       await cloudinary.uploader.upload(req.file.path, (error, result) => {
-        if (error) res.status(401).send("can not upload image on clound");
+        if (error) res.status(401).send("ไม่สามารถอัปโหลดรูปภาพ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
         else
           findData.avartar = {
             url: result.secure_url,
@@ -169,7 +169,7 @@ const editProfile = async (req, res) => {
     res.status(200).json(findData);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Can not edit your profile due to server error");
+    res.status(500).send("ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
 };
 
@@ -177,16 +177,16 @@ const editProfile = async (req, res) => {
 const approveUser = async (req, res) => {
   try {
     let user = await UserModel.findById(req.params.uid);
-    if(!user) return res.status(401).send("can not find this user on database")
+    if(!user) return res.status(401).send("ไม่พบข้อมูลนี้บนฐานข้อมูล")
 
     user.status = "user"
 
     await user.save();
-    res.status(200).send("approved successfully");
+    res.status(200).send("อนุมัติสำเร็จ");
 
   } catch (error) {
     console.error(error);
-    res.status(500).send("Can not approve due to server error");
+    res.status(500).send("ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
   
 };
@@ -195,16 +195,16 @@ const approveUser = async (req, res) => {
 const editStatusUser = async (req, res) => {
   try {
     let user = await UserModel.findById(req.params.uid);
-    if(!user) return res.status(401).send("can not find this user on database")
+    if(!user) return res.status(401).send("ไม่พบข้อมูลนี้บนฐานข้อมูล")
 
     user.status = req.body.newStatus
 
     await user.save();
-    res.status(200).send("edit status successfully");
+    res.status(200).send("แก้ไขข้อมูลสำเร็จ");
 
   } catch (error) {
     console.error(error);
-    res.status(500).send("Can not edit status due to server error");
+    res.status(500).send("ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
   
 };
@@ -213,18 +213,18 @@ const editStatusUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     let user = await UserModel.findById(req.params.uid);
-    if(!user) return res.status(401).send("can not find this user on database")
+    if(!user) return res.status(401).send("ไม่พบข้อมูลนี้บนฐานข้อมูล")
 
     if(user.avartar.public_id !== undefined) {
       await cloudinary.uploader.destroy(user.avartar.public_id)
     }
 
     await user.remove();
-    res.status(200).send("deleted successfully");
+    res.status(200).send("ลบข้อมูลสำเร็จ");
 
   } catch (error) {
     console.error(error);
-    res.status(500).send("Can not deleted due to server error");
+    res.status(500).send("ไม่สามารถลบข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
   }
 };
 

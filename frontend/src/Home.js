@@ -18,18 +18,6 @@ function Home() {
   const dispatch = useDispatch();
   const { user, isLoading, errorMsg } = useSelector((state) => state.userData);
 
-  // let test = [
-  //   {name: "b", age: 3},
-  //   {name: "c", age: 4},
-  //   {name: "d", age: 5}
-  // ]
-
-  // let newArr = test.map((item) => {
-  //   if(item.age === 4) {
-  //     return {...item, {name: "c", age: 6}}
-  //   }
-  // })
-
   useEffect(() => {
     dispatch(getUserByIdAction(auth.token));
   }, []);
@@ -51,9 +39,9 @@ function Home() {
   return (
     <div>
       <h1>
-        Welcome {user.name} ({user.status})
+        ยินดีต้อนรับ {user.name} ({user.status})
       </h1>
-      {/* <div>
+      <div>
         <h2>เกี่ยวกับบริษัท</h2>
         <div className="home-img">
           <img src="/images/ett-pic.jpg" />
@@ -76,7 +64,7 @@ function Home() {
             อีทีที
           </p>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }
