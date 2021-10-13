@@ -125,13 +125,13 @@ export default function Nav2() {
 
   // User Data
   useEffect(() => {
-    dispatch(getUserByIdAction(auth.token, setUnReadNotification));
+      dispatch(getUserByIdAction(auth.token, setUnReadNotification, auth.logout));
   }, []);
 
   // Socket IO
   useEffect(() => {
-    // const socket = io("ws://localhost:5000");
-    const socket = io("https://ett-test.herokuapp.com");
+    const socket = io("ws://localhost:5000");
+    // const socket = io("https://ett-test.herokuapp.com");
     socket.on("notification-actions", (newNotification) => {
       //   console.log("Client: tool-added");
       setNotifications(newNotification);
@@ -193,7 +193,7 @@ export default function Nav2() {
           newArr = [...newArr, newData];
         });
       }
-      setData(newArr)
+      setData(newArr);
     };
     reqSearchData();
   }, []);
@@ -413,9 +413,13 @@ export default function Nav2() {
 
           {/* Header */}
           <Typography className={classes.title} variant="h6" noWrap>
-            <Link to="/tool/list" className={classes.webName}>
-              Stock-Electronic
-            </Link>
+            {auth.userStatus !== "none" ? (
+              <Link to="/tool/list" className={classes.webName}>
+                Stock-Electronic
+              </Link>
+            ) : (
+              "Stock-Electronic"
+            )}
           </Typography>
 
           <div className={classes.search} id="nav-search">

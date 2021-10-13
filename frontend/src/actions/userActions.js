@@ -38,16 +38,20 @@ export const getAllUserAction = (token) => async (dispatch) => {
   }
 };
 
-export const getUserByIdAction = (token, setUnreadNotification) => async (dispatch) => {
+export const getUserByIdAction = (token, setUnreadNotification, logout) => async (dispatch) => {
   dispatch({ type: GET_USER_REQUEST });
   try {
     await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
       dispatch({ type: GET_USER_SUCCESS, payload: res.data })
-      setUnreadNotification && setUnreadNotification(res.data.unreadNotification)
+      setUnreadNotification && setUnreadNotification(res.data.unreadNotification);
+      if(res.data.status === "none") {
+        logout && logout()
+      }
     });
   } catch (error) {
+    logout && await logout();
     dispatch({
       type: GET_USER_FAIL,
       payload: catchErrors(error),
