@@ -7,7 +7,7 @@ const {
   covertTypeandCateTool,
   covertTypeandCateTool2,
   covertTypeandCateTool3,
-  covertHistoryBoardByCheckingDate
+  covertHistoryBoardByCheckingDate,
 } = require("../utils/covertData");
 
 const HistoryTool = require("../models/history-tool");
@@ -58,7 +58,7 @@ const getBoard = async (req, res) => {
 
     let stt = await Stt.find();
     let data = await Board.find({ _id: req.params.bid }).populate("tools.tool");
-    covertTypeandCateTool2(data[0].tools, stt);
+    await covertTypeandCateTool2(data[0].tools, stt);
     res.status(200).json(data[0]);
   } catch (error) {
     console.error(error);
@@ -78,7 +78,7 @@ const getAllHistoryBoards = async (req, res) => {
 
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    covertHistoryBoardByCheckingDate(hisbs, responseData)
+    covertHistoryBoardByCheckingDate(hisbs, responseData);
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
@@ -98,7 +98,34 @@ const getIncompleteTool = async (req, res) => {
       .populate("user")
       .populate("hisb")
       .populate("tools.tool");
-    let newData = await orderData(lists);
+    // Checking if a tool is deleted.
+    for (let r = 0; r < lists.length; r++) {
+      let newToolArr = [];
+      let list = await InsufficientTool.findById(lists[r]._id);
+      if(list.board.boardName) {
+        for (let r2 = 0; r2 < list.tools.length; r2++) {
+          if (list.tools[r2].tool.toolName) {
+            newToolArr.push(list.tools[r2]);
+          }
+        }
+        list.tools = newToolArr;
+        if (list.tools.length === 0) {
+          await list.remove();
+        } else {
+          await list.save();
+        }
+      } else {
+        await list.remove();
+      }
+    }
+
+    // Prepare sending data
+    let responseData = await InsufficientTool.find()
+      .populate("board")
+      .populate("user")
+      .populate("hisb")
+      .populate("tools.tool");
+    let newData = await orderData(responseData);
     res.status(200).json(newData);
   } catch (error) {
     console.error(error);
@@ -650,7 +677,7 @@ const restoreBoard = async (req, res) => {
 
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    covertHistoryBoardByCheckingDate(hisbs, responseData)
+    covertHistoryBoardByCheckingDate(hisbs, responseData);
 
     let boards = await Board.find();
     io.emit("board-actions", boards);
@@ -698,30 +725,30 @@ const restoreBoardandTools = async (req, res) => {
       let hist = await HistoryTool.findById(data.hist);
       if (tool) {
         tool.total = tool.total + data.total;
-      }
-      if (hist) {
-        let newTag = {
-          user: req.userId,
-          code: `${hist.code}-${hist.tags.length + 1}`,
-          action: "คืนสต๊อก",
-          total: data.total,
-          date: new Date(),
-          description: description,
-          boardName: hist.tags[0].boardName,
-        };
-        hist.total = 0;
-        await hist.tags.unshift(newTag);
-      }
+        if (hist) {
+          let newTag = {
+            user: req.userId,
+            code: `${hist.code}-${hist.tags.length + 1}`,
+            action: "คืนสต๊อก",
+            total: data.total,
+            date: new Date(),
+            description: description,
+            boardName: hist.tags[0].boardName,
+          };
+          hist.total = 0;
+          await hist.tags.unshift(newTag);
+        }
 
-      // console.log("-----Tool-----");
-      // console.log(tool);
-      // console.log("-----HistoryTool-----");
-      // console.log(hist);
-      if (tool.total > tool.limit) {
-        tool.isAlert = false;
+        // console.log("-----Tool-----");
+        // console.log(tool);
+        // console.log("-----HistoryTool-----");
+        // console.log(hist);
+        if (tool.total > tool.limit) {
+          tool.isAlert = false;
+        }
+        await hist.save();
+        await tool.save();
       }
-      await hist.save();
-      await tool.save();
     }
 
     // console.log("-----Board-----");
@@ -749,7 +776,7 @@ const restoreBoardandTools = async (req, res) => {
 
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    covertHistoryBoardByCheckingDate(hisbs, responseData)
+    covertHistoryBoardByCheckingDate(hisbs, responseData);
 
     let boards = await Board.find();
     io.emit("board-actions", boards);

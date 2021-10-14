@@ -32,10 +32,11 @@ const covertTypeandCateTool = async (tools, stt) => {
 };
 
 const covertTypeandCateTool2 = async (tools, stt) => {
-  let arrTool = await tools.map((item) => {
-    let data = stt.find((x) => x._id.toString() === item.tool.type);
+  let arrTool = await tools.map(async (item) => {
+    let data = await stt.find((x) => x._id.toString() === item.tool.type);
+    // console.log(data)
     if (data) {
-      let cate = data.categorys.find(
+      let cate = await data.categorys.find(
         (x) => x._id.toString() === item.tool.category
       );
       if (cate) {

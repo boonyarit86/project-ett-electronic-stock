@@ -51,7 +51,7 @@ const getAllHistoryTools = async (req, res) => {
     }
 
     let stt = await Stt.find();
-    covertTypeandCateTool2(responseData, stt);
+    await covertTypeandCateTool2(responseData, stt);
 
     res.status(200).json(responseData);
   } catch (error) {
@@ -446,7 +446,7 @@ const restoreTool = async (req, res) => {
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);
-    covertTypeandCateTool2(responseData, stt);
+    await covertTypeandCateTool2(responseData, stt);
     io.emit("tool-actions", tools);
 
     res.status(200).json(responseData);
