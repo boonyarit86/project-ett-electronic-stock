@@ -148,7 +148,8 @@ function BoardIncomplete() {
                   <div className="proflie-img-incomplete">
                     <img
                       src={
-                        item.user.avartar
+                        item.user !== null &&
+                        item.user.avartar  !== null
                           ? item.user.avartar.url
                           : "/images/profile.png"
                       }
@@ -166,6 +167,9 @@ function BoardIncomplete() {
                   <h3>ชื่อบอร์ด {item.board.boardName}</h3>
                   <p>
                     <b>รหัสบอร์ด</b> {item.board.boardCode}
+                  </p>
+                  <p>
+                    <b>เลขที่การเบิก</b> {item.hisb.code}
                   </p>
                   <div className="detail-incomplete">
                     <table className="table-incomplete">

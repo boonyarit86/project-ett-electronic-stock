@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
   PaperFilter: {
     padding: "10px",
-  }
+  },
 }));
 
 function EditBoard() {
@@ -82,9 +82,9 @@ function EditBoard() {
       description: description,
       images: files,
       imagesDel: filesDel,
-      tools: toolsSelected
+      tools: toolsSelected,
     };
-    console.log(newBoard)
+    console.log(newBoard);
     // console.log(tool.type + " : " + tool.category)
     dispatch(editBoardAction(auth.token, newBoard, history));
     // setIsEditSuccess(true);
@@ -107,13 +107,6 @@ function EditBoard() {
   return (
     <Container className={classes.container}>
       {isLoadingEdit && <Loading loading={isLoadingEdit} />}
-      {!isLoadingEdit && errorMsgEdit && (
-        <div style={{ margin: "10px" }}>
-          <Alert variant="filled" severity="error">
-            <AlertTitle>{errorMsgEdit}</AlertTitle>
-          </Alert>
-        </div>
-      )}
       <>
         <h1>แก้ไขข้อมูล {board.boardName}</h1>
         <Paper>
@@ -162,12 +155,14 @@ function EditBoard() {
             </div>
             <h3>รายการอุปกรณ์ที่ใช้ในบอร์ด</h3>
             <Paper className={classes.PaperFilter}>
-            { tools.length !== 0 && ( <SelectTool
-              data={tools}
-              toolsSelected={toolsSelected}
-              setToolsSelected={setToolsSelected}
-              initialValue={board.tools}
-            /> )}
+              {tools.length !== 0 && (
+                <SelectTool
+                  data={tools}
+                  toolsSelected={toolsSelected}
+                  setToolsSelected={setToolsSelected}
+                  initialValue={board.tools}
+                />
+              )}
             </Paper>
             <ImageUpload file={file} setFile={setFile} />
             <ImageUploadMultiple
@@ -187,6 +182,13 @@ function EditBoard() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
+            {!isLoadingEdit && errorMsgEdit && (
+              <div style={{ margin: "10px 0 10px 0" }}>
+                <Alert variant="filled" severity="error">
+                  <AlertTitle>{errorMsgEdit}</AlertTitle>
+                </Alert>
+              </div>
+            )}
             <Button
               type="submit"
               variant="contained"

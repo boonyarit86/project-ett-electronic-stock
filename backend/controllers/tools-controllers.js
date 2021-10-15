@@ -234,7 +234,7 @@ const editTool = async (req, res) => {
   let delImgArr = [];
 
   if (Number(limit) <= 0)
-    return res.status(401).send("จำนวนต้องมีค่าอย่างน้อย 1");
+    return res.status(401).send("จำนวนตัวเลขการแจ้งเตือนต้องมีค่าอย่างน้อย 1");
 
   try {
     let tool = await Tool.findById(req.params.tid);

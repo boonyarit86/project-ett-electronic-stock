@@ -123,13 +123,6 @@ function CreateBoard() {
   return (
     <Container maxWidth="sm" className={classes.form}>
       {isLoadingActions && <Loading loading={isLoadingActions} />}
-      {!isLoadingActions && errorMsgActions && (
-        <div style={{ margin: "10px" }}>
-          <Alert variant="filled" severity="error">
-            <AlertTitle>{errorMsgActions}</AlertTitle>
-          </Alert>
-        </div>
-      )}
       <h1>การสร้างบอร์ด</h1>
       <Paper className="createboard-form">
         <form onSubmit={onSubmit}>
@@ -183,7 +176,13 @@ function CreateBoard() {
             className={classes.textarea}
             onChange={(e) => setDescription(e.target.value)}
           />
-
+          {!isLoadingActions && errorMsgActions && (
+            <div style={{ margin: "10px" }}>
+              <Alert variant="filled" severity="error">
+                <AlertTitle>{errorMsgActions}</AlertTitle>
+              </Alert>
+            </div>
+          )}
           <Button
             type="submit"
             variant="contained"

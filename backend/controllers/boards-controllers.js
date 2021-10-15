@@ -98,11 +98,16 @@ const getIncompleteTool = async (req, res) => {
       .populate("user")
       .populate("hisb")
       .populate("tools.tool");
+    let stt = await Stt.find();
     // Checking if a tool is deleted.
     for (let r = 0; r < lists.length; r++) {
       let newToolArr = [];
-      let list = await InsufficientTool.findById(lists[r]._id);
-      if(list.board.boardName) {
+      let list = await InsufficientTool.findById(lists[r]._id)
+        .populate("board")
+        .populate("user")
+        .populate("hisb")
+        .populate("tools.tool");
+      if(list.board !== null) {
         for (let r2 = 0; r2 < list.tools.length; r2++) {
           if (list.tools[r2].tool.toolName) {
             newToolArr.push(list.tools[r2]);
@@ -110,11 +115,14 @@ const getIncompleteTool = async (req, res) => {
         }
         list.tools = newToolArr;
         if (list.tools.length === 0) {
+          // console.log("removing...")
           await list.remove();
         } else {
+          // console.log("saving...")
           await list.save();
         }
       } else {
+        // console.log("removing1...")
         await list.remove();
       }
     }
@@ -126,6 +134,9 @@ const getIncompleteTool = async (req, res) => {
       .populate("hisb")
       .populate("tools.tool");
     let newData = await orderData(responseData);
+    for (let r = 0; r < lists.length; r++) {
+      await covertTypeandCateTool2(newData[0].tools, stt);
+    }
     res.status(200).json(newData);
   } catch (error) {
     console.error(error);
@@ -268,7 +279,7 @@ const editBoard = async (req, res) => {
   let delImgArr = [];
 
   if (Number(limit) <= 0)
-    return res.status(401).send("จำนวนต้องมีค่าอย่างน้อย 1");
+    return res.status(401).send("จำนวนตัวเลขการแจ้งเตือนต้องมีค่าอย่างน้อย 1");
 
   try {
     let board = await Board.findById(req.params.bid);

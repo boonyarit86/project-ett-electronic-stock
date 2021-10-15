@@ -130,8 +130,8 @@ export default function Nav2() {
 
   // Socket IO
   useEffect(() => {
-    const socket = io("ws://localhost:5000");
-    // const socket = io("https://ett-test.herokuapp.com");
+    // const socket = io("ws://localhost:5000");
+    const socket = io("https://ett-test.herokuapp.com");
     socket.on("notification-actions", (newNotification) => {
       //   console.log("Client: tool-added");
       setNotifications(newNotification);

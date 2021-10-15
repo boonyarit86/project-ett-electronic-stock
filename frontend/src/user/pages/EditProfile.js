@@ -14,16 +14,7 @@ import {
 } from "../../actions/userActions";
 
 // Component
-import {
-  Container,
-  Paper,
-  Button,
-  TextField,
-  Select,
-  FormControl,
-  InputLabel,
-  MenuItem,
-} from "@material-ui/core";
+import { Container, Paper, Button, TextField } from "@material-ui/core";
 import Input from "../../shared/components/FormElements/Input";
 import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import SaveIcon from "@material-ui/icons/Save";
@@ -120,13 +111,6 @@ function EditProfile() {
   return (
     <Container maxWidth="sm" className={classes.containerEditProfile}>
       {isLoadingEdit && <Loading loading={isLoadingEdit} />}
-      {!isLoadingEdit && errorMsgEdit && (
-        <div style={{ margin: "10px" }}>
-          <Alert variant="filled" severity="error">
-            <AlertTitle>{errorMsgEdit}</AlertTitle>
-          </Alert>
-        </div>
-      )}
       <h1>แก้ไขโปรไฟล์</h1>
       <Paper className={classes.paddingForm}>
         <Input
@@ -174,6 +158,14 @@ function EditProfile() {
         />
 
         <ImageUpload file={file} setFile={setFile} />
+
+        {!isLoadingEdit && errorMsgEdit && (
+          <div style={{ margin: "20px 0 10px 0" }}>
+            <Alert variant="filled" severity="error">
+              <AlertTitle>{errorMsgEdit}</AlertTitle>
+            </Alert>
+          </div>
+        )}
 
         <div className="EditProfile-action">
           <Button

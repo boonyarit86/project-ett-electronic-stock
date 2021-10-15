@@ -216,7 +216,7 @@ export default function TableTool({ tools, auth, dispatch }) {
                             >
                               เบิก
                             </Button>
-                            {auth.userStatus === "admin" && (
+                            {auth.userStatus !== "user" && (
                               <Button
                                 className={classes.btnAdd}
                                 variant="contained"

@@ -7,6 +7,9 @@ import { makeStyles } from '@material-ui/core/styles';
 // Component
 import Input from "../../shared/components/FormElements/Input";
 
+// CSS
+import "./ModalAction.css"
+
 // CSS Material UI
 const useStyles = makeStyles((theme) => ({
     paper: {

@@ -139,13 +139,6 @@ function EditTool() {
   return (
     <Container className={classes.container}>
       {isLoadingEdit && <Loading loading={isLoadingEdit} />}
-      {!isLoadingEdit && errorMsgEdit && (
-        <div style={{ margin: "10px" }}>
-          <Alert variant="filled" severity="error">
-            <AlertTitle>{errorMsgEdit}</AlertTitle>
-          </Alert>
-        </div>
-      )}
       <>
         <h1>แก้ไขข้อมูล {tool.toolName}</h1>
         <Paper>
@@ -236,6 +229,13 @@ function EditTool() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
+            {!isLoadingEdit && errorMsgEdit && (
+              <div style={{ margin: "10px 0 10px 0" }}>
+                <Alert variant="filled" severity="error">
+                  <AlertTitle>{errorMsgEdit}</AlertTitle>
+                </Alert>
+              </div>
+            )}
             <Button
               type="submit"
               variant="contained"

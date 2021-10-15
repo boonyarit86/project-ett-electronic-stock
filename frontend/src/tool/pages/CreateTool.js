@@ -46,7 +46,9 @@ function CreateTool() {
   const history = useHistory();
   // Redux
   const { isLoading, lists, errorMsg } = useSelector((state) => state.sttData);
-  const { isLoadingActions, errorMsgActions } = useSelector((state) => state.toolLists)
+  const { isLoadingActions, errorMsgActions } = useSelector(
+    (state) => state.toolLists
+  );
   // ตัวแปรเก็บค่า
   const [size, setSize] = useState("");
   const [description, setDescription] = useState("");
@@ -95,8 +97,8 @@ function CreateTool() {
       description: description,
     };
     // console.log(newTool)
-    dispatch(createToolAction(auth.token, newTool, history))
-    setCategory("")
+    dispatch(createToolAction(auth.token, newTool, history));
+    setCategory("");
   };
 
   if (isLoading) {
@@ -117,13 +119,6 @@ function CreateTool() {
     <Container maxWidth="sm" className={classes.form}>
       <h1>การสร้างอุปกรณ์</h1>
       {isLoadingActions && <Loading loading={isLoadingActions} />}
-      {!isLoadingActions && errorMsgActions && (
-        <div style={{ margin: "10px" }}>
-          <Alert variant="filled" severity="error">
-            <AlertTitle>{errorMsgActions}</AlertTitle>
-          </Alert>
-        </div>
-      )}
       <Paper className="createtool-form">
         <form onSubmit={onSubmit}>
           <Input
@@ -183,6 +178,13 @@ function CreateTool() {
             className={classes.textarea}
             onChange={(e) => setDescription(e.target.value)}
           />
+          {!isLoadingActions && errorMsgActions && (
+            <div style={{ margin: "10px" }}>
+              <Alert variant="filled" severity="error">
+                <AlertTitle>{errorMsgActions}</AlertTitle>
+              </Alert>
+            </div>
+          )}
           <Button
             type="submit"
             variant="contained"
