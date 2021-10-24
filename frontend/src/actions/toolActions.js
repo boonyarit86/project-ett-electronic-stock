@@ -240,13 +240,14 @@ export const deleteToolAction = (token, tid, history) => async (dispatch) => {
   }
 };
 
-export const getAllHistoryToolAction = (token) => async (dispatch) => {
+export const getAllHistoryToolAction = (token, setData) => async (dispatch) => {
   dispatch({ type: HISTORY_TOOL_LIST_REQUEST });
   try {
     await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/tools/history`, {
       headers: AuthToken(token),
     }).then((res) => {
       dispatch({ type: HISTORY_TOOL_LIST_SUCCESS, payload: res.data });
+      setData(res.data);
     });
   } catch (error) {
     dispatch({

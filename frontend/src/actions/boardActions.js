@@ -263,13 +263,14 @@ export const editBoardAction = (token, board, history) => async (dispatch) => {
   }
 };
 
-export const getAllHistoryBoardAction = (token) => async (dispatch) => {
+export const getAllHistoryBoardAction = (token, setData) => async (dispatch) => {
   dispatch({ type: HISTORY_BOARD_LIST_REQUEST });
   try {
     await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/boards/history`, {
       headers: AuthToken(token),
     }).then((res) => {
       dispatch({ type: HISTORY_BOARD_LIST_SUCCESS, payload: res.data });
+      setData(res.data);
     });
   } catch (error) {
     dispatch({
