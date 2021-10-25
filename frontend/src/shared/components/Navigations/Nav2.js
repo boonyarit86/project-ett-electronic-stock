@@ -277,22 +277,6 @@ export default function Nav2() {
     auth.logout();
   };
 
-  // if (isLoading) {
-  //     return (
-  //         <div className="center">
-  //             <Loading loading={isLoading} />
-  //         </div>
-  //     );
-  // }
-
-  // if (error && !isLoading) {
-  //     return (
-  //         <div>
-  //             <Card className={classes.card}><CardContent>ไม่มีข้อมูล</CardContent></Card>
-  //         </div>
-  //     );
-  // }
-
   const menuId = "primary-search-account-menu";
   const settingMenuId = "primary-search-setting-menu";
   const renderNotification = (
@@ -415,7 +399,7 @@ export default function Nav2() {
           <Typography className={classes.title} variant="h6" noWrap>
             {auth.userStatus !== "none" ? (
               <Link to="/tool/list" className={classes.webName}>
-                Stock-Electronic
+                Electronic-Stock
               </Link>
             ) : (
               "Stock-Electronic"

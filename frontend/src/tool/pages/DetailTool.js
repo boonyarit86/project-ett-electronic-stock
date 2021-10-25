@@ -161,7 +161,7 @@ function DetailTool() {
                 <p>{tool.description}</p>
               </div>
               <div className="detailtool-btn">
-                {auth.userStatus === "admin" && (
+                {auth.userStatus !== "user" && (
                   <Link to={`/tool/${tool._id}`}>
                     <Button
                       color="primary"

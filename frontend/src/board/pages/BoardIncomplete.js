@@ -11,15 +11,12 @@ import { time } from "../../shared/utils/Time";
 
 // Component
 import ModalIncompleteBoard from "../components/ModalIncompleteBoard";
-import { Button } from "@material-ui/core";
+import { Button, Card, CardContent } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import Loading from "../../shared/components/UIElements/Loading";
-// import { toast } from "react-toastify";
 
 // CSS
 import "./BoardIncomplete.css";
-
-// toast.configure()
 
 // CSS Material UI
 const useStyles = makeStyles((theme) => ({
@@ -48,17 +45,9 @@ function BoardIncomplete() {
     getIncompleteBoard;
   // ตัวแปรเก็บค่าและกำหนดค่า
   const [openInput, setOpenInput] = useState(false);
-  // const [toolSelected, setToolSelected] = useState({});
   const [headerPrompt, setHeaderPrompt] = useState("");
-  // const [openPrompt, setOpenPrompt] = useState(false);
-  // const [data, setData] = useState("");
-  // const [promptType, setPromptType] = useState("");
   const [description, setDescription] = useState("");
   const [data, setData] = useState(null);
-
-  // const notify = () => {
-  //     toast.error("อุปกรณ์มีไม่เพียงพอในสต๊อก", { position: toast.POSITION.TOP_RIGHT, autoClose: 3000, className: "notify-success" })
-  // }
 
   const [formState, inputHandler] = useForm(
     {
@@ -136,92 +125,100 @@ function BoardIncomplete() {
           </Alert>
         </div>
       )}
-      <div className="section-incomplete">
-        <div className="headername-incomplete">
-          <h3>อุปกรณ์ไม่ครบ</h3>
-        </div>
-        <div className="items-incomplete">
-          {lists &&
-            lists.map((item) => (
-              <div className="cover-incomplete" key={item._id}>
-                <div className="header-incomplete">
-                  <div className="proflie-img-incomplete">
-                    <img
-                      src={
-                        item.user !== null &&
-                        item.user.avartar  !== null
-                          ? item.user.avartar.url
-                          : "/images/profile.png"
-                      }
-                      alt="555"
-                    />
+      {lists && lists.length !== 0 ? (
+        <React.Fragment>
+          <div className="section-incomplete">
+            <div className="headername-incomplete">
+              <h3>อุปกรณ์ไม่ครบ</h3>
+            </div>
+            <div className="items-incomplete">
+              {lists.map((item) => (
+                <div className="cover-incomplete" key={item._id}>
+                  <div className="header-incomplete">
+                    <div className="proflie-img-incomplete">
+                      <img
+                        src={
+                          item.user !== null && item.user.avartar
+                            ? item.user.avartar.url
+                            : "/images/profile.png"
+                        }
+                        alt="555"
+                      />
+                    </div>
+                    <div>
+                      <p>
+                        {item.user
+                          ? `${item.user.name} (${item.user.status})`
+                          : "ไม่มีข้อมูล"}
+                      </p>
+                      <p>{formatDate(item.hisb.date)}</p>
+                    </div>
                   </div>
-                  <div>
+                  <div className="content-incomplete">
+                    <h3>ชื่อบอร์ด {item.board.boardName}</h3>
                     <p>
-                      {item.user ? `${item.user.name} (${item.user.status})` : "ไม่มีข้อมูล"}
+                      <b>รหัสบอร์ด</b> {item.board.boardCode}
                     </p>
-                    <p>{formatDate(item.hisb.date)}</p>
-                  </div>
-                </div>
-                <div className="content-incomplete">
-                  <h3>ชื่อบอร์ด {item.board.boardName}</h3>
-                  <p>
-                    <b>รหัสบอร์ด</b> {item.board.boardCode}
-                  </p>
-                  <p>
-                    <b>เลขที่การเบิก</b> {item.hisb.code}
-                  </p>
-                  <div className="detail-incomplete">
-                    <table className="table-incomplete">
-                      <thead style={{ background: "#EAE6EB" }}>
-                        <tr>
-                          <th>ชื่ออุปกรณ์</th>
-                          <th>ชนิด</th>
-                          <th>ประเภท</th>
-                          {/* <th>ขนาด</th> */}
-                          <th>จำนวนค้าง</th>
-                          <th>อื่นๆ</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {item.tools.map((tool, index) => (
-                          <tr key={tool._id}>
-                            <th>{tool.tool.toolName}</th>
-                            {/* <th>{tool.tool.type}</th> */}
-                            <th>tcp</th>
-                            <th>
-                              nsp
-                              {/* {tool.tool.category === ""
+                    <p>
+                      <b>เลขที่การเบิก</b> {item.hisb.code}
+                    </p>
+                    <div className="detail-incomplete">
+                      <table className="table-incomplete">
+                        <thead style={{ background: "#EAE6EB" }}>
+                          <tr>
+                            <th>ชื่ออุปกรณ์</th>
+                            <th>ชนิด</th>
+                            <th>ประเภท</th>
+                            {/* <th>ขนาด</th> */}
+                            <th>จำนวนค้าง</th>
+                            <th>อื่นๆ</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {item.tools.map((tool, index) => (
+                            <tr key={tool._id}>
+                              <th>{tool.tool.toolName}</th>
+                              {/* <th>{tool.tool.type}</th> */}
+                              <th>--</th>
+                              <th>
+                                --
+                                {/* {tool.tool.category === ""
                                 ? "ไม่ได้กำหนด"
                                 : tool.tool.category} */}
-                            </th>
-                            {/* <th>{tool.size}</th> */}
-                            <th>{tool.insuffTotal}</th>
-                            <th>
-                              <Button
-                                type="button"
-                                variant="outlined"
-                                color="primary"
-                                fullWidth
-                                size="small"
-                                className={classes.buttonInTable}
-                                onClick={() => handleOpenInput(item, tool)}
-                              >
-                                เพิ่ม
-                              </Button>
-                            </th>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                              </th>
+                              {/* <th>{tool.size}</th> */}
+                              <th>{tool.insuffTotal}</th>
+                              <th>
+                                <Button
+                                  type="button"
+                                  variant="outlined"
+                                  color="primary"
+                                  fullWidth
+                                  size="small"
+                                  className={classes.buttonInTable}
+                                  onClick={() => handleOpenInput(item, tool)}
+                                >
+                                  เพิ่ม
+                                </Button>
+                              </th>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-        </div>
-      </div>
-      <div className="figure-box"></div>
-      <div className="figure-bar"></div>
+              ))}
+            </div>
+          </div>
+          <div className="figure-box"></div>
+          <div className="figure-bar"></div>
+        </React.Fragment>
+      ) : (
+        <Card className={classes.card}>
+          <CardContent>ไม่มีข้อมูล</CardContent>
+        </Card>
+      )}
 
       {data && (
         <ModalIncompleteBoard

@@ -191,7 +191,7 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
                         <TableCell>{formatDate(hisb.exp)}</TableCell>
                         <TableCell>
                           <div>
-                            {auth.userStatus === "admin" && hisb.total !== 0 && (
+                            {auth.userStatus !== "user" && hisb.total !== 0 && (
                               <Button
                                 variant="contained"
                                 color="secondary"

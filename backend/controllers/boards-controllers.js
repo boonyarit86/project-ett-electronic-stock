@@ -109,7 +109,7 @@ const getIncompleteTool = async (req, res) => {
         .populate("tools.tool");
       if(list.board !== null) {
         for (let r2 = 0; r2 < list.tools.length; r2++) {
-          if (list.tools[r2].tool.toolName) {
+          if (list.tools[r2].tool !== null) {
             newToolArr.push(list.tools[r2]);
           }
         }
@@ -134,8 +134,11 @@ const getIncompleteTool = async (req, res) => {
       .populate("hisb")
       .populate("tools.tool");
     let newData = await orderData(responseData);
-    for (let r = 0; r < lists.length; r++) {
-      await covertTypeandCateTool2(newData[0].tools, stt);
+    console.log(lists.length)
+    if(lists.length !== 0) {
+      for (let r = 0; r < lists.length; r++) {
+        await covertTypeandCateTool2(newData[0].tools, stt);
+      }
     }
     res.status(200).json(newData);
   } catch (error) {

@@ -164,7 +164,7 @@ function DetailBoard() {
                 <p>{board.description}</p>
               </div>
               <div className="detailboard-btn">
-                {auth.userStatus === "admin" && (
+                {auth.userStatus !== "user" && (
                   <Link to={`/board/${board._id}`}>
                     <Button
                       color="primary"

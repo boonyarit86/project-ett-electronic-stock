@@ -41,7 +41,7 @@ export default function Nav() {
         <div className={classes.grow}>
             <AppBar position="static">
                 <Toolbar>
-                    <h1 className={classes.title}>Stock-Electronic</h1>
+                    <h1 className={classes.title}>Electronic-Stock</h1>
                 </Toolbar>
             </AppBar>
         </div>
