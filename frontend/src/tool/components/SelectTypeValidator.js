@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { validate } from "../../shared/utils/validators";
 
 // Component
 import { FormControl, Select, InputLabel, MenuItem } from "@material-ui/core";
@@ -40,7 +39,7 @@ function SelectTypeValidator(props) {
   const classes = useStyles();
 
   const [inputState, dispatch] = useReducer(inputReducer, {
-    value: props.initialValue || false,
+    value: props.initialValue || "",
     isTouched: false,
     isValid: props.initialValid || false,
   });
@@ -99,34 +98,6 @@ function SelectTypeValidator(props) {
       </Select>
     </FormControl>
   );
-//   return (
-//     <FormControl
-//       variant="outlined"
-//       className={classes.margin}
-//       style={{ width: "100%" }}
-//     >
-//       <InputLabel id="demo-simple-select-outlined-label">
-//         {"ประเภท"}
-//       </InputLabel>
-//       <Select
-//         labelId="demo-simple-select-outlined-label"
-//         id="demo-simple-select-outlined"
-//         // value={state.type || ""}
-//         // onChange={onChange}
-//         label="ประเภทอุปกรณ์"
-//         fullWidth
-//       >
-//         <MenuItem value={{}}>
-//           <em>None</em>
-//         </MenuItem>
-//         {data ? data.categorys.map((item) => (
-//           <MenuItem key={item._id} value={item._id}>
-//             {item.category}
-//           </MenuItem>
-//         )): null}
-//       </Select>
-//     </FormControl>
-//   );
 }
 
 export default SelectTypeValidator;

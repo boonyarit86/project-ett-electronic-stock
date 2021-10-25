@@ -44,7 +44,7 @@ function Home() {
       <div>
         <h2>เกี่ยวกับบริษัท</h2>
         <div className="home-img">
-          <img src="/images/ett-pic.jpg" />
+          <img src="/images/ett-pic.jpg" alt="" />
         </div>
         <div>
           <p>

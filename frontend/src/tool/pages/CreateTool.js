@@ -12,8 +12,6 @@ import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import Input from "../../shared/components/FormElements/Input";
 import { Container, Paper, TextField, Button } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
-// import SelectType from '../components/SelectType';
-// import SelectCategory from '../components/SelectCategory';
 import Loading from "../../shared/components/UIElements/Loading";
 import { createToolAction } from "../../actions/toolActions";
 import SelectCategory from "../components/SelectCategory";

@@ -100,11 +100,13 @@ export function toolListReducers(state = {}, action) {
         ...state,
         isLoadingEdit: false,
         tool: action.payload,
+        errorMsgEdit: false
       };
     case DELETE_TOOL_SUCCESS:
       return {
         ...state,
         isLoadingDelete: false,
+        errorMsgDelete: false
       };
     case GET_TOOL_FAIL:
       return {

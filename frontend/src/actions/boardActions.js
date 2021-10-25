@@ -127,7 +127,7 @@ export const checkBoardAction = (token, data, bid) => async (dispatch) => {
       headers: AuthToken(token),
     }).then((res) => {
       dispatch({ type: CHECK_BOARD_SUCCESS, payload: res.data });
-      console.log(res.data)
+      // console.log(res.data)
     });
   } catch (error) {
     dispatch({
@@ -196,7 +196,7 @@ export const editBoardAction = (token, board, history) => async (dispatch) => {
     // }
     // กรณี ผู้ใช้ลบรูปภาพและไม่ได้อัพลงไปใหม่ หรือ ไม่มีรูปภาพอยู่แล้ว
     if (board.avartar === null) {
-      console.log("no image");
+      // console.log("no image");
       formData.append("avartar", false);
     }
     // กรณี ผู้ใช้อัพโหลดรูปภาพใหม่
@@ -209,19 +209,19 @@ export const editBoardAction = (token, board, history) => async (dispatch) => {
     // กรณีผู้ไม่ได้กำหนดรูปภาพรายละเอียดอุปกรณ์
     let oldImages = [];
     if (board.images.length === 0 || board.images.length === undefined) {
-      console.log("No imges")
+      // console.log("No imges")
       formData.append("images", false);
     } else {
       let newImages = false;
       for (var round = 0; round < board.images.length; round++) {
         // เก็บรูปภาพเก่าที่ไม่ถูกลบ แยกออกไป เพื่อป้องกันการอัพโหลดรูปภาพซ้ำ
         if (board.images[round].name === undefined) {
-          console.log("default images");
+          // console.log("default images");
           oldImages = [...oldImages, board.images[round]];
         }
         // เก็บรูปภาพใหม่ที่อัพมา แยกออกไป เพื่อรอการอัพโหลด
         else if (board.images[round].name !== undefined) {
-          console.log("new images");
+          // console.log("new images");
           newImages = true;
           newImagesArr = [...newImagesArr, board.images[round]];
         }
@@ -232,10 +232,10 @@ export const editBoardAction = (token, board, history) => async (dispatch) => {
       }
       // ถ้าไม่มีรูปภาพใหม่ถูกอัพโหลด
       else {
-        console.log("no images");
+        // console.log("no images");
         formData.append("images", false);
       }
-      console.log("statusImg: ", newImages);
+      // console.log("statusImg: ", newImages);
     }
 
     // กำหนดรูปใหม่ที่ต้องการอัพโหลด
@@ -329,7 +329,6 @@ export const getIncompleteToolAction = (token) => async (dispatch) => {
       headers: AuthToken(token),
     }).then((res) => {
       dispatch({ type: INCOMPLETE_TOOL_SUCCESS, payload: res.data });
-      console.log(res.data)
     });
   } catch (error) {
     dispatch({

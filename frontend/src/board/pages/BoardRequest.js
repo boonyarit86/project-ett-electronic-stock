@@ -5,7 +5,6 @@ import {
   checkBoardAction,
   requestBoardAction
 } from "../../actions/boardActions";
-// import { createNotificationAction } from "../../actions/notificationActions";
 import { makeStyles } from "@material-ui/core/styles";
 import { useForm } from "../../shared/hooks/form-hook";
 import { VALIDATOR_REQUIRE } from "../../shared/utils/validators";
@@ -18,14 +17,10 @@ import SelectValidation from "../../shared/components/FormElements/SelectValidat
 import { Container, Paper, Button, TextField } from "@material-ui/core";
 import Loading from "../../shared/components/UIElements/Loading";
 import { Alert, AlertTitle } from "@material-ui/lab";
-// import { toast } from "react-toastify";
 
 // CSS
 import "./BoardRequest.css";
 import Messages from "../components/Messages";
-// import "react-toastify/dist/ReactToastify.css";
-
-// toast.configure();
 
 // CSS Material UI
 const useStyles = makeStyles((theme) => ({
@@ -58,17 +53,11 @@ function BoardRequest() {
   const dispatch = useDispatch();
   const history = useHistory();
   // Redux
-  const Alltools = useSelector((state) => state.toolList);
   const { isLoading, errorMsg, isLoadingActions, errorMsgActions, msgs } =
     useSelector((state) => state.boardLists);
   // ตัวแปรไว้เก็บค่า
   const [boards, setBoards] = useState([]);
-  const [openAlert, setOpenAlert] = useState(false);
-  const [validTool, setValidTool] = useState(false);
-  const [toolSelected, setToolSelected] = useState(false);
-  const [boardToltal, setBoardToltal] = useState({});
   const [description, setDescription] = useState("");
-  const [notifications, setNotifications] = useState([]);
 
   // ตัวจับ error ของ Input หรือ Select
   const [formState, inputHandler] = useForm(
@@ -91,10 +80,6 @@ function BoardRequest() {
     dispatch(getAllBoardAction(auth.token, setBoards));
   }, []);
 
-  // const notify = () => {
-  //     toast.error("จำนวนบอร์ดต้องมีอย่างน้อย 1 บอร์ด", { position: toast.POSITION.TOP_RIGHT, autoClose: 3000, className: "notify-success" })
-  // }
-
   // function จัดการข้อมูลเมื่อกดปุ่มยืนยันการเบิก
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -111,15 +96,6 @@ function BoardRequest() {
     const selectedTotal = formState.inputs.total.value;
     let data = { total: selectedTotal }
     dispatch(checkBoardAction(auth.token, data, boardId))
-  };
-
-  // console.log(msgs)
-
-  // function จัดการ alert ของปุ่มตรวจสอบ
-  const handleAlert = () => {
-    // setvalidBoard(false);
-    setToolSelected(false);
-    setOpenAlert(false);
   };
 
   if (isLoading) {

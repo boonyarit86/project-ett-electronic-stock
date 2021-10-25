@@ -143,12 +143,6 @@ export const editToolAction = (token, tool, history) => async (dispatch) => {
     formData.append("limit", tool.limit);
     formData.append("size", tool.size);
     formData.append("description", tool.description);
-    // กรณี ผู้ใช้ไม่ได้แก้ไขรูปภาพ
-    // console.log(tool.imageProfile)
-    // if (typeof tool.avartar === "string") {
-    //   console.log("no image");
-    //   formData.append("avartar", tool.avartar);
-    // }
     // กรณี ผู้ใช้ลบรูปภาพและไม่ได้อัพลงไปใหม่ หรือ ไม่มีรูปภาพอยู่แล้ว
     if (tool.avartar === null) {
       console.log("no image");
@@ -164,19 +158,19 @@ export const editToolAction = (token, tool, history) => async (dispatch) => {
     // กรณีผู้ไม่ได้กำหนดรูปภาพรายละเอียดอุปกรณ์
     let oldImages = [];
     if (tool.images.length === 0 || tool.images.length === undefined) {
-      console.log("No imges")
+      // console.log("No imges")
       formData.append("images", false);
     } else {
       let newImages = false;
       for (var round = 0; round < tool.images.length; round++) {
         // เก็บรูปภาพเก่าที่ไม่ถูกลบ แยกออกไป เพื่อป้องกันการอัพโหลดรูปภาพซ้ำ
         if (tool.images[round].name === undefined) {
-          console.log("default images");
+          // console.log("default images");
           oldImages = [...oldImages, tool.images[round]];
         }
         // เก็บรูปภาพใหม่ที่อัพมา แยกออกไป เพื่อรอการอัพโหลด
         else if (tool.images[round].name !== undefined) {
-          console.log("new images");
+          // console.log("new images");
           newImages = true;
           newImagesArr = [...newImagesArr, tool.images[round]];
         }
@@ -187,10 +181,10 @@ export const editToolAction = (token, tool, history) => async (dispatch) => {
       }
       // ถ้าไม่มีรูปภาพใหม่ถูกอัพโหลด
       else {
-        console.log("no images");
+        // console.log("no images");
         formData.append("images", false);
       }
-      console.log("statusImg: ", newImages);
+      // console.log("statusImg: ", newImages);
     }
 
     // กำหนดรูปใหม่ที่ต้องการอัพโหลด

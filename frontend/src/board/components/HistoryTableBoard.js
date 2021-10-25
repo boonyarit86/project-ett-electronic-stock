@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useForm } from "../../shared/hooks/form-hook";
 import { restoreBoardAction } from "../../actions/boardActions";
-// import { Link } from "react-router-dom";
 import { time } from "../../shared/utils/Time";
 
 // import Axios from "axios";
@@ -19,12 +17,8 @@ import {
   TableRow,
   Button,
 } from "@material-ui/core";
-// import ModalAction from "./ModalAction";
 
 // Icon
-// import RestorePageIcon from "@material-ui/icons/RestorePage";
-// import AddIcon from "@material-ui/icons/Add";
-// import VisibilityIcon from "@material-ui/icons/Visibility";
 import RestoreIcon from "@material-ui/icons/Restore";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ModalSubmit from "./ModalSubmitBoard";
@@ -98,17 +92,6 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
   const [openDescription, setOpenDescription] = useState(false);
   const [dataSubmit, setDataSubmit] = useState({});
   const [dataDes, setDataDes] = useState({});
-
-  // function ตรวจสอบ error ของ Input ต่างๆ
-  const [formState, inputHandler] = useForm(
-    {
-      total: {
-        value: "",
-        isValid: false,
-      },
-    },
-    false
-  );
 
   const [formatDate, formatTime] = time();
 

@@ -11,8 +11,6 @@ import { useHistory } from "react-router-dom";
 
 // Component
 import ImageUpload from "../../shared/components/FormElements/ImageUpload";
-// import SelectComponent from '../../shared/components/FormElements/Select2';
-// import ListToolSelected from '../components/ListToolSelected';
 import Input from "../../shared/components/FormElements/Input";
 import Loading from "../../shared/components/UIElements/Loading";
 import {
@@ -20,7 +18,6 @@ import {
   Paper,
   TextField,
   Button,
-  Divider,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 

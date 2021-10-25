@@ -20,17 +20,6 @@ function SelectFilter(props) {
     const [typeList, setTypeList] = useState([])
     const [value, setValue] = useState("ทั้งหมด")
 
-    // useEffect(() => {
-    //     // console.log("action");
-    //     if(data.length === 0) {
-    //         // console.log("filter update: ", defaultValue)
-    //         setData(defaultValue)
-    //     }
-    //     return () => {
-
-    //     }
-    // }, [defaultValue])
-
     useEffect(() => {
         // กำหนดค่าใน Input Select ไม่ให้ซ้ำกัน
         let typeArr = ["ทั้งหมด"]
@@ -168,7 +157,7 @@ function SelectFilter(props) {
         >
             {typeList.map((option, index) => (
                 <MenuItem key={index} value={option.toLowerCase()}>
-                    {option}
+                    {option.toLowerCase()}
                 </MenuItem>
             ))}
         </TextField>
