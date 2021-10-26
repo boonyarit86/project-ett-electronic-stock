@@ -115,6 +115,8 @@ function BoardIncomplete() {
     );
   }
 
+  console.log(lists)
+
   return (
     <div className="container-incomplete">
       {isLoadingActions && <Loading loading={isLoadingActions} />}
@@ -178,13 +180,10 @@ function BoardIncomplete() {
                           {item.tools.map((tool, index) => (
                             <tr key={tool._id}>
                               <th>{tool.tool.toolName}</th>
-                              {/* <th>{tool.tool.type}</th> */}
-                              <th>--</th>
+                              <th>{tool.tool.type}</th>
+                              {/* <th>--</th> */}
                               <th>
-                                --
-                                {/* {tool.tool.category === ""
-                                ? "ไม่ได้กำหนด"
-                                : tool.tool.category} */}
+                               {tool.tool.category === "" ? "ไม่ได้กำหนด" : tool.tool.category}
                               </th>
                               {/* <th>{tool.size}</th> */}
                               <th>{tool.insuffTotal}</th>

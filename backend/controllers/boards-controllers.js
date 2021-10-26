@@ -6,7 +6,7 @@ const {
   orderData,
   covertTypeandCateTool,
   covertTypeandCateTool2,
-  covertTypeandCateTool3,
+  covertTypeandCateTool4,
   covertHistoryBoardByCheckingDate,
 } = require("../utils/covertData");
 
@@ -115,17 +115,19 @@ const getIncompleteTool = async (req, res) => {
         }
         list.tools = newToolArr;
         if (list.tools.length === 0) {
-          // console.log("removing...")
+          console.log("removing...")
           await list.remove();
         } else {
           // console.log("saving...")
           await list.save();
         }
       } else {
-        // console.log("removing1...")
+        console.log("removing1...")
         await list.remove();
       }
     }
+
+    // console.log(lists)
 
     // Prepare sending data
     let responseData = await InsufficientTool.find()
@@ -134,11 +136,8 @@ const getIncompleteTool = async (req, res) => {
       .populate("hisb")
       .populate("tools.tool");
     let newData = await orderData(responseData);
-    console.log(lists.length)
-    if(lists.length !== 0) {
-      for (let r = 0; r < lists.length; r++) {
-        await covertTypeandCateTool2(newData[0].tools, stt);
-      }
+    if(newData.length !== 0) {
+        await covertTypeandCateTool4(newData, stt);
     }
     res.status(200).json(newData);
   } catch (error) {
@@ -188,7 +187,6 @@ const createBoard = async (req, res) => {
 
     await newBoard.save();
 
-    console.log(newBoard);
     res.status(201).json(newBoard);
   } catch (error) {
     console.error(error);
@@ -1004,13 +1002,14 @@ const requestIncompleteTool = async (req, res) => {
       .populate("hisb")
       .populate("tools.tool");
     let newData = await orderData(lists);
+    if(newData.length !== 0) {
+      await covertTypeandCateTool4(newData, stt);
+  }
     res.status(200).json(newData);
   } catch (error) {
     console.log(error);
     res.status(500).send("เซิร์ฟเวอร์ขัดข้อง ไม่สามารถทำรายการได้");
   }
-
-  // res.status(200).json([{id: "5555"}])
 };
 
 // การลบรายการบอร์ด

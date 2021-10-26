@@ -3,7 +3,7 @@ const Tool = require("../models/tool");
 const orderData = (data) => {
   let responseData = [];
   for (var round = 0; round < data.length; round++) {
-      responseData.unshift(data[round]);
+    responseData.unshift(data[round]);
   }
   return responseData;
 };
@@ -74,25 +74,52 @@ const covertTypeandCateTool3 = async (tool, stt) => {
   }
 };
 
+// For Incomplete page
+const covertTypeandCateTool4 = async (data, stt) => {
+  for (let r = 0; r < data.length; r++) {
+    await data[r].tools.map(async (item) => {
+      let covertObj = await stt.find(
+        (x) => x._id.toString() === item.tool.type
+      );
+      if (covertObj) {
+        let cate = await covertObj.categorys.find(
+          (x) => x._id.toString() === item.tool.category
+        );
+        if (cate) {
+          item.tool.category = cate.category;
+        } 
+        item.tool.type = covertObj.type;
+        return item;
+      } else {
+        item.tool.type = "ไม่ได้กำหนด";
+        item.tool.category = "ไม่ได้กำหนด";
+        return item;
+      }
+    });
+  }
+  return data
+};
+
 // Sort from latest date to oldest date and Check expairation of data.
 const covertHistoryBoardByCheckingDate = async (hisbs, responseData) => {
-    for (var round = 0; round < hisbs.length; round++) {
-      if (hisbs[round].board !== null) {
-        let expHistory = new Date(hisbs[round].exp).getTime();
-        let currentDate = new Date().getTime();
-        if (expHistory < currentDate) {
-          await hisbs[round].remove();
-        } else {          
-          responseData.unshift(hisbs[round]);
-        }
+  for (var round = 0; round < hisbs.length; round++) {
+    if (hisbs[round].board !== null) {
+      let expHistory = new Date(hisbs[round].exp).getTime();
+      let currentDate = new Date().getTime();
+      if (expHistory < currentDate) {
+        await hisbs[round].remove();
+      } else {
+        responseData.unshift(hisbs[round]);
       }
     }
-}
+  }
+};
 
 exports.orderData = orderData;
 exports.covertTypeandCateTool = covertTypeandCateTool;
 exports.covertTypeandCateTool2 = covertTypeandCateTool2;
 exports.covertTypeandCateTool3 = covertTypeandCateTool3;
+exports.covertTypeandCateTool4 = covertTypeandCateTool4;
 exports.covertHistoryBoardByCheckingDate = covertHistoryBoardByCheckingDate;
 
 // Sort from latest date to oldest date and Check expairation of data.
@@ -104,7 +131,6 @@ exports.covertHistoryBoardByCheckingDate = covertHistoryBoardByCheckingDate;
 //     }
 //     return responseData
 // }
-
 
 // const orderData = (data) => {
 //   let responseData = [];
