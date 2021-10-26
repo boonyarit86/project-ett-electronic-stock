@@ -115,8 +115,6 @@ function BoardIncomplete() {
     );
   }
 
-  console.log(lists)
-
   return (
     <div className="container-incomplete">
       {isLoadingActions && <Loading loading={isLoadingActions} />}
