@@ -191,7 +191,7 @@ export default function TableTool({ tools, auth, dispatch }) {
                           )}
                         </TableCell>   
                         <TableCell align="left">
-                          <p>{tool.total}</p>
+                          <p style={{ color: "#137333" }}>{tool.total}</p>
                         </TableCell>
                         <TableCell align="left">
                           <p>{tool.toolCode}</p>

@@ -251,7 +251,7 @@ export const getAllHistoryToolAction = (token, setData) => async (dispatch) => {
   }
 };
 
-export const restoreToolAction = (token, data) => async (dispatch) => {
+export const restoreToolAction = (token, data, setData) => async (dispatch) => {
   dispatch({ type: RESTORE_HISTORY_TOOL_REQUEST });
   try {
     await Axios.put(
@@ -261,7 +261,9 @@ export const restoreToolAction = (token, data) => async (dispatch) => {
         headers: AuthToken(token),
       }
     ).then((res) => {
+      // console.log(res.data[0])
       dispatch({ type: RESTORE_HISTORY_TOOL_SUCCESS, payload: res.data });
+      setData(res.data)
       notifySuccess("ทำรายการสำเร็จ");
     });
   } catch (error) {

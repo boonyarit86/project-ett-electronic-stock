@@ -50,10 +50,10 @@ const io = socketIO(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user is connected");
+  console.log(`A user: ${socket.id} is connected `);
 
   socket.on("disconnect", () => {
-    console.log(`socket ${socket.id} disconnected`);
+    console.log(`All socket ${socket.id} disconnected`);
   });
 });
 

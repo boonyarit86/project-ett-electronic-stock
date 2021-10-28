@@ -36,22 +36,17 @@ function ToolLists() {
 
   // Connect with Socket.io
   useEffect(() => {
-    // console.log("Client: Socket.io stands by...");
-    const socket = io("ws://localhost:5000");
+    // const socket = io("ws://localhost:5000");
     // const socket = io("https://ett-test.herokuapp.com");
-    socket.on("connnection", () => {
-      //   console.log("connected to server");
-    });
+    const socket = io(process.env.REACT_APP_SOCKET_URL)
 
     socket.on("tool-actions", (newTool) => {
-      //   console.log("Client: tool-added");
       setTools(newTool);
       setDefaultValue(newTool);
     });
 
-    socket.on("disconnect", () => {
-      //   console.log("Socket disconnecting");
-    });
+    return () =>  socket.disconnect()
+
   }, []);
 
   // Get tools

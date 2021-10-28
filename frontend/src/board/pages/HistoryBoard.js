@@ -9,6 +9,7 @@ import Loading from "../../shared/components/UIElements/Loading";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import { ToastContainer } from "react-toastify";
 import FilterTime from "../../shared/components/UIElements/FilterTime";
+import DescriptionHistory from "../../shared/components/UIElements/DescriptionHistory";
 
 function HistoryBoard() {
   const auth = useContext(AuthContext);
@@ -48,7 +49,8 @@ function HistoryBoard() {
       )}
       <h1>ประวัติรายการบอร์ด</h1>
       <FilterTime initialData={hisbs} setData={setData} />
-      {hisbs && <HistoryTableBoard hisbs={data} auth={auth} dispatch={dispatch} />}
+      {hisbs && <HistoryTableBoard hisbs={data} auth={auth} dispatch={dispatch} setData={setData} />}
+      <DescriptionHistory />
       <ToastContainer />
     </div>
   );

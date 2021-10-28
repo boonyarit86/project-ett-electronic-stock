@@ -183,7 +183,7 @@ export default function TableBoard({ boards, auth, dispatch }) {
                           )}
                         </TableCell>
                         <TableCell align="left">
-                          <p>{board.total}</p>
+                          <p style={{ color: "#137333" }}>{board.total}</p>
                         </TableCell>
                         <TableCell align="left">
                           <p>{board.boardCode}</p>

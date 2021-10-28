@@ -9,16 +9,16 @@ const calculateTime = createdAt => {
   if (diffInHours < 24) {
     return (
       <>
-        วันนี้ <Moment format="hh:mm A">{createdAt}</Moment>
+        {diffInHours >= 1 ? `${diffInHours} ชั่วโมงที่แล้ว` : "ล่าสุด"} 
       </>
     );
-  } else if (diffInHours < 48 ) {
+  } else if (diffInHours >= 24 && diffInHours < 36 ) {
     return (
       <>
         เมื่อวาน <Moment format="hh:mm A">{createdAt}</Moment>
       </>
     );
-  } else if (diffInHours > 48) {
+  } else if (diffInHours > 36) {
     return <Moment format="DD/MM/YYYY hh:mm A">{createdAt}</Moment>;
   }
 };

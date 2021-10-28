@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AuthContext } from "../../shared/context/auth-context";
 import { getAllHistoryToolAction } from "../../actions/toolActions";
-import { makeStyles } from "@material-ui/core/styles";
 
 // Components
 import HistoryTableTool from "../components/HistoryTableTool";
@@ -10,22 +9,14 @@ import Loading from "../../shared/components/UIElements/Loading";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import { ToastContainer } from "react-toastify";
 import FilterTime from "../../shared/components/UIElements/FilterTime";
-
-// CSS Material UI
-const useStyles = makeStyles((theme) => ({
-  input: {
-    margin: "10px",
-  },
-}));
+import DescriptionHistory from "../../shared/components/UIElements/DescriptionHistory";
 
 function HistoryTool() {
   const auth = useContext(AuthContext);
-  const classes = useStyles();
   const dispatch = useDispatch();
   const { isLoading, errorMsg, hists, isLoadingActions, errorMsgActions } =
     useSelector((state) => state.histLists);
   const [data, setData] = useState([]);
-//   const [text, setText] = useState("");
 
   // Get tools
   useEffect(() => {
@@ -46,7 +37,6 @@ function HistoryTool() {
     );
   }
 
-//   console.log(hists)
   return (
     <div className="container-toollist">
       {isLoadingActions && <Loading loading={isLoadingActions} />}
@@ -59,7 +49,8 @@ function HistoryTool() {
       )}
       <h1>ประวัติรายการอุปกรณ์</h1>
       <FilterTime initialData={hists} setData={setData} />
-      {hists && <HistoryTableTool hists={data} auth={auth} dispatch={dispatch} />}
+      {hists && <HistoryTableTool hists={data} auth={auth} dispatch={dispatch} setData={setData} />}
+      <DescriptionHistory />
       <ToastContainer />
     </div>
   );

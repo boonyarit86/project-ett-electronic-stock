@@ -280,7 +280,7 @@ export const getAllHistoryBoardAction = (token, setData) => async (dispatch) => 
   }
 };
 
-export const restoreBoardAction = (token, data, path) => async (dispatch) => {
+export const restoreBoardAction = (token, data, path, setData) => async (dispatch) => {
   dispatch({ type: RESTORE_HISTORY_BOARD_REQUEST });
   try {
     await Axios.put(
@@ -291,6 +291,7 @@ export const restoreBoardAction = (token, data, path) => async (dispatch) => {
       }
     ).then((res) => {
       dispatch({ type: RESTORE_HISTORY_BOARD_SUCCESS, payload: res.data });
+      setData(res.data)
       notifySuccess("ทำรายการสำเร็จ");
     });
   } catch (error) {

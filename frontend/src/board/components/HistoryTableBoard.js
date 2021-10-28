@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
+export default function HistoryTableBoard({ hisbs, auth, dispatch, setData }) {
   // ตัวแปรของ function React
   const classes = useStyles();
   // ตัวแปรทั่วไปไว้เก็บค่าและกำหนดค่า
@@ -129,7 +129,7 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch }) {
     } else if (dataSubmit.actionType === "เบิกบอร์ดแบบชุด") {
       path = "restore/boardandtools"
     }
-    dispatch(restoreBoardAction(auth.token, data, path));
+    dispatch(restoreBoardAction(auth.token, data, path, setData));
     // console.log(data)
     setDescription(null);
     setOpenRestore(false);

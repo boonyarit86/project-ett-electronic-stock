@@ -1,9 +1,6 @@
 import React from "react";
-import { Paper, IconButton, InputBase, FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
+import { FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-
-// Icons
-import AddBoxIcon from "@material-ui/icons/AddBox";
 
 const useStyles = makeStyles((theme) => ({
   root: {

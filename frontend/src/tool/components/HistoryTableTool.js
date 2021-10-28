@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useForm } from "../../shared/hooks/form-hook";
 import { restoreToolAction } from "../../actions/toolActions";
-// import { Link } from "react-router-dom";
 import { time } from "../../shared/utils/Time";
 
 // import Axios from "axios";
@@ -22,9 +21,6 @@ import {
 // import ModalAction from "./ModalAction";
 
 // Icon
-// import RestorePageIcon from "@material-ui/icons/RestorePage";
-// import AddIcon from "@material-ui/icons/Add";
-// import VisibilityIcon from "@material-ui/icons/Visibility";
 import RestoreIcon from "@material-ui/icons/Restore";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ModalSubmit from "./ModalSubmitTool";
@@ -87,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function HistoryTableTool({ hists, auth, dispatch }) {
+export default function HistoryTableTool({ hists, auth, dispatch, setData }) {
   // ตัวแปรของ function React
   const classes = useStyles();
   // ตัวแปรทั่วไปไว้เก็บค่าและกำหนดค่า
@@ -140,7 +136,7 @@ export default function HistoryTableTool({ hists, auth, dispatch }) {
       tid: dataSubmit.tool._id,
       description: description,
     };
-    dispatch(restoreToolAction(auth.token, data));
+    dispatch(restoreToolAction(auth.token, data, setData));
     // console.log(data)
     setDescription(null);
     setOpenRestore(false);
