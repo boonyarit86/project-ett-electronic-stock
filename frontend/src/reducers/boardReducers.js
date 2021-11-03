@@ -23,6 +23,8 @@ export function boardListsReducers(state = initialState, action) {
       return {
         ...state,
         isLoading: false,
+        errorMsgActions: false,
+        errorMsg: false,
         msgs: null
       };
     case CREATE_BOARD_SUCCESS:
@@ -38,7 +40,8 @@ export function boardListsReducers(state = initialState, action) {
         ...state,
         isLoadingActions: false,
         msgs: action.payload,
-        errorMsgActions: null
+        errorMsgActions: null,
+        errorMsg: false,
       }
     case GET_ALL_BOARD_FAIL:
       return {

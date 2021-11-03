@@ -5,6 +5,9 @@ import { makeStyles } from '@material-ui/core/styles';
 // Component
 import { Button, Modal, Backdrop, Fade } from '@material-ui/core';
 
+// CSS 
+import "./ModalSubmit.css"
+
 const useStyles = makeStyles((theme) => ({
     modal: {
         display: 'flex',
@@ -19,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     },
     marginBtn: {
         marginRight: "5px"
-    }
+    },
 }));
 
 // function นี้เป็นแบบฟอร์มการยืนยันทำรายการของหน้าการจัดการเข้าถึงของผู้ใช้
@@ -32,7 +35,7 @@ function ModalSubmit(props) {
         <Modal
             aria-labelledby="transition-modal-title"
             aria-describedby="transition-modal-description"
-            className={classes.modal}
+            className="modal-submit-auth"
             open={openPrompt}
             onClose={handleClosePrompt}
             closeAfterTransition
@@ -44,6 +47,9 @@ function ModalSubmit(props) {
             <Fade in={openPrompt}>
                 <div className={classes.paper}>
                     <h2 id="transition-modal-title">คุณต้องการทำขั้นตอนนี้หรือไม่ ?</h2>
+                    <div className="description-text-auth">
+                    <p>ผู้ใช้งานที่ Login อยู่ในระบบยังคงใช้งานต่อได้ เนื่องจากต้องรอ Token ที่มีเวลา 1 ชั่วโมงครบก่อนหลังจากนั้นจึงจะไม่สามารถเข้าใช้งาน Account นี้ได้</p>
+                    </div>
                     <div className="TableHistoryTool-action">
                         <Button variant="contained" color="primary" className={classes.marginBtn} onClick={handleSubmitPrompt}>ยืนยัน</Button>
                         <Button variant="contained" color="secondary" onClick={handleClosePrompt}>ยกเลิก</Button>

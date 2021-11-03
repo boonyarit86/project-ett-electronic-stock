@@ -244,7 +244,7 @@ function EditTool() {
               className={classes.margin}
               disabled={!formState.isValid}
             >
-              อัพเดต
+              อัปเดต
             </Button>
             <Link to={`/${toolId}/tool`}>
               <Button

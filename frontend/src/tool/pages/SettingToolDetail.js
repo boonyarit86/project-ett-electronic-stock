@@ -156,7 +156,7 @@ function SettingTool() {
         </div>
       )}
       <Paper className={classes.paper}>
-        <h3 className={classes.header}>ตั่งค่าอินพุตชนิดและประเภทของอุปกรณ์</h3>
+        <h3 className={classes.header}>ตั้งค่าอินพุตชนิดและประเภทของอุปกรณ์</h3>
         <InputAdd
           onSubmit={handleAddType}
           onChange={onChangeAddType}

@@ -49,6 +49,12 @@ function ModalSubmit(props) {
             <Fade in={openPrompt}>
                 <div className={classes.paper}>
                     <h2 id="transition-modal-title">คุณต้องการทำขั้นตอนนี้หรือไม่ ?</h2>
+                    <p>การทำขั้นตอนนี้ข้อมูลที่เกี่ยวข้องจะถูกลบไปด้วย</p>
+                    <ul>
+                        <li>ประวัติการเบิกและเพิ่มอุปกรณ์</li>
+                        <li>ข้อมูลอุปกรณ์ที่ถูกบันทึกไว้ในรายการบอร์ดต่างๆ</li>
+                        <li>ข้อมูลอุปกรณ์ในหน้าอุปกรณ์ไม่ครบ</li>
+                    </ul>
                     <div>
                         <Button variant="contained" color="primary" onClick={handleSubmitPrompt} className={classes.btnGroup}>ยืนยัน</Button>
                         <Button variant="contained" color="secondary" onClick={handleClosePrompt}>ยกเลิก</Button>

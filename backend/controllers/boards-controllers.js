@@ -279,7 +279,7 @@ const editBoard = async (req, res) => {
   // ตัวแปรรูปภาพที่จะถูกลบ
   let delImgArr = [];
 
-  if (Number(limit) <= 0)
+  if (Number(limit) < 0)
     return res.status(401).send("จำนวนตัวเลขการแจ้งเตือนต้องมีค่าอย่างน้อย 1");
 
   try {
@@ -443,6 +443,11 @@ const editBoard = async (req, res) => {
 const requestBoard = async (req, res) => {
   const { msgs, description } = req.body;
   // console.log(msgs.success.tools[0].toolName)
+  if(msgs.success.tools.length === 0 && msgs.error.tools.length === 0) {
+    return res
+        .status(401)
+        .send("ไม่สามารถทำรายการได้ เนื่องจากไม่มีรายการอุปกรณ์อยู่ในบอร์ดนี้");
+  }
   try {
     let usedToolList = [];
     let incompleteToolList = [];

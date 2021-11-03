@@ -7,7 +7,7 @@ const boardSchema = new Schema({
     boardCode: { type: String },
     total: { type: Number, minlength: 7 },
     type: { type: String },
-    limit: { type: Number, minlength: 7},
+    limit: { type: Number, minlength: 7, default: 0},
     tools: [{
         tool: { type: Schema.Types.ObjectId, ref: "Tool" },
         total: { type: Number, default: 0 }

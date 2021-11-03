@@ -197,7 +197,7 @@ function EditBoard() {
               className={classes.margin}
               disabled={!formState.isValid}
             >
-              อัพเดต
+              อัปเดต
             </Button>
             <Link to={`/${boardId}/board`}>
               <Button

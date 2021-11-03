@@ -344,6 +344,7 @@ export default function Nav2() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
+      {auth.userStatus !== "user" && (
       <MenuItem onClick={handleSettingMenuOpen}>
         <IconButton
           aria-label="stting of current user"
@@ -355,6 +356,7 @@ export default function Nav2() {
         </IconButton>
         <p>การตั่งค่า</p>
       </MenuItem>
+      )}
       <MenuItem onClick={handleNotificationOpen}>
         <IconButton aria-label="show 11 new notifications" color="inherit">
           <Badge badgeContent={unreadNotification} color="secondary">
@@ -430,6 +432,7 @@ export default function Nav2() {
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
+          {auth.userStatus !== "user" && (
             <IconButton
               aria-label="setting"
               color="inherit"
@@ -439,6 +442,7 @@ export default function Nav2() {
                 <SettingsIcon />
               </Badge>
             </IconButton>
+          )}
             {/* Notification Icon */}
             <IconButton
               aria-label="show 17 new notifications"

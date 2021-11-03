@@ -106,8 +106,8 @@ export function TableTool({ tools }) {
                       <Avatar
                         variant="square"
                         src={
-                          tool.avartar
-                            ? tool.avartar.url
+                          tool.tool.avartar
+                            ? tool.tool.avartar.url
                             : "/images/profile.png"
                         }
                       />

@@ -233,7 +233,7 @@ const editTool = async (req, res) => {
   // ตัวแปรรูปภาพที่จะถูกลบ
   let delImgArr = [];
 
-  if (Number(limit) <= 0)
+  if (Number(limit) < 0)
     return res.status(401).send("จำนวนตัวเลขการแจ้งเตือนต้องมีค่าอย่างน้อย 1");
 
   try {

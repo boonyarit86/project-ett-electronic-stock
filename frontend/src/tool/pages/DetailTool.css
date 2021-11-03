@@ -94,7 +94,12 @@
     .container-detailtool {
         display: grid;
         grid-template-columns: 100%;
+        width: 100%;
         border: 1px solid #ccc;
         border-radius: 5px;
+    }
+
+    .container-detailtool div:first-child .detailtool-list-img {
+        width: 100%;
     }
 }

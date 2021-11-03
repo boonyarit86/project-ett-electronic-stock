@@ -98,4 +98,8 @@
         border: 1px solid #ccc;
         border-radius: 5px;
     }
+
+    .container-detailboard div:first-child .detailboard-list-img {
+        width: 100%;
+    }
 }
