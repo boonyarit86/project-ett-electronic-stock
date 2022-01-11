@@ -322,10 +322,10 @@ export default function Nav2() {
       onClose={handleMenuClose}
     >
       <Link to={"/profile/"}>
-        <MenuItem onClick={handleMenuClose}>โปรไฟล์</MenuItem>
+        <MenuItem onClick={handleMenuClose}>โพรไฟล์</MenuItem>
       </Link>
       <Link to={`/profile/edit`}>
-        <MenuItem onClick={handleMenuClose}>แก้ไขโปรไฟล์</MenuItem>
+        <MenuItem onClick={handleMenuClose}>แก้ไขโพรไฟล์</MenuItem>
       </Link>
       <MenuItem onClick={handleLogout}>ออกจากระบบ</MenuItem>
     </Menu>
@@ -354,7 +354,7 @@ export default function Nav2() {
         >
           <SettingsIcon />
         </IconButton>
-        <p>การตั่งค่า</p>
+        <p>การตั้งค่า</p>
       </MenuItem>
       )}
       <MenuItem onClick={handleNotificationOpen}>
@@ -377,7 +377,7 @@ export default function Nav2() {
             src={user.avartar ? user.avartar.url : "/images/profile.png"}
           />
         </IconButton>
-        <p>โปรไฟล์</p>
+        <p>โพรไฟล์</p>
       </MenuItem>
     </Menu>
   );

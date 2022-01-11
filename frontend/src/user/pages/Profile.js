@@ -37,7 +37,7 @@ export default function Profile() {
   return (
     <div>
       <Container maxWidth="sm">
-        <h1 style={{ textAlign: "center" }}>โปรไฟล์</h1>
+        <h1 style={{ textAlign: "center" }}>โพรไฟล์</h1>
         <Paper
           style={{
             padding: "10px",

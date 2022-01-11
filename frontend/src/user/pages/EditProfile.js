@@ -111,7 +111,7 @@ function EditProfile() {
   return (
     <Container maxWidth="sm" className={classes.containerEditProfile}>
       {isLoadingEdit && <Loading loading={isLoadingEdit} />}
-      <h1>แก้ไขโปรไฟล์</h1>
+      <h1>แก้ไขโพรไฟล์</h1>
       <Paper className={classes.paddingForm}>
         <Input
           id="email"
