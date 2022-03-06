@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user");
 const isEmail = require("validator/lib/isEmail");
 const cloudinary = require("../utils/cloudinary");
-
+const catchError = require("../utils/catchError");
 
 // const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
@@ -13,8 +13,7 @@ const getUsers = async (req, res) => {
   try {
     users = await UserModel.find();
   } catch (error) {
-    console.log(error);
-    res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
   res.status(200).json(users);
 };
@@ -25,17 +24,14 @@ const getUser = async (req, res) => {
   let user;
   try {
     user = await UserModel.findById(userId);
+    res.status(200).json(user);
   } catch (error) {
-    console.log(error);
-    res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
-  res.status(200).json(user);
 };
 
 // สมัครสมาชิก
 const signup = async (req, res) => {
-  // console.log('Image: ', req.file.location);
-  // console.log('Image-path: ', req.file.path);
 
   const { name, email, password } = req.body;
 
@@ -62,8 +58,7 @@ const signup = async (req, res) => {
     await user.save();
     res.status(201).json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถสมัครสมาชิกได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถสมัครสามาชิกได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -107,8 +102,7 @@ const login = async (req, res) => {
       }
     );
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถเข้าสู่ระบบได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถเข้าสู่ระบบได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -168,8 +162,7 @@ const editProfile = async (req, res) => {
     await findData.save();
     res.status(200).json(findData);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -185,8 +178,7 @@ const approveUser = async (req, res) => {
     res.status(200).send("อนุมัติสำเร็จ");
 
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
   
 };
@@ -203,8 +195,7 @@ const editStatusUser = async (req, res) => {
     res.status(200).send("แก้ไขข้อมูลสำเร็จ");
 
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
   
 };
@@ -223,8 +214,7 @@ const deleteUser = async (req, res) => {
     res.status(200).send("ลบข้อมูลสำเร็จ");
 
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถลบข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถลบข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 

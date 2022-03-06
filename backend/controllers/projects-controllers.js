@@ -3,7 +3,6 @@ const HistoryTool = require("../models/history-tool");
 const HistoryProject = require("../models/history-project");
 const Tool = require("../models/tool");
 const HttpError = require('../models/http-error');
-const fs = require("fs")
 const IncompleteTool = require("../models/incomplete-tool");
 const HistoryCnt = require("../models/history-cnt");
 
@@ -756,9 +755,6 @@ const updateIncompleteProject = async (req, res, next) => {
         );
         return next(error);
     }
-
-
-
 
     // เริ่มแก้ไขจำนวนอุปกรณ์ในสต๊อก
     let calTotalTool = tool.total - total

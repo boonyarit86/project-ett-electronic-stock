@@ -3,6 +3,7 @@ const cors = require("cors");
 const http = require("http");
 const socketIO = require("socket.io");
 const mongoose = require("mongoose");
+const catchError = require("./utils/catchError");
 
 const dotenv = require("dotenv");
 dotenv.config();
@@ -68,7 +69,8 @@ app.use("/api/notifications", require("./routes/notifications-routes"));
 // })
 
 app.all('*', (req, res, next) => {
-  res.status(404).send(`Can not find ${req.originalUrl} on this server!`);
+  // res.status(404).send(`Can not find ${req.originalUrl} on this server!`);
+  catchError(res, `Can not find ${req.originalUrl} on this server!`, 404);
   next();
 });
 

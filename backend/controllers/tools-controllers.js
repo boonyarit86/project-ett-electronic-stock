@@ -1,30 +1,34 @@
 const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
 const cloudinary = require("../utils/cloudinary");
+const catchError = require("../utils/catchError");
 const io = require("../index.js");
 const {
   covertTypeandCateTool,
   covertTypeandCateTool2,
   covertTypeandCateTool3,
 } = require("../utils/covertData");
-const { createNotificationTool } = require("../utilsServer/notificationActions");
+const {
+  createNotificationTool,
+} = require("../utilsServer/notificationActions");
 
 const HistoryTool = require("../models/history-tool");
 const HistoryCnt = require("../models/history-cnt");
 
 // รับข้อมูลรายการอุปกรณ์ทั้งหมด
 const getAllTools = async (req, res) => {
-  // console.log(io)
   try {
     let toolLists = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(toolLists, stt);
     res.status(200).json(toolLists);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถเรียกข้อมูลรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
   }
 };
 
@@ -55,12 +59,12 @@ const getAllHistoryTools = async (req, res) => {
 
     res.status(200).json(responseData);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send(
-        "ไม่สามารถเรียกข้อมูลประวัติรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง"
-      );
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลประวัติรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
   }
 };
 
@@ -74,10 +78,12 @@ const getTool = async (req, res) => {
     covertTypeandCateTool3(tool, stt);
     res.status(200).json(tool);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถเรียกข้อมูลรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
   }
 };
 
@@ -126,14 +132,9 @@ const createTool = async (req, res) => {
         }
       });
     }
-
-    // console.log(newTool);
     res.status(201).json(newTool);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถสร้างรายการอุปกรณ์ใหม่ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถสร้างรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -156,14 +157,14 @@ const actionTool = async (req, res) => {
       return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
     if (actionType === "เพิ่ม") {
       tool.total = tool.total + toolTotal;
-      if(tool.total > tool.limit) {
+      if (tool.total > tool.limit) {
         tool.isAlert = false;
       }
     } else {
       if (tool.total < toolTotal)
         return res.status(401).send("จำนวนอุปกรณ์ที่เบิกมีมากกว่าในสต๊อก");
       tool.total = tool.total - toolTotal;
-      await createNotificationTool(tool)
+      await createNotificationTool(tool);
     }
 
     let newHistoryTool = new HistoryTool({
@@ -198,8 +199,7 @@ const actionTool = async (req, res) => {
     io.emit("tool-actions", tools);
     res.status(200).send(tools);
   } catch (error) {
-    console.log(error);
-    res.status(500).send("ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -375,10 +375,7 @@ const editTool = async (req, res) => {
     await tool.save();
     res.status(200).json(tool);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -402,10 +399,10 @@ const restoreTool = async (req, res) => {
           .status(401)
           .send("จำนวนอุปกรณ์ในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
       tool.total = tool.total - hist.total;
-      await createNotificationTool(tool)
+      await createNotificationTool(tool);
     } else {
       tool.total = tool.total + hist.total;
-      if(tool.total > tool.limit) {
+      if (tool.total > tool.limit) {
         tool.isAlert = false;
       }
     }
@@ -428,7 +425,7 @@ const restoreTool = async (req, res) => {
       .populate("tool")
       .populate("user")
       .populate("tags.user");
-      
+
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
     for (var round = 0; round < hists.length; round++) {
@@ -442,7 +439,7 @@ const restoreTool = async (req, res) => {
         }
       }
     }
-    
+
     let tools = await Tool.find();
     let stt = await Stt.find();
     covertTypeandCateTool(tools, stt);
@@ -451,8 +448,7 @@ const restoreTool = async (req, res) => {
 
     res.status(200).json(responseData);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถคืนอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถคืนอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -499,10 +495,7 @@ const deleteTool = async (req, res) => {
 
     res.status(200).send("delete success");
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถลบรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 

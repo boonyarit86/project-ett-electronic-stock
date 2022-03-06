@@ -1,12 +1,12 @@
 const SttModel = require("../models/setting-tool-type");
+const catchError = require("../utils/catchError");
 
 const getAllTypeTool = async (req, res) => {
     try {
         const Alldata = await SttModel.find();
         res.status(200).json(Alldata);
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 
@@ -17,8 +17,7 @@ const getTypeTool = async (req, res) => {
         if(!data) return res.status(401).send("ไม่พบข้อมูลในฐานข้อมูล");
         res.status(200).json(data);
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 
@@ -33,8 +32,7 @@ const addTypeTool = async (req, res) => {
         await newStt.save();
         res.status(201).json(newStt)
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 
@@ -51,8 +49,7 @@ const addCategoryTool = async (req, res) => {
         await data.save();
         res.status(201).json(data.categorys)
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 
@@ -70,8 +67,7 @@ const editTypeTool = async (req, res) => {
         await data.save();
         res.status(200).send("แก้ไขรายการสำเร็จ")
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถเเก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 
@@ -88,8 +84,7 @@ const editCategoryTool = async (req, res) => {
         await data.save();
         res.status(200).send("แก้ไขรายการสำเร็จ")
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถเเก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 
@@ -101,8 +96,7 @@ const deleteTypeTool = async (req, res) => {
         await data.remove();
         res.status(200).send("ลบรายการสำเร็จ")
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถลบข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถลบข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 
@@ -119,8 +113,7 @@ const deleteCategoryTool = async (req, res) => {
         await data.save();
         res.status(200).send("ลบรายการสำเร็จ")
     } catch (error) {
-        console.log(error);
-        res.status(500).send("ไม่สามารถเเก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง")
+        catchError(res, "ไม่สามารถลบข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
     }
 }
 

@@ -1,6 +1,7 @@
 const Tool = require("../models/tool");
 const Stt = require("../models/setting-tool-type");
 const cloudinary = require("../utils/cloudinary");
+const catchError = require("../utils/catchError");
 const io = require("../index.js");
 const {
   orderData,
@@ -22,15 +23,11 @@ const {
 
 // รับข้อมูลบอร์ดทั้งหมด
 const getAllBoards = async (req, res) => {
-  // console.log(io)
   try {
     let boardLists = await Board.find().populate("tools.tool");
     res.status(200).json(boardLists);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -61,10 +58,7 @@ const getBoard = async (req, res) => {
     await covertTypeandCateTool2(data[0].tools, stt);
     res.status(200).json(data[0]);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -81,12 +75,7 @@ const getAllHistoryBoards = async (req, res) => {
     covertHistoryBoardByCheckingDate(hisbs, responseData);
     res.status(200).json(responseData);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send(
-        "ไม่สามารถเรียกข้อมูลประวัติรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง"
-      );
+    catchError(res, "ไม่สามารถเรียกข้อมูลประวัติรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -127,8 +116,6 @@ const getIncompleteTool = async (req, res) => {
       }
     }
 
-    // console.log(lists)
-
     // Prepare sending data
     let responseData = await InsufficientTool.find()
       .populate("board")
@@ -141,8 +128,7 @@ const getIncompleteTool = async (req, res) => {
     }
     res.status(200).json(newData);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -189,10 +175,7 @@ const createBoard = async (req, res) => {
 
     res.status(201).json(newBoard);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถสร้างรายการบอร์ดใหม่ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถสร้างรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -257,8 +240,7 @@ const actionBoard = async (req, res) => {
     io.emit("board-actions", boards);
     res.status(200).send(boards);
   } catch (error) {
-    console.log(error);
-    res.status(500).send("ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -432,10 +414,7 @@ const editBoard = async (req, res) => {
     await board.save();
     res.status(200).json(board);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถแก้ไขรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถแก้ไขรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -639,10 +618,7 @@ const requestBoard = async (req, res) => {
 
     res.status(200).json(msgs);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -701,10 +677,7 @@ const restoreBoard = async (req, res) => {
 
     res.status(200).json(responseData);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -804,10 +777,7 @@ const restoreBoardandTools = async (req, res) => {
 
     res.status(200).json(responseData);
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -871,10 +841,7 @@ const checkBoardEquipment = async (req, res) => {
 
     res.status(200).json({ success: successMsgList, error: errMsgList });
   } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .send("ไม่สามารถตรวจสอบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถตรวจสอบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -1012,8 +979,7 @@ const requestIncompleteTool = async (req, res) => {
   }
     res.status(200).json(newData);
   } catch (error) {
-    console.log(error);
-    res.status(500).send("เซิร์ฟเวอร์ขัดข้อง ไม่สามารถทำรายการได้");
+    catchError(res, "เซิร์ฟเวอร์ขัดข้อง ไม่สามารถทำรายการได้", 500, error);
   }
 };
 
@@ -1060,10 +1026,7 @@ const deleteBoard = async (req, res) => {
 
     res.status(200).send("delete success");
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .send("ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+    catchError(res, "ไม่สามารถลบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
