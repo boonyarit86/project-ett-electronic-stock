@@ -108,7 +108,10 @@ function Auth() {
         };
         try {
           setLoading(true);
-          await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/users/signup`, data);
+          await Axios.post(
+            `${process.env.REACT_APP_BACKEND_URL}/users/signup`,
+            data
+          );
           setLoading(false);
           setIsLoginMode(!isLoginMode);
         } catch (error) {
@@ -125,8 +128,11 @@ function Auth() {
       };
       try {
         setLoading(true);
-        await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/users/login`, data).then(
-          (res) => auth.login(res.data.token, res.data.userStatus, res.data.userId)
+        await Axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/users/login`,
+          data
+        ).then((res) =>
+          auth.login(res.data.token, res.data.userStatus, res.data.userId)
         );
         setLoading(false);
       } catch (error) {
@@ -148,6 +154,9 @@ function Auth() {
             <AlertTitle>{errorMsg}</AlertTitle>
           </Alert>
         )}
+        <Alert variant="filled" severity="info" style={{marginTop: "10px"}}>
+          <AlertTitle>For testing: Email: admin@hotmail.com and Password: 123456</AlertTitle>
+        </Alert>
         <div className="GroupInput">
           <Input
             id="email"
