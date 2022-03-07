@@ -18,10 +18,10 @@ const HistoryCnt = require("../models/history-cnt");
 // รับข้อมูลรายการอุปกรณ์ทั้งหมด
 const getAllTools = async (req, res) => {
   try {
-    let toolLists = await Tool.find();
+    let toolList = await Tool.find();
     let stt = await Stt.find();
-    covertTypeandCateTool(toolLists, stt);
-    res.status(200).json(toolLists);
+    covertTypeandCateTool(toolList, stt);
+    res.status(200).json(toolList);
   } catch (error) {
     catchError(
       res,

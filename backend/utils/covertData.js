@@ -1,5 +1,3 @@
-const Tool = require("../models/tool");
-
 const orderData = (data) => {
   let responseData = [];
   for (var round = 0; round < data.length; round++) {
@@ -9,16 +7,12 @@ const orderData = (data) => {
 };
 
 const covertTypeandCateTool = async (tools, stt) => {
-  let arrTool = await tools.map((item) => {
-    let data = stt.find((x) => x._id.toString() === item.type);
-    if (data) {
-      let cate = data.categorys.find((x) => x._id.toString() === item.category);
-      if (cate) {
-        item.category = cate.category;
-      } else {
-        item.category = "ไม่ได้กำหนด";
-      }
-      item.type = data.type;
+  let toolList = await tools.map((item) => {
+    let doesToolTypeMatch = stt.find((x) => x._id.toString() === item.type);
+    let tooldetail = doesToolTypeMatch;
+    if (doesToolTypeMatch) {
+      setCategoryTool(item, tooldetail);
+      setTypeTool(item, tooldetail);
       return item;
     } else {
       item.type = "ไม่ได้กำหนด";
@@ -27,8 +21,24 @@ const covertTypeandCateTool = async (tools, stt) => {
     }
     // return item
   });
-  // console.log(arrTool)
-  return arrTool;
+  
+  function setCategoryTool(item, tool) {
+    let doesToolCategoryMatch = tool.categorys.find(
+      (x) => x._id.toString() === item.category
+      );
+      if (doesToolCategoryMatch) {
+        item.category = doesToolCategoryMatch.category;
+      } else {
+        item.category = "ไม่ได้กำหนด";
+      }
+    }
+
+  function setTypeTool(item, tool) {
+    item.type = tool.type;
+  }
+
+  return toolList;
+
 };
 
 const covertTypeandCateTool2 = async (tools, stt) => {
@@ -87,7 +97,7 @@ const covertTypeandCateTool4 = async (data, stt) => {
         );
         if (cate) {
           item.tool.category = cate.category;
-        } 
+        }
         item.tool.type = covertObj.type;
         return item;
       } else {
@@ -97,7 +107,7 @@ const covertTypeandCateTool4 = async (data, stt) => {
       }
     });
   }
-  return data
+  return data;
 };
 
 // Sort from latest date to oldest date and Check expairation of data.
