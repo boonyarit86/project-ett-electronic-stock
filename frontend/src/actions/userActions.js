@@ -17,10 +17,24 @@ import {
   EDIT_STATUS_USER_REQUEST,
   EDIT_STATUS_USER_SUCCESS,
   EDIT_STATUS_USER_FAIL,
+  REGISTER_USER_REQUEST,
+  REGISTER_USER_SUCCESS,
+  REGISTER_USER_FAIL,
+  LOGIN_USER_REQUEST,
+  LOGIN_USER_SUCCESS,
+  LOGIN_USER_FAIL,
 } from "../constants/userConstants";
 import catchErrors from "../shared/utils/catchErrors";
 import Axios from "axios";
 import { notifySuccess } from "../shared/components/UIElements/Toasts";
+
+let baseURL = process.env.REACT_APP_BACKEND_URL;
+
+function handleError(dispatch, typeAction, error, setErrorMsg) {
+  let message = catchErrors(error);
+  setErrorMsg(message);
+  dispatch({ type: typeAction, payload: message });
+}
 
 export const getAllUserAction = (token) => async (dispatch) => {
   dispatch({ type: GET_ALL_USER_REQUEST });
@@ -38,26 +52,28 @@ export const getAllUserAction = (token) => async (dispatch) => {
   }
 };
 
-export const getUserByIdAction = (token, setUnreadNotification, logout) => async (dispatch) => {
-  dispatch({ type: GET_USER_REQUEST });
-  try {
-    await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/profile`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      dispatch({ type: GET_USER_SUCCESS, payload: res.data })
-      setUnreadNotification && setUnreadNotification(res.data.unreadNotification);
-      if(res.data.status === "none") {
-        logout && logout()
-      }
-    });
-  } catch (error) {
-    logout && await logout();
-    dispatch({
-      type: GET_USER_FAIL,
-      payload: catchErrors(error),
-    });
-  }
-};
+export const getUserByIdAction =
+  (token, setUnreadNotification, logout) => async (dispatch) => {
+    dispatch({ type: GET_USER_REQUEST });
+    try {
+      await Axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((res) => {
+        dispatch({ type: GET_USER_SUCCESS, payload: res.data });
+        setUnreadNotification &&
+          setUnreadNotification(res.data.unreadNotification);
+        if (res.data.status === "none") {
+          logout && logout();
+        }
+      });
+    } catch (error) {
+      logout && (await logout());
+      dispatch({
+        type: GET_USER_FAIL,
+        payload: catchErrors(error),
+      });
+    }
+  };
 
 export const editUserByIdAction = (token, user) => async (dispatch) => {
   dispatch({ type: EDIT_USER_REQUEST });
@@ -152,3 +168,30 @@ export const deleteUserAction = (token, userId) => async (dispatch) => {
     });
   }
 };
+
+export const registerAction =
+  (data, setErrorMsg, setIsLoginMode) => async (dispatch) => {
+    dispatch({ type: REGISTER_USER_REQUEST });
+    try {
+      await Axios.post(`${baseURL}/users/signup`, data);
+      dispatch({ type: REGISTER_USER_SUCCESS });
+      setIsLoginMode((prev) => !prev);
+    } catch (error) {
+      handleError(dispatch, REGISTER_USER_FAIL, error, setErrorMsg);
+    }
+  };
+
+export const loginAction =
+  (data, setErrorMsg, setIsLoginMode, auth) => async (dispatch) => {
+    dispatch({ type: LOGIN_USER_REQUEST });
+    try {
+      await Axios.post(`${baseURL}/users/login`, data).then((res) => {
+        const { token, userStatus, userId } = res.data;
+        auth.login(token, userStatus, userId)
+      });
+      dispatch({ type: LOGIN_USER_SUCCESS });
+      setIsLoginMode((prev) => !prev);
+    } catch (error) {
+      handleError(dispatch, LOGIN_USER_FAIL, error, setErrorMsg);
+    }
+  };

@@ -72,7 +72,7 @@ const signup = async (req, res) => {
       name,
       password: hashedPassword,
     });
-    // await user.save();
+    await user.save();
     return user;
   }
 };

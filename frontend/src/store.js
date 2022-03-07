@@ -1,6 +1,6 @@
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import thunk from 'redux-thunk';
-import { userDataReducers, authUserReducers } from "./reducers/userReducers";
+import { userDataReducers, authUserReducers, userReducer } from "./reducers/userReducers";
 import { sttReducers } from "./reducers/sttReducers";
 import { toolListsReducers, toolListReducers, histsListsReducers } from "./reducers/toolReducers";
 import { boardListReducers, boardListsReducers, hisbsListsReducers, incompleteToolReducers } from "./reducers/boardReducers";
@@ -16,7 +16,8 @@ const reducer = combineReducers({
     boardLists: boardListsReducers,
     boardList: boardListReducers,
     hisbLists: hisbsListsReducers,
-    incompleteTool :incompleteToolReducers
+    incompleteTool :incompleteToolReducers,
+    userState: userReducer
 });
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

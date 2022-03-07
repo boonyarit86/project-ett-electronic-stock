@@ -1,50 +1,27 @@
-import React, { useState, useEffect, useContext } from "react";
-// import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useContext } from "react";
+import { registerAction, loginAction } from "../../actions/userActions";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "../../shared/hooks/form-hook";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_REQUIRE,
 } from "../../shared/utils/validators";
-import catchErrors from "../../shared/utils/catchErrors";
-import Axios from "axios";
-// import { registerAction, loginAction } from "../../actions/userAction";
 import { AuthContext } from "../../shared/context/auth-context";
-// import { makeStyles } from '@material-ui/core/styles';
 
 // Component
 import Input from "../../shared/components/FormElements/Input";
 import Loading from "../../shared/components/UIElements/Loading";
 import { Alert, AlertTitle } from "@material-ui/lab";
-// import { Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 
 // CSS
 import "./Auth.css";
 
-// CSS Material UI
-// const useStyles = makeStyles((theme) => ({
-//     formControl: {
-//         width: "100%",
-//         margin: "20px 0"
-//     },
-//     selectEmpty: {
-//         marginTop: theme.spacing(2),
-//     },
-// }));
-
 function Auth() {
-  // const classes = useStyles()
   const auth = useContext(AuthContext);
-  // const dispatch = useDispatch()
-  // const authUser = useSelector((state) => state.authUser)
+  const dispatch = useDispatch()
+  const { isLoading, serverMsg } = useSelector((state) => state.userState)
   const [isLoginMode, setIsLoginMode] = useState(true);
-  // const [successLogin, setSuccessLogin] = useState(false)
-  // const [successRegister, setSuccessRegister] = useState(false)
-  const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-
-  useEffect(() => {
-    return () => {};
-  }, []);
 
   // function จับ error ของ Input
   const [formState, inputHandler, setFormData] = useForm(
@@ -63,6 +40,7 @@ function Auth() {
 
   // function เปลี่ยนแบบฟอร์มระหว่าง Login และ Register โดย function จะกำหนดหน้า Login ขึ้นก่อน
   const switchModeHandler = () => {
+    const { email, password } = formState.inputs;
     if (!isLoginMode) {
       setFormData(
         {
@@ -70,7 +48,7 @@ function Auth() {
           name: undefined,
           password2: undefined,
         },
-        formState.inputs.email.isValid && formState.inputs.password.isValid
+        email.isValid && password.isValid
       );
     } else {
       setFormData(
@@ -93,69 +71,64 @@ function Auth() {
 
   // ส่งข้อมูลไปยังฐานข้อมูล
   const onSubmit = async (e) => {
+    const { password, password2, email, name } = formState.inputs;
+    let user;
+
     e.preventDefault();
-    // ข้อมูลการสมัครสมาชิก
+
     if (!isLoginMode) {
-      let isPassword =
-        formState.inputs.password.value === formState.inputs.password2.value;
-      if (!isPassword) {
-        console.log("Password Wrong");
-      } else {
-        let data = {
-          email: formState.inputs.email.value,
-          name: formState.inputs.name.value,
-          password: formState.inputs.password.value,
-        };
-        try {
-          setLoading(true);
-          await Axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/users/signup`,
-            data
-          );
-          setLoading(false);
-          setIsLoginMode(!isLoginMode);
-        } catch (error) {
-          setLoading(false);
-          setErrorMsg(catchErrors(error));
-        }
-      }
+      processRegister();
     }
-    // ข้อมูลการเข้าสู่ระบบ
+
     if (isLoginMode) {
-      let data = {
-        email: formState.inputs.email.value,
-        password: formState.inputs.password.value,
-      };
-      try {
-        setLoading(true);
-        await Axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/users/login`,
-          data
-        ).then((res) =>
-          auth.login(res.data.token, res.data.userStatus, res.data.userId)
-        );
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        setErrorMsg(catchErrors(error));
+      processLogin();
+    }
+
+    async function processRegister() {
+      if (
+        !isPasswordTheSameAsConfirmPassword(password.value, password2.value)
+      ) {
+        setErrorMsg("รหัสผ่านไม่ถูกต้อง")
+      } else {
+        user = {
+          email: email.value,
+          name: name.value,
+          password: password.value,
+        };
+        dispatch(registerAction(user, setErrorMsg, setIsLoginMode));
+      }
+
+      function isPasswordTheSameAsConfirmPassword(password, passwordConfirm) {
+        return password === passwordConfirm;
       }
     }
+
+    async function processLogin() {
+      user = {
+        email: email.value,
+        password: password.value,
+      };
+      dispatch(loginAction(user, setErrorMsg, setIsLoginMode, auth));
+    }
+
   };
 
   return (
     <form onSubmit={onSubmit}>
-      {loading && <Loading loading={loading} />}
+      {isLoading && <Loading loading={isLoading} />}
       <div className="GroupLogin">
         <h2 className="GroupLogin-h2">
           {isLoginMode ? "เข้าสู่ระบบ" : "สมัครสมาชิก"}
         </h2>
-        {errorMsg && (
+        {(errorMsg || serverMsg) && (
           <Alert variant="filled" severity="error">
-            <AlertTitle>{errorMsg}</AlertTitle>
+            <AlertTitle>{errorMsg || serverMsg}</AlertTitle>
           </Alert>
         )}
-        <Alert variant="filled" severity="info" style={{marginTop: "10px"}}>
-          <AlertTitle>For testing: Email: admin@hotmail.com and Password: 123456</AlertTitle>
+        <Alert variant="filled" severity="info" style={{ marginTop: "10px" }}>
+          <AlertTitle>
+            For testing: Email: admin@hotmail.com and Password: 123456
+          </AlertTitle>
         </Alert>
         <div className="GroupInput">
           <Input
