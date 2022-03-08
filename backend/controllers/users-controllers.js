@@ -4,8 +4,17 @@ const UserModel = require("../models/user");
 const isEmail = require("validator/lib/isEmail");
 const cloudinary = require("../utils/cloudinary");
 const catchError = require("../utils/catchError");
+const { deleteImageInCloudinary } = require("../utils/handleImage");
 
 // const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
+
+// ---------------------- Helper Functions -----------------------
+
+function imageExist(image) {
+  return image !== undefined;
+}
+
+// -------------------- Main Functions --------------------------
 
 // เรียกดูข้อมูลผู้ใช้งานทั้งหมด
 const getUsers = async (req, res) => {
@@ -95,15 +104,14 @@ const login = async (req, res) => {
     let isValidPassword = false;
     isValidPassword = await bcrypt.compare(password, existingUser.password);
     if (!isValidPassword) return res.status(401).send("รหัสผ่านไม่ถูกต้อง");
-    
 
-    if (existingUser.status === "none")
+    if (userNotapproved(existingUser.status))
       return res.status(403).send("กำลังรอการอนุมัติ");
 
     let userId = existingUser.id;
     let userStatus = existingUser.status;
     let token = createToken(userId);
-  
+
     res.status(200).json({
       token,
       userStatus,
@@ -125,7 +133,10 @@ const login = async (req, res) => {
       { expiresIn: "1h" },
     ];
 
-    return jwt.sign(...settingToken)
+    return jwt.sign(...settingToken);
+  }
+  function userNotapproved(status) {
+    return status === "none";
   }
 };
 
@@ -139,6 +150,8 @@ const editProfile = async (req, res) => {
   // หาข้อมูล document ที่ต้องการแกไข
   try {
     findData = await UserModel.findById(req.params.uid).select("+password");
+    let avartar_id = findData.avartar.public_id;
+
     if (!findData)
       return res
         .status(401)
@@ -148,7 +161,7 @@ const editProfile = async (req, res) => {
     findData.email = email;
     findData.name = name;
 
-    if (password !== "") {
+    if (passwordNotEmpty(password)) {
       if (password.length < 6) {
         return res.status(401).send("รหัสผ่านต้องมีอย่างน้อย 6 ตัว");
       }
@@ -161,30 +174,20 @@ const editProfile = async (req, res) => {
       }
       let hashedPassword;
       hashedPassword = await bcrypt.hash(password, 12);
+
       if (!hashedPassword)
         return res
           .status(401)
           .send("ไม่สามารถเปลี่ยนรหัสผ่านได้ โปรดใช้รหัสผ่านอย่างอื่น");
+
       findData.password = hashedPassword;
     }
 
-    // ถ้ามีการอัพโหลดรูปใหม่ ให้ทำการลบรูปภาพเก่าใน Aws S3 และอัพโหลดรูปภาพใหม่ไปแทน
-    if (req.file !== undefined) {
-      // console.log(findData.avartar.public_id)
-      if (findData.avartar.public_id !== undefined) {
-        await cloudinary.uploader.destroy(findData.avartar.public_id);
+    if (imageExist(req.file)) {
+      if (avartarExist(avartar_id)) {
+        await deleteImageInCloudinary(avartar_id);
       }
-      await cloudinary.uploader.upload(req.file.path, (error, result) => {
-        if (error)
-          res
-            .status(401)
-            .send("ไม่สามารถอัปโหลดรูปภาพ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
-        else
-          findData.avartar = {
-            url: result.secure_url,
-            public_id: result.public_id,
-          };
-      });
+      await uploadAvartarToCloudinary(req.file.path, findData);
     }
 
     await findData.save();
@@ -196,6 +199,28 @@ const editProfile = async (req, res) => {
       500,
       error
     );
+  }
+
+  function avartarExist(avartar) {
+    return avartar !== undefined;
+  }
+
+  async function uploadAvartarToCloudinary(imagePath, user) {
+    await cloudinary.uploader.upload(imagePath, (error, result) => {
+      if (error)
+        res
+          .status(401)
+          .send("ไม่สามารถอัปโหลดรูปภาพ เนื่องจากเซิร์ฟเวอร์ขัดข้อง");
+      else
+        user.avartar = {
+          url: result.secure_url,
+          public_id: result.public_id,
+        };
+    });
+  }
+
+  function passwordNotEmpty(password) {
+    return password !== "";
   }
 };
 
@@ -245,8 +270,8 @@ const deleteUser = async (req, res) => {
     let user = await UserModel.findById(req.params.uid);
     if (!user) return res.status(401).send("ไม่พบข้อมูลนี้บนฐานข้อมูล");
 
-    if (user.avartar.public_id !== undefined) {
-      await cloudinary.uploader.destroy(user.avartar.public_id);
+    if (imageExist(user.avartar.public_id)) {
+      await deleteImageInCloudinary(user.avartar.public_id);
     }
 
     await user.remove();

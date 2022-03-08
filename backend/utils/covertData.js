@@ -1,3 +1,7 @@
+let initialValue = "ไม่ได้กำหนด";
+
+// ----------- Secondary Functions ----------------
+
 const orderData = (data) => {
   let responseData = [];
   for (var round = 0; round < data.length; round++) {
@@ -6,81 +10,76 @@ const orderData = (data) => {
   return responseData;
 };
 
+async function setToolCategory(item, tool) {
+  let doesToolCategoryMatch = await tool.categorys.find(
+    (x) => x._id.toString() === item.category
+  );
+  if (doesToolCategoryMatch) {
+    item.category = doesToolCategoryMatch.category;
+  } else {
+    item.category = initialValue;
+  }
+}
+
+function setToolType(item, tool) {
+  item.type = tool.type;
+}
+
+function setEmptyValue(item) {
+  item.type = initialValue;
+  item.category = initialValue;
+}
+
+
+// ----------- Initial Functions ----------------
+
 const covertTypeandCateTool = async (tools, stt) => {
-  let toolList = await tools.map((item) => {
-    let doesToolTypeMatch = stt.find((x) => x._id.toString() === item.type);
+  let toolList = await tools.map(async (item) => {
+    let doesToolTypeMatch = await stt.find((x) => x._id.toString() === item.type);
     let tooldetail = doesToolTypeMatch;
     if (doesToolTypeMatch) {
-      setCategoryTool(item, tooldetail);
-      setTypeTool(item, tooldetail);
+      setToolCategory(item, tooldetail);
+      setToolType(item, tooldetail);
       return item;
     } else {
-      item.type = "ไม่ได้กำหนด";
-      item.category = "ไม่ได้กำหนด";
+      setEmptyValue(item);
       return item;
     }
     // return item
   });
-  
-  function setCategoryTool(item, tool) {
-    let doesToolCategoryMatch = tool.categorys.find(
-      (x) => x._id.toString() === item.category
-      );
-      if (doesToolCategoryMatch) {
-        item.category = doesToolCategoryMatch.category;
-      } else {
-        item.category = "ไม่ได้กำหนด";
-      }
-    }
-
-  function setTypeTool(item, tool) {
-    item.type = tool.type;
-  }
 
   return toolList;
-
 };
 
 const covertTypeandCateTool2 = async (tools, stt) => {
-  let arrTool = await tools.map(async (item) => {
-    let data = await stt.find((x) => x._id.toString() === item.tool.type);
-    // console.log(data)
-    if (data) {
-      let cate = await data.categorys.find(
-        (x) => x._id.toString() === item.tool.category
-      );
-      if (cate) {
-        item.tool.category = cate.category;
-      } else {
-        item.tool.category = "ไม่ได้กำหนด";
-      }
-      item.tool.type = data.type;
+  let toolList = await tools.map(async (item) => {
+    let doesToolTypeHistoryMatch = await stt.find(
+      (x) => x._id.toString() === item.tool.type
+    );
+    let toolHistoryDetail = doesToolTypeHistoryMatch;
+
+    if (doesToolTypeHistoryMatch) {
+      setToolCategory(item.tool, toolHistoryDetail);
+      setToolType(item.tool, toolHistoryDetail);
       return item;
     } else {
-      item.tool.type = "ไม่ได้กำหนด";
-      item.tool.category = "ไม่ได้กำหนด";
+      setEmptyValue(item.tool);
       return item;
     }
     // return item
   });
-  // console.log(arrTool)
-  return arrTool;
+
+  return toolList;
 };
 
 const covertTypeandCateTool3 = async (tool, stt) => {
-  let data = stt.find((x) => x._id.toString() === tool.type);
-  if (data) {
-    let cate = data.categorys.find((x) => x._id.toString() === tool.category);
-    if (cate) {
-      tool.category = cate.category;
-    } else {
-      tool.category = "ไม่ได้กำหนด";
-    }
-    tool.type = data.type;
-    // tool.type = "ไม่ได้กำหนด";
+  let doesToolTypeMatch = await stt.find((x) => x._id.toString() === tool.type);
+  let tooldetail = doesToolTypeMatch;
+  if (doesToolTypeMatch) {
+    setToolCategory(tool, tooldetail);
+    setToolType(tool, tooldetail);
   } else {
-    tool.type = "ไม่ได้กำหนด";
-    tool.category = "ไม่ได้กำหนด";
+    setEmptyValue(tool);
   }
 };
 
@@ -101,8 +100,8 @@ const covertTypeandCateTool4 = async (data, stt) => {
         item.tool.type = covertObj.type;
         return item;
       } else {
-        item.tool.type = "ไม่ได้กำหนด";
-        item.tool.category = "ไม่ได้กำหนด";
+        item.tool.type = initialValue;
+        item.tool.category = initialValue;
         return item;
       }
     });

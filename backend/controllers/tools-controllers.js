@@ -11,16 +11,89 @@ const {
 const {
   createNotificationTool,
 } = require("../utilsServer/notificationActions");
+const { deleteImageInCloudinary } = require("../utils/handleImage");
 
 const HistoryTool = require("../models/history-tool");
 const HistoryCnt = require("../models/history-cnt");
+
+// ------------- Helper functions --------------
+
+async function orderDataFromNewestToOldest(histories, responseData) {
+  for (let round = 0; round < histories.length; round++) {
+    let history = histories[round];
+    if (dataExist(history)) {
+      if (historyExpire(history)) {
+        await history.remove();
+      } else {
+        responseData.unshift(history);
+      }
+    }
+  }
+
+  function dataExist(history) {
+    let dataType = history.tool !== undefined ? history.tool : history.board;
+    return dataType !== null;
+  }
+}
+
+function historyExpire(history) {
+  let expHistory = new Date(history.exp).getTime();
+  let currentDate = new Date().getTime();
+  return expHistory < currentDate;
+}
+
+async function uploadImageToCloudinary(imagePath, tool) {
+  await cloudinary.uploader.upload(imagePath, (error, result) => {
+    if (error) res.status(401).send("ไม่สามารถอัพโหลดรูปภาพไปยังบนคลาวค์ได้");
+    else {
+      tool.avartar = {
+        url: result.secure_url,
+        public_id: result.public_id,
+      };
+    }
+  });
+}
+
+async function uploadMultipleImageToCloudinary(images, imageArr, avartarExist) {
+  for (var round = 0; round < images.length; round++) {
+    // not Avartar
+    if (round === 0 && avartarExist) continue;
+    else await uploadImage(images[round].path, imageArr);
+  }
+
+  async function uploadImage(imagePath, imageArr) {
+    await cloudinary.uploader.upload(imagePath, (error, result) => {
+      if (error) {
+        console.log("can not upload image on clound");
+      } else {
+        imageArr.push({
+          url: result.secure_url,
+          public_id: result.public_id,
+        });
+      }
+    });
+  }
+}
+
+async function sendDataToClient() {
+  let tools = await Tool.find();
+  let stt = await Stt.find();
+  await covertTypeandCateTool(tools, stt);
+  io.emit("tool-actions", tools);
+}
+
+function imageExist(image) {
+  return image !== 0;
+}
+
+// ---------------- Main Functions ------------
 
 // รับข้อมูลรายการอุปกรณ์ทั้งหมด
 const getAllTools = async (req, res) => {
   try {
     let toolList = await Tool.find();
     let stt = await Stt.find();
-    covertTypeandCateTool(toolList, stt);
+    await covertTypeandCateTool(toolList, stt);
     res.status(200).json(toolList);
   } catch (error) {
     catchError(
@@ -40,19 +113,8 @@ const getAllHistoryTools = async (req, res) => {
       .populate("user")
       .populate("tags.user");
 
-    // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    for (var round = 0; round < hists.length; round++) {
-      if (hists[round].tool !== null) {
-        let expHistory = new Date(hists[round].exp).getTime();
-        let currentDate = new Date().getTime();
-        if (expHistory < currentDate) {
-          await hists[round].remove();
-        } else {
-          responseData.unshift(hists[round]);
-        }
-      }
-    }
+    await orderDataFromNewestToOldest(hists, responseData);
 
     let stt = await Stt.find();
     await covertTypeandCateTool2(responseData, stt);
@@ -71,11 +133,12 @@ const getAllHistoryTools = async (req, res) => {
 // รับข้อมูลอุปกรณ์ที่ผู้ใช้เลือก
 const getTool = async (req, res) => {
   try {
-    let tool = await Tool.findById(req.params.tid);
+    let toolId = req.params.tid;
+    let tool = await Tool.findById(toolId);
     if (!tool)
       return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
     let stt = await Stt.find();
-    covertTypeandCateTool3(tool, stt);
+    await covertTypeandCateTool3(tool, stt);
     res.status(200).json(tool);
   } catch (error) {
     catchError(
@@ -104,27 +167,33 @@ const createTool = async (req, res) => {
     });
 
     if (req.file !== undefined) {
-      await cloudinary.uploader.upload(req.file.path, (error, result) => {
-        if (error)
-          res.status(401).send("ไม่สามารถอัพโหลดรูปภาพไปยังบนคลาวค์ได้");
-        else {
-          newTool.avartar = {
-            url: result.secure_url,
-            public_id: result.public_id,
-          };
-        }
-      });
+      await uploadImageToDB(req.file.path, newTool);
     }
 
     await newTool.save();
 
     let toolType = await Stt.findById(newTool.type);
+    setToolType(toolType, newTool);
+    setToolCategory(toolType, newTool);
+
+    res.status(201).json(newTool);
+  } catch (error) {
+    catchError(
+      res,
+      "ไม่สามารถสร้างรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  function setToolType(toolType, newTool) {
     if (toolType) {
       newTool.type = toolType.type;
     } else {
       newTool.type = "";
     }
-
+  }
+  async function setToolCategory(toolType, newTool) {
     if (newTool.category !== "") {
       await toolType.categorys.map((item) => {
         if (item._id.toString() === newTool.category) {
@@ -132,9 +201,6 @@ const createTool = async (req, res) => {
         }
       });
     }
-    res.status(201).json(newTool);
-  } catch (error) {
-    catchError(res, "ไม่สามารถสร้างรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -143,12 +209,15 @@ const actionTool = async (req, res) => {
   const { total, description, actionType } = req.body;
   const toolId = req.params.tid;
   const toolTotal = Number(total);
+  let newDate = new Date();
+
   if (toolTotal <= 0)
     return res.status(401).send("จำนวนอุปกรณ์ต้องมีค่าอย่างน้อย 1");
 
   try {
+    let historyId = "614c2b3d246f3c25995dc745";
     let tool = await Tool.findById(toolId);
-    let cnt = await HistoryCnt.findById("614c2b3d246f3c25995dc745");
+    let cnt = await HistoryCnt.findById(historyId);
     if (!cnt)
       return res
         .status(401)
@@ -156,14 +225,12 @@ const actionTool = async (req, res) => {
     if (!tool)
       return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
     if (actionType === "เพิ่ม") {
-      tool.total = tool.total + toolTotal;
-      if (tool.total > tool.limit) {
-        tool.isAlert = false;
-      }
+      increaseTool(tool, toolTotal);
+      setToolStatus(tool);
     } else {
-      if (tool.total < toolTotal)
+      if (toolInStockEnough(tool.total, toolTotal))
         return res.status(401).send("จำนวนอุปกรณ์ที่เบิกมีมากกว่าในสต๊อก");
-      tool.total = tool.total - toolTotal;
+      decreaseTool(tool, toolTotal);
       await createNotificationTool(tool);
     }
 
@@ -173,7 +240,7 @@ const actionTool = async (req, res) => {
       user: req.userId,
       total: toolTotal,
       actionType: actionType,
-      date: new Date(),
+      date: newDate,
       exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
       description: description,
       tags: [
@@ -182,7 +249,7 @@ const actionTool = async (req, res) => {
           code: `${cnt.name}${cnt.cntNumber}-1`,
           action: actionType,
           total: toolTotal,
-          date: new Date(),
+          date: newDate,
           description: description,
         },
       ],
@@ -193,27 +260,34 @@ const actionTool = async (req, res) => {
     await tool.save();
     await newHistoryTool.save();
     await cnt.save();
-    let tools = await Tool.find();
-    let stt = await Stt.find();
-    covertTypeandCateTool(tools, stt);
-    io.emit("tool-actions", tools);
-    res.status(200).send(tools);
+
+    await sendDataToClient();
+
+    res.status(200).send({});
   } catch (error) {
-    catchError(res, "ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  function increaseTool(toolInStock, newToolTotal) {
+    toolInStock.total = toolInStock.total + newToolTotal;
+  }
+  function setToolStatus(tool) {
+    if (tool.total > tool.limit) {
+      tool.isAlert = false;
+    }
+  }
+  function toolInStockEnough(toolInStock, newToolTotal) {
+    return toolInStock < newToolTotal;
+  }
+  function decreaseTool(toolInStock, newToolTotal) {
+    toolInStock.total = toolInStock.total - newToolTotal;
   }
 };
-
-// router.post('/', async (req, res) => {
-//   try {
-//     const order = new Order(req.body)
-//     await order.save()
-//     const orders = await Order.find()
-//     io.emit('order-added', orders)
-//     res.status(201).send(order)
-//   } catch (error) {
-//     res.send(error)
-//   }
-// })
 
 // การแก้ไขรายการอุปกรณ์
 const editTool = async (req, res) => {
@@ -226,18 +300,23 @@ const editTool = async (req, res) => {
     images,
     avartar,
     description,
-    oldImages,
-    delImages,
     limit,
   } = req.body;
+  const oldImages = JSON.parse(req.body.oldImages);
+  const delImages = JSON.parse(req.body.delImages);
+  let newImgArr = [];
+
   // ตัวแปรรูปภาพที่จะถูกลบ
   let delImgArr = [];
+  let toolId = req.params.tid;
 
   if (Number(limit) < 0)
     return res.status(401).send("จำนวนตัวเลขการแจ้งเตือนต้องมีค่าอย่างน้อย 1");
 
   try {
-    let tool = await Tool.findById(req.params.tid);
+    let tool = await Tool.findById(toolId);
+    let previousAvartar_id = tool.avartar.public_id;
+
     if (!tool)
       return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
 
@@ -249,133 +328,90 @@ const editTool = async (req, res) => {
     tool.category = category;
     tool.description = description;
 
-    // อัพโหลดโปรไฟล์อุปกรณ์
-    // ถ้ารูปอุปกรณ์ถูกลบหรือไม่ได้กำหนดมา
-    if (avartar === "false") {
-      // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
-      if (tool.avartar.public_id) {
-        delImgArr = [...delImgArr, tool.avartar.public_id];
-        tool.avartar = {};
-        // console.log("set default image and delete");
+    if (avartarNotExist(avartar)) {
+      deletePreviousImage(tool, delImgArr);
+    } else if (avartarExist(avartar)) {
+      if (previousAvartar_id) {
+        addDeletedAvartarToArray(delImgArr, previousAvartar_id);
       }
+      await uploadImageToCloudinary(req.files[0].path, tool);
     }
-    // ผู้ใช้งานกำหนดรูปภาพใหม่
-    else if (avartar === "true") {
-      // ถ้ามีรูปเก่าในระบบให้ลบ และเพิ่มรุปภาพใหม่เข้าไป
-      if (tool.avartar.public_id) {
-        delImgArr = [...delImgArr, tool.avartar.public_id];
-        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
-          if (error) console.log("can not upload image on clound");
-          tool.avartar = {
-            public_id: result.public_id,
-            url: result.secure_url,
-          };
-        });
-      }
-      // ถ้าไม่มีรุปภาพเก่าในระบบ ให้เพิ่มอย่างเดียว
-      else {
-        console.log("add only image to db");
-        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
-          if (error) console.log("can not upload image on clound");
-          tool.avartar = {
-            public_id: result.public_id,
-            url: result.secure_url,
-          };
-        });
-      }
-    }
-    // Multi Images
-    let newImgArr = [];
-    // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
-    if (images === "true") {
-      // console.log("have images");
+
+    if (imagesExist(images)) {
       // ทำการแยกรูปภาพโปรไฟล์อุปกรณ์ออกจากรายการ ถ้ามี
-      if (avartar === "true") {
-        for (var round = 0; round < req.files.length; round++) {
-          if (round !== 0) {
-            await cloudinary.uploader.upload(
-              req.files[round].path,
-              (error, result) => {
-                if (error) {
-                  console.log("can not upload image on clound");
-                } else {
-                  newImgArr = [
-                    ...newImgArr,
-                    {
-                      url: result.secure_url,
-                      public_id: result.public_id,
-                    },
-                  ];
-                }
-              }
-            );
-          }
-        }
+      if (avartarExist(avartar)) {
+        await uploadMultipleImageToCloudinary(req.files, newImgArr, true);
       } else {
-        // console.log("Only many imges");
-        for (var round1 = 0; round1 < req.files.length; round1++) {
-          await cloudinary.uploader.upload(
-            req.files[round1].path,
-            (error, result) => {
-              if (error) console.log("can not upload image on clound");
-              newImgArr = [
-                ...newImgArr,
-                {
-                  public_id: result.public_id,
-                  url: result.secure_url,
-                },
-              ];
-            }
-          );
-        }
+        await uploadMultipleImageToCloudinary(req.files, newImgArr, false);
       }
-      // เพิ่มรุปภาพเก่าไปยังที่เดิม
-      if (JSON.parse(oldImages).length !== 0) {
-        let convOldImages = JSON.parse(oldImages);
-        newImgArr = [...newImgArr, ...convOldImages];
-      }
-
-      if (JSON.parse(delImages).length !== 0) {
-        // console.log("delete images section 1");
-        let convDelImages = JSON.parse(delImages);
-        for (var x = 0; x < convDelImages.length; x++) {
-          delImgArr = [...delImgArr, convDelImages[x].public_id];
-        }
-      }
-      tool.images = newImgArr;
     }
-    // ถ้าไม่มีรูปภาพที่อัพมาใหม่ แต่เป็นรูปภาพเก่าที่ถูกลบจากฐานข้อมูล
-    else {
-      // console.log("have no images");
-      // เพิ่มรุปภาพเก่าไปยังที่เดิม
-      if (JSON.parse(oldImages).length !== 0) {
-        let convOldImages = JSON.parse(oldImages);
-        newImgArr = [...newImgArr, ...convOldImages];
-      }
 
-      if (JSON.parse(delImages).length !== 0) {
-        // console.log("delete images section 2");
-        let convDelImages = JSON.parse(delImages);
-        for (var x = 0; x < convDelImages.length; x++) {
-          delImgArr = [...delImgArr, convDelImages[x].public_id];
-        }
-      }
-      tool.images = newImgArr;
+    if (oldImagesExist(oldImages)) {
+      newImgArr = addImageToDB(newImgArr, oldImages);
     }
+
+    if (deletedImagesExist(delImages)) {
+      for (var x = 0; x < delImages.length; x++) {
+        delImgArr = [...delImgArr, delImages[x].public_id];
+      }
+    }
+    tool.images = newImgArr;
 
     // ลบรูปภาพออกจากระบบ
-    if (delImgArr.length !== 0) {
+    if (deletedImagesExist(delImgArr)) {
       for (var i = 0; i < delImgArr.length; i++) {
-        await cloudinary.uploader.destroy(delImgArr[i], (error, res) => {
-          if (error) console.log("can not delete image");
-          else console.log("delete image");
-        });
+        await deleteImageInCloudinary(delImgArr[i]);
       }
     }
+
     await tool.save();
     res.status(200).json(tool);
   } catch (error) {
-    catchError(res, "ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถแก้ไขรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  // ------------- Helper Functions --------------------
+
+  function deletePreviousImage(tool, deletedImageArr) {
+    // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
+    let avartar_id = tool.avartar.public_id;
+    if (avartar_id) {
+      addDeletedAvartarToArray(deletedImageArr, avartar_id);
+      tool.avartar = {};
+    }
+  }
+
+  function avartarNotExist(avartar) {
+    return avartar === "false";
+  }
+
+  function avartarExist(avartar) {
+    return avartar === "true";
+  }
+
+  function addDeletedAvartarToArray(arr, avartar_id) {
+    arr.push(avartar_id);
+  }
+
+  function imagesExist(images) {
+    return images === "true";
+  }
+
+  function oldImagesExist(images) {
+    return images.length !== 0;
+  }
+
+  function deletedImagesExist(images) {
+    return images.length !== 0;
+  }
+
+  function addImageToDB(arr, images) {
+    return [...arr, ...images];
   }
 };
 
@@ -387,6 +423,7 @@ const restoreTool = async (req, res) => {
     let tool = await Tool.findById(tid);
     if (!tool)
       return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
+
     let hist = await HistoryTool.findById(htid);
     if (!hist)
       return res
@@ -398,10 +435,13 @@ const restoreTool = async (req, res) => {
         return res
           .status(401)
           .send("จำนวนอุปกรณ์ในสต๊อกมีน้อยกว่า ไม่สามารถหักลบค่าได้");
+
       tool.total = tool.total - hist.total;
+
       await createNotificationTool(tool);
     } else {
       tool.total = tool.total + hist.total;
+
       if (tool.total > tool.limit) {
         tool.isAlert = false;
       }
@@ -415,6 +455,7 @@ const restoreTool = async (req, res) => {
       date: new Date(),
       description: description,
     };
+
     hist.total = 0;
     await hist.tags.unshift(newTag);
 
@@ -429,10 +470,8 @@ const restoreTool = async (req, res) => {
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
     for (var round = 0; round < hists.length; round++) {
-      if (hists[round].tool !== null) {
-        let expHistory = new Date(hists[round].exp).getTime();
-        let currentDate = new Date().getTime();
-        if (expHistory < currentDate) {
+      if (toolIdExist(hists[round].tool)) {
+        if (historyExpire(hists[round])) {
           await hists[round].remove();
         } else {
           responseData.unshift(hists[round]);
@@ -440,15 +479,22 @@ const restoreTool = async (req, res) => {
       }
     }
 
-    let tools = await Tool.find();
     let stt = await Stt.find();
-    covertTypeandCateTool(tools, stt);
     await covertTypeandCateTool2(responseData, stt);
-    io.emit("tool-actions", tools);
+    await sendDataToClient();
 
     res.status(200).json(responseData);
   } catch (error) {
-    catchError(res, "ไม่สามารถคืนอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถคืนอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  function toolIdExist(toolId) {
+    return toolId !== null;
   }
 };
 
@@ -456,46 +502,36 @@ const restoreTool = async (req, res) => {
 const deleteTool = async (req, res) => {
   let toolId = req.params.tid;
 
-  // หาข้อมูลอุปกรณ์
   try {
     let tool = await Tool.findById(toolId);
+    let avartar_id = tool.avartar.public_id;
+
     if (!tool)
       return res.status(401).send("ไม่พบข้อมูลรายการอุปกรณ์ในฐานข้อมูล");
 
     // ลบรูปภาพของอุปกรณ์
-    if (tool.images.length !== 0) {
+    if (imageExist(tool.images.length)) {
       for (var i = 0; i < tool.images.length; i++) {
-        await cloudinary.uploader.destroy(
-          tool.images[i].public_id,
-          (error, res) => {
-            if (error) console.log("can not delete image");
-            else console.log("delete images");
-          }
-        );
+        await deleteImageInCloudinary(tool.images[i].public_id);
       }
     }
 
     // ลบรูปภาพโปรไฟล์ของอุปกรณ์
-    if (tool.avartar.public_id) {
-      await cloudinary.uploader.destroy(
-        tool.avartar.public_id,
-        (error, res) => {
-          if (error) console.log("can not delete image");
-          else console.log("delete image");
-        }
-      );
+    if (avartar_id) {
+      await deleteImageInCloudinary(avartar_id);
     }
 
     await tool.remove();
-
-    let tools = await Tool.find();
-    let stt = await Stt.find();
-    covertTypeandCateTool(tools, stt);
-    io.emit("tool-actions", tools);
+    await sendDataToClient();
 
     res.status(200).send("delete success");
   } catch (error) {
-    catchError(res, "ไม่สามารถลบรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถลบรายการอุปกรณ์ได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
   }
 };
 
@@ -507,3 +543,16 @@ exports.actionTool = actionTool;
 exports.createTool = createTool;
 exports.restoreTool = restoreTool;
 exports.deleteTool = deleteTool;
+
+
+// router.post('/', async (req, res) => {
+//   try {
+//     const order = new Order(req.body)
+//     await order.save()
+//     const orders = await Order.find()
+//     io.emit('order-added', orders)
+//     res.status(201).send(order)
+//   } catch (error) {
+//     res.send(error)
+//   }
+// })
