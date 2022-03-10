@@ -73,32 +73,34 @@ function EditTool() {
     return () => {};
   }, []);
 
-  useEffect(async () => {
-    if (tool && lists.length !== 0) {
+  useEffect(async () => { 
+    if (dataExist()) {
       let findDataType = await lists.find(
         (item) => item._id === tool.type || item.type === tool.type
       );
+
       if (findDataType) {
         let findDataCate = await findDataType.categorys.find(
           (item) =>
             item._id === tool.category || item.category === tool.category
         );
-        if (!findDataCate) {
-          setCategory("");
-        } else {
-          setCategory(findDataCate);
-        }
+
+        if (!findDataCate) setCategory("");
+        else setCategory(findDataCate);
         setType(findDataType);
       } else {
         setType("");
         setCategory("");
       }
     }
+
+    function dataExist() {
+      return tool && lists.length !== 0;
+    }
   }, [tool && lists]);
 
   const onChangeSelectCategory = (e) => {
-    let data = e.target.value;
-    setCategory(data);
+    setCategory(e.target.value);
   };
 
   const onSubmit = (e) => {
@@ -116,10 +118,7 @@ function EditTool() {
       images: files,
       imagesDel: filesDel,
     };
-    // console.log(newTool)
-    // console.log(tool.type + " : " + tool.category)
     dispatch(editToolAction(auth.token, newTool, history));
-    // setIsEditSuccess(true);
   };
 
   if (isLoading) {

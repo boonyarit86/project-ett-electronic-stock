@@ -34,9 +34,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SelectCategory({ data, onChange, value }) {
-  const classes = useStyles();
-
   
+  const classes = useStyles();
 
   return (
     <FormControl

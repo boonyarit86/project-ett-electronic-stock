@@ -94,7 +94,7 @@ function CreateTool() {
       avartar: file,
       description: description,
     };
-    // console.log(newTool)
+  
     dispatch(createToolAction(auth.token, newTool, history));
     setCategory("");
   };

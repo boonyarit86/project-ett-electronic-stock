@@ -26,7 +26,6 @@ function ModalDescription(props) {
   const classes = useStyles();
   const [tagIndex, setTagIndex] = useState(0);
   const [btnIndex, setBtnIndex] = useState(0);
-  // const [index, setIndex] = useState("")
 
   // function เกี่ยวกับเวลา
   const [formatDate] = time();
@@ -72,7 +71,6 @@ function ModalDescription(props) {
             </div>
             <div>
               <p>{data.tool.type}</p>
-              {/* <p>lorem sfds sdvsv sdvsvvdds vdsvs vdsv</p> */}
             </div>
           </div>
           <div className="content-row">
@@ -81,7 +79,6 @@ function ModalDescription(props) {
             </div>
             <div>
               <p>{data.tool.category}</p>
-              {/* <p>lorem sfds sdvsv sdvsvvdds vdsvs vdsv</p> */}
             </div>
           </div>
           <div className="content-row">

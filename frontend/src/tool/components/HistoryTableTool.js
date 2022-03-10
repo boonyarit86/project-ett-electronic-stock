@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useForm } from "../../shared/hooks/form-hook";
 import { restoreToolAction } from "../../actions/toolActions";
 import { time } from "../../shared/utils/Time";
-
-// import Axios from "axios";
 
 // Component
 import {
@@ -18,16 +15,12 @@ import {
   TableRow,
   Button,
 } from "@material-ui/core";
-// import ModalAction from "./ModalAction";
 
 // Icon
 import RestoreIcon from "@material-ui/icons/Restore";
 import DescriptionIcon from "@material-ui/icons/Description";
 import ModalSubmit from "./ModalSubmitTool";
 import ModalDescription from "./ModalDescription2";
-
-// CSS
-// import "./TableTool.css";
 
 // ตัวกำหนดขนาด columns ของหน้านี้ เป็น function ของ material ui
 const columns = [
@@ -95,17 +88,6 @@ export default function HistoryTableTool({ hists, auth, dispatch, setData }) {
   const [dataSubmit, setDataSubmit] = useState({});
   const [dataDes, setDataDes] = useState({});
 
-  // function ตรวจสอบ error ของ Input ต่างๆ
-  const [formState, inputHandler] = useForm(
-    {
-      total: {
-        value: "",
-        isValid: false,
-      },
-    },
-    false
-  );
-
   const [formatDate, formatTime] = time();
 
   // function การทำงานเกี่ยวกับหน้าตารางของ Material ui
@@ -137,7 +119,6 @@ export default function HistoryTableTool({ hists, auth, dispatch, setData }) {
       description: description,
     };
     dispatch(restoreToolAction(auth.token, data, setData));
-    // console.log(data)
     setDescription(null);
     setOpenRestore(false);
     setDataSubmit({});

@@ -1,12 +1,8 @@
 import React from "react";
 import {
-  Paper,
   IconButton,
-  InputBase,
   List,
   ListItem,
-  ListItemAvatar,
-  Avatar,
   ListItemText,
   ListItemSecondaryAction,
 } from "@material-ui/core";
@@ -37,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function CategoryLists({ onSubmit, onChange, state, handleDelete, handleModal }) {
+function CategoryLists({ state, handleDelete, handleModal }) {
   const classes = useStyles();
 
   return (

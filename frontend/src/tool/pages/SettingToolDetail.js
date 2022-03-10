@@ -116,7 +116,6 @@ function SettingTool() {
 
   const handleDeleteCategory = (cid) => {
     dispatch(deleteCategoryAction(auth.token, typeList._id, cid));
-    // setTypeList({});
   };
 
   const handleCloseModal = () => {

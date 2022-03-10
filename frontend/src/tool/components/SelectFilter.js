@@ -41,9 +41,7 @@ function SelectFilter(props) {
 
         setTypeList(typeArr)
 
-        return () => {
-
-        }
+        return () => {}
     }, [])
 
     const onChange = (e) => {

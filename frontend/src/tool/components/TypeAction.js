@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Paper, IconButton, InputBase, TextField } from "@material-ui/core";
+import { Paper, IconButton, InputBase } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 // Icons

@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function InputAdd({ onSubmit, onChange, state, text }) {
+  
   const classes = useStyles();
 
   return (
