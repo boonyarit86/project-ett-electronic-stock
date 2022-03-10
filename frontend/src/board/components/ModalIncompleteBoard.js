@@ -3,7 +3,6 @@ import { Button, Modal, Backdrop, Fade, TextField } from "@material-ui/core";
 import { VALIDATOR_REQUIRE } from "../../shared/utils/validators";
 import { makeStyles } from '@material-ui/core/styles';
 
-
 // Component
 import Input from "../../shared/components/FormElements/Input";
 
@@ -34,7 +33,6 @@ function ModalIncompleteBoard(props) {
 
     const { inputHandler, formState, handleClosePrompt, handleSubmitPrompt, openPrompt, headerPrompt, setDescription, data } = props;
     const classes = useStyles()
-
 
     return (
         <Modal

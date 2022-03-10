@@ -60,34 +60,6 @@ export default function Messages({ msgs }) {
           </div>
         </>
       )}
-      {/* {openAlert && validTool !== false ?
-                        <div className="alert-errordata">
-                            <h3>รายการอุปกรณ์ไม่ครบ</h3>
-                            {!validBoard &&
-                                <div className="valid-data">
-                                    <p>{boardToltal.boardName}</p>
-                                    <p>{boardToltal.total}</p>
-                                </div>
-                            }
-                            {validTool && validTool.map((item) => (
-                                <div key={item.id} className="valid-data">
-                                    <p>{item.toolName}</p>
-                                    <p>{item.total}</p>
-                                </div>
-                            ))}
-                        </div>
-                        : toolSelected ?
-                            <div className="alert-successdata">
-                                <h3>รายการอุปกรณ์ที่ต้องใช้</h3>
-                                {toolSelected && toolSelected.map((item) => (
-                                    <div key={item.id} className="valid-data">
-                                        <p>{item.toolName}</p>
-                                        <p>{item.total}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            : null
-                    } */}
     </div>
   );
 }

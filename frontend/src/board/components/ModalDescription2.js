@@ -27,8 +27,6 @@ function ModalDescription(props) {
   const [tagIndex, setTagIndex] = useState(0);
   const [btnIndex, setBtnIndex] = useState(0);
 
-  // const [index, setIndex] = useState("")
-
   // function เกี่ยวกับเวลา
   const [formatDate] = time();
 

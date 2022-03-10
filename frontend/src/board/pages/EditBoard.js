@@ -84,10 +84,7 @@ function EditBoard() {
       imagesDel: filesDel,
       tools: toolsSelected,
     };
-    console.log(newBoard);
-    // console.log(tool.type + " : " + tool.category)
     dispatch(editBoardAction(auth.token, newBoard, history));
-    // setIsEditSuccess(true);
   };
 
   if (isLoading) {

@@ -5,7 +5,6 @@ import { AuthContext } from "../../shared/context/auth-context";
 import { VALIDATOR_REQUIRE } from "../../shared/utils/validators";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllToolAction } from "../../actions/toolActions";
-// import { useFilter } from "../../shared/util/SelectFilterBoard2";
 import { createBoardAction } from "../../actions/boardActions";
 import { useHistory } from "react-router-dom";
 
@@ -58,7 +57,6 @@ function CreateBoard() {
   const dispatch = useDispatch();
   const history = useHistory();
   // Redux
-  // const createBoard = useSelector((state) => state.createBoard);
   const { isLoading, errorMsg } = useSelector((state) => state.toolLists);
   const { isLoadingActions, errorMsgActions } = useSelector(
     (state) => state.boardLists
@@ -97,7 +95,6 @@ function CreateBoard() {
       description: description,
       tools: toolsSelected,
     };
-    // console.log(newBoard);
     dispatch(createBoardAction(auth.token, newBoard, history));
   };
 
@@ -114,8 +111,6 @@ function CreateBoard() {
       </div>
     );
   }
-
-  //   console.log(tools)
 
   return (
     <Container maxWidth="sm" className={classes.form}>

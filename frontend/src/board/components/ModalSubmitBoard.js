@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 // CSS
 import "./ModalSubmit.css";
 
-
 // Component
 import { Button, Modal, Backdrop, Fade, TextField } from '@material-ui/core';
 

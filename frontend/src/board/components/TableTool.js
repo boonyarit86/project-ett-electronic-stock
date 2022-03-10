@@ -99,7 +99,7 @@ export function TableTool({ tools }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tools.map((tool, index) => {
+              {tools.map((tool) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={tool._id}>
                     <TableCell align="left">

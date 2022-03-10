@@ -143,7 +143,6 @@ function SelectTool({ data, toolsSelected, setToolsSelected, initialValue }) {
       (item) => item.toolName === e.target.value
     );
     setTool(findName[0]);
-    // console.log(findName)
   };
 
   const handleSelectedTool = async () => {

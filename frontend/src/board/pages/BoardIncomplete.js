@@ -93,7 +93,6 @@ function BoardIncomplete() {
     newData.description = description;
     newData.total = formState.inputs.total.value;
     dispatch(requestIncompleteToolActions(auth.token, newData));
-    // console.log(newData)
 
     setOpenInput(false);
     setData(null);

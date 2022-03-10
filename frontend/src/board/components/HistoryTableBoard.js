@@ -3,8 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import { restoreBoardAction } from "../../actions/boardActions";
 import { time } from "../../shared/utils/Time";
 
-// import Axios from "axios";
-
 // Component
 import {
   Paper,
@@ -130,7 +128,6 @@ export default function HistoryTableBoard({ hisbs, auth, dispatch, setData }) {
       path = "restore/boardandtools"
     }
     dispatch(restoreBoardAction(auth.token, data, path, setData));
-    // console.log(data)
     setDescription(null);
     setOpenRestore(false);
     setDataSubmit({});
