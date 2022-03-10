@@ -112,7 +112,6 @@ function AuthUser() {
   };
 
   const handleStatusUser = (userId, status) => {
-    // console.log(uid + " : " + status);
     dispatch(editStatusUserAction(auth.token, { userId, newStatus: status }));
   };
 

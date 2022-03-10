@@ -41,6 +41,7 @@ function Auth() {
   // function เปลี่ยนแบบฟอร์มระหว่าง Login และ Register โดย function จะกำหนดหน้า Login ขึ้นก่อน
   const switchModeHandler = () => {
     const { email, password } = formState.inputs;
+
     if (!isLoginMode) {
       setFormData(
         {
@@ -66,23 +67,19 @@ function Auth() {
         false
       );
     }
+
     setIsLoginMode((prevMode) => !prevMode);
   };
 
   // ส่งข้อมูลไปยังฐานข้อมูล
   const onSubmit = async (e) => {
+    e.preventDefault();
     const { password, password2, email, name } = formState.inputs;
     let user;
 
-    e.preventDefault();
-
-    if (!isLoginMode) {
-      processRegister();
-    }
-
-    if (isLoginMode) {
-      processLogin();
-    }
+    if (!isLoginMode) processRegister();
+    if (isLoginMode) processLogin();
+    
 
     async function processRegister() {
       if (
