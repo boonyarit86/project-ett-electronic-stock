@@ -1,3 +1,5 @@
+const { historyExpire, boardExist } = require("./index");
+
 let initialValue = "ไม่ได้กำหนด";
 
 // ----------- Secondary Functions ----------------
@@ -112,10 +114,8 @@ const covertTypeandCateTool4 = async (data, stt) => {
 // Sort from latest date to oldest date and Check expairation of data.
 const covertHistoryBoardByCheckingDate = async (hisbs, responseData) => {
   for (var round = 0; round < hisbs.length; round++) {
-    if (hisbs[round].board !== null) {
-      let expHistory = new Date(hisbs[round].exp).getTime();
-      let currentDate = new Date().getTime();
-      if (expHistory < currentDate) {
+    if (boardExist(hisbs[round].board)) {
+      if (historyExpire(hisbs[round])) {
         await hisbs[round].remove();
       } else {
         responseData.unshift(hisbs[round]);

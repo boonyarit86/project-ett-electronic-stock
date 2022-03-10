@@ -143,31 +143,48 @@ const login = async (req, res) => {
 // แก้ไขข้อมูลโปรไฟล์
 const editProfile = async (req, res) => {
   const { email, name, password, oldPassword } = req.body;
+  let user;
 
   if (!isEmail(email)) return res.status(401).send("รูปแบบอีเมล์ไม่ถูกต้อง");
-
-  let findData;
-  // หาข้อมูล document ที่ต้องการแกไข
+  
   try {
-    findData = await UserModel.findById(req.params.uid).select("+password");
-    let avartar_id = findData.avartar.public_id;
+    user = await UserModel.findById(req.params.uid).select("+password");
+    let avartar_id = user.avartar.public_id;
 
-    if (!findData)
+    if (!user)
       return res
         .status(401)
         .send("ไม่พบข้อมูลผู้ใช้งานในระบบ โปรดลองใหม่อีกครั้ง");
 
-    // แก้ไขข้อมูล
-    findData.email = email;
-    findData.name = name;
+    setUserData();
 
+    await handlePassword(user);
+    await handleImages(avartar_id, user);
+
+    await user.save();
+    res.status(200).json(user);
+  } catch (error) {
+    catchError(
+      res,
+      "ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  function setUserData(user) {
+    user.email = email;
+    user.name = name;
+  }
+
+  async function handlePassword(user) {
     if (passwordNotEmpty(password)) {
       if (password.length < 6) {
         return res.status(401).send("รหัสผ่านต้องมีอย่างน้อย 6 ตัว");
       }
 
       let isValidPassword = false;
-      isValidPassword = await bcrypt.compare(oldPassword, findData.password);
+      isValidPassword = await bcrypt.compare(oldPassword, user.password);
 
       if (!isValidPassword) {
         return res.status(401).send("รหัสผ่านไม่ถูกต้อง");
@@ -180,25 +197,17 @@ const editProfile = async (req, res) => {
           .status(401)
           .send("ไม่สามารถเปลี่ยนรหัสผ่านได้ โปรดใช้รหัสผ่านอย่างอื่น");
 
-      findData.password = hashedPassword;
+      user.password = hashedPassword;
     }
+  }
 
+  async function handleImages(avartar_id, user) {
     if (imageExist(req.file)) {
       if (avartarExist(avartar_id)) {
         await deleteImageInCloudinary(avartar_id);
       }
-      await uploadAvartarToCloudinary(req.file.path, findData);
+      await uploadAvartarToCloudinary(req.file.path, user);
     }
-
-    await findData.save();
-    res.status(200).json(findData);
-  } catch (error) {
-    catchError(
-      res,
-      "ไม่สามารถแก้ไขข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
-      500,
-      error
-    );
   }
 
   function avartarExist(avartar) {

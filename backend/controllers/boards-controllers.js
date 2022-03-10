@@ -10,6 +10,23 @@ const {
   covertTypeandCateTool4,
   covertHistoryBoardByCheckingDate,
 } = require("../utils/covertData");
+const {
+  boardExist,
+  toolExist,
+  toolNotExist,
+  fileExist,
+  avartarNotExist,
+  avartarExist,
+  imagesExist,
+  addDeletedAvartarToArray,
+  oldImagesExist,
+  deletedImagesExist,
+  addImageToDB,
+} = require("../utils/index");
+const {
+  uploadMultipleImageToCloudinary,
+  deleteImageInCloudinary,
+} = require("../utils/handleImage");
 
 const HistoryTool = require("../models/history-tool");
 const HistoryBoard = require("../models/history-board");
@@ -21,44 +38,97 @@ const {
   createNotificationBoard,
 } = require("../utilsServer/notificationActions");
 
+// ------------------- Helper Function -------------------
+
+async function uploadImageToCloudinary(imagePath, board) {
+  await cloudinary.uploader.upload(imagePath, (error, result) => {
+    if (error) console.log("can not upload image on clound");
+    else {
+      board.avartar = {
+        url: result.secure_url,
+        public_id: result.public_id,
+      };
+    }
+  });
+}
+async function sendDataToClient() {
+  let boards = await Board.find();
+  io.emit("board-actions", boards);
+  let tools = await Tool.find();
+  let stt = await Stt.find();
+  await covertTypeandCateTool(tools, stt);
+  io.emit("tool-actions", tools);
+}
+function setBoardStatus(board) {
+  if (board.total > board.limit) {
+    board.isAlert = false;
+  }
+}
+function decreaseBoard(boardInStock, usedBoard) {
+  boardInStock.total = boardInStock.total - usedBoard;
+}
+function increaseBoard(boardInStock, newBoardTotal) {
+  boardInStock.total = boardInStock.total + newBoardTotal;
+}
+
+// ----------------- Main Function -------------------------
+
 // รับข้อมูลบอร์ดทั้งหมด
 const getAllBoards = async (req, res) => {
   try {
     let boardLists = await Board.find().populate("tools.tool");
     res.status(200).json(boardLists);
   } catch (error) {
-    catchError(res, "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
   }
 };
 
 // รับข้อมูลบอร์ดที่ผู้ใช้เลือก
 const getBoard = async (req, res) => {
+  let newToolArr = [];
+
   try {
-    let board = await Board.findById(req.params.bid);
-    // let board = await boardLists.find()
+    let boardId = req.params.bid;
+    let board = await Board.findById(boardId);
+
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
 
     // Are those data available ?. if not, delete immaditly it.
-    // console.log(board[0].tools.length)
-    let newToolArr = [];
+    await prepareUsedTool(board);
+    await setUsedToolInBoard(board);
+
+    let stt = await Stt.find();
+    let data = await Board.find({ _id: boardId }).populate("tools.tool");
+    await covertTypeandCateTool2(data[0].tools, stt);
+    res.status(200).json(data[0]);
+  } catch (error) {
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  async function prepareUsedTool(board) {
     for (let r = 0; r < board.tools.length; r++) {
       let tool = await Tool.findById(board.tools[r].tool);
       if (tool) {
         newToolArr.push(board.tools[r]);
       }
     }
+  }
+  async function setUsedToolInBoard(board) {
     if (newToolArr.length !== board.tools.length) {
       board.tools = newToolArr;
       await board.save();
     }
-
-    let stt = await Stt.find();
-    let data = await Board.find({ _id: req.params.bid }).populate("tools.tool");
-    await covertTypeandCateTool2(data[0].tools, stt);
-    res.status(200).json(data[0]);
-  } catch (error) {
-    catchError(res, "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -72,10 +142,15 @@ const getAllHistoryBoards = async (req, res) => {
 
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    covertHistoryBoardByCheckingDate(hisbs, responseData);
+    await covertHistoryBoardByCheckingDate(hisbs, responseData);
     res.status(200).json(responseData);
   } catch (error) {
-    catchError(res, "ไม่สามารถเรียกข้อมูลประวัติรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลประวัติรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
   }
 };
 
@@ -88,6 +163,7 @@ const getIncompleteTool = async (req, res) => {
       .populate("hisb")
       .populate("tools.tool");
     let stt = await Stt.find();
+
     // Checking if a tool is deleted.
     for (let r = 0; r < lists.length; r++) {
       let newToolArr = [];
@@ -96,22 +172,22 @@ const getIncompleteTool = async (req, res) => {
         .populate("user")
         .populate("hisb")
         .populate("tools.tool");
-      if(list.board !== null) {
+
+      if (boardExist(list.board)) {
         for (let r2 = 0; r2 < list.tools.length; r2++) {
-          if (list.tools[r2].tool !== null) {
+          if (toolExist(list.tools[r2].tool)) {
             newToolArr.push(list.tools[r2]);
           }
         }
+
         list.tools = newToolArr;
-        if (list.tools.length === 0) {
-          console.log("removing...")
+
+        if (toolNotExist(list.tools)) {
           await list.remove();
         } else {
-          // console.log("saving...")
           await list.save();
         }
       } else {
-        console.log("removing1...")
         await list.remove();
       }
     }
@@ -123,30 +199,30 @@ const getIncompleteTool = async (req, res) => {
       .populate("hisb")
       .populate("tools.tool");
     let newData = await orderData(responseData);
-    if(newData.length !== 0) {
-        await covertTypeandCateTool4(newData, stt);
+
+    if (newData.length !== 0) {
+      await covertTypeandCateTool4(newData, stt);
     }
     res.status(200).json(newData);
   } catch (error) {
-    catchError(res, "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
   }
 };
 
 // สร้างรายการบอร์ด
 const createBoard = async (req, res) => {
-  const { boardName, boardCode, type, tools, description } = req.body;
+  const { boardName, boardCode, type, description } = req.body;
+  let newToolsArr = [];
+
   try {
-    let convTools = JSON.parse(tools);
-    let newToolsArr = [];
-    for (let r = 0; r < convTools.length; r++) {
-      let findTool = await Tool.findById(convTools[r]._id);
-      if (findTool) {
-        newToolsArr = [
-          ...newToolsArr,
-          { tool: convTools[r]._id, total: Number(convTools[r].total) },
-        ];
-      }
-    }
+    let tools = JSON.parse(req.body.tools);
+
+    await prepareTool(tools);
 
     let newBoard = new Board({
       boardName: boardName,
@@ -158,24 +234,29 @@ const createBoard = async (req, res) => {
       description: description,
     });
 
-    if (req.file !== undefined) {
-      await cloudinary.uploader.upload(req.file.path, (error, result) => {
-        if (error)
-          res.status(401).send("ไม่สามารถอัพโหลดรูปภาพไปยังบนคลาวค์ได้");
-        else {
-          newBoard.avartar = {
-            url: result.secure_url,
-            public_id: result.public_id,
-          };
-        }
-      });
+    if (fileExist(req.file)) {
+      await uploadImageToCloudinary(req.file.path, newBoard);
     }
 
     await newBoard.save();
 
     res.status(201).json(newBoard);
   } catch (error) {
-    catchError(res, "ไม่สามารถสร้างรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถสร้างรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  async function prepareTool(tools) {
+    for (let r = 0; r < tools.length; r++) {
+      let tool = await Tool.findById(tools[r]._id);
+      if (tool) {
+        newToolsArr.push({ tool: tools[r]._id, total: Number(tools[r].total) });
+      }
+    }
   }
 };
 
@@ -186,6 +267,8 @@ const actionBoard = async (req, res) => {
   const { total, description, actionType } = req.body;
   const boardId = req.params.bid;
   const boardTotal = Number(total);
+  let newDate = new Date();
+
   if (boardTotal <= 0)
     return res.status(401).send("จำนวนบอร์ดต้องมีค่าอย่างน้อย 1");
 
@@ -198,17 +281,8 @@ const actionBoard = async (req, res) => {
         .send("ไม่สามารถกำหนดเลขที่การเบิกได้ โปรดลองทำรายการอีกครั้ง");
     if (!board)
       return res.status(401).send("รายการบอร์ดนี้ไม่มีอยู่ในฐานข้อมูล");
-    if (actionType === "เพิ่ม") {
-      board.total = board.total + boardTotal;
-      if (board.total > board.limit) {
-        board.isAlert = false;
-      }
-    } else {
-      if (board.total < boardTotal)
-        return res.status(401).send("จำนวนบอร์ดที่เบิกมีมากกว่าในสต๊อก");
-      board.total = board.total - boardTotal;
-      await createNotificationBoard(board);
-    }
+
+    await processRequestBoard(board);
 
     let newHistoryBoard = new HistoryBoard({
       code: `${cntBoard.name}${cntBoard.cntNumber}`,
@@ -216,7 +290,7 @@ const actionBoard = async (req, res) => {
       user: req.userId,
       total: boardTotal,
       actionType: actionType,
-      date: new Date(),
+      date: newDate,
       exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
       description: description,
       tags: [
@@ -225,7 +299,7 @@ const actionBoard = async (req, res) => {
           code: `${cntBoard.name}${cntBoard.cntNumber}-1`,
           action: actionType,
           total: boardTotal,
-          date: new Date(),
+          date: newDate,
           description: description,
         },
       ],
@@ -236,345 +310,352 @@ const actionBoard = async (req, res) => {
     await board.save();
     await newHistoryBoard.save();
     await cntBoard.save();
+
     let boards = await Board.find();
     io.emit("board-actions", boards);
     res.status(200).send(boards);
   } catch (error) {
-    catchError(res, "ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถทำรายการได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  async function processRequestBoard(board) {
+    if (actionType === "เพิ่ม") {
+      increaseBoard(board, boardTotal);
+      setBoardStatus(board);
+    } else {
+      if (boardInStockEnough(board.total, boardTotal))
+        return res.status(401).send("จำนวนบอร์ดที่เบิกมีมากกว่าในสต๊อก");
+      decreaseBoard(board, boardTotal);
+      await createNotificationBoard(board);
+    }
+  }
+  function boardInStockEnough(boardInStock, newBoardTotal) {
+    return boardInStock < newBoardTotal;
   }
 };
 
 // แก้ไขข้อมูลบอร์ด
 const editBoard = async (req, res) => {
-  const {
-    boardName,
-    boardCode,
-    type,
-    images,
-    avartar,
-    description,
-    oldImages,
-    delImages,
-    limit,
-    tools,
-  } = req.body;
-  // ตัวแปรรูปภาพที่จะถูกลบ
+  const { boardName, boardCode, type, images, avartar, description, limit } =
+    req.body;
+  const oldImages = JSON.parse(req.body.oldImages);
+  const delImages = JSON.parse(req.body.delImages);
+  let newImgArr = [];
   let delImgArr = [];
+  let newToolsArr = [];
+  let tools = JSON.parse(req.body.tools);
 
   if (Number(limit) < 0)
     return res.status(401).send("จำนวนตัวเลขการแจ้งเตือนต้องมีค่าอย่างน้อย 1");
 
   try {
     let board = await Board.findById(req.params.bid);
+    let previousAvartar_id = board.avartar.public_id;
+
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
 
-    let convTools = JSON.parse(tools);
-    let newToolsArr = [];
-    for (let r = 0; r < convTools.length; r++) {
-      let findTool = await Tool.findById(convTools[r]._id);
-      if (findTool) {
+    await prepareUsedTool();
+    setBoardData();
+    await handleImages(board, previousAvartar_id);
+
+    await board.save();
+    res.status(200).json(board);
+  } catch (error) {
+    catchError(
+      res,
+      "ไม่สามารถแก้ไขรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  async function prepareUsedTool() {
+    for (let r = 0; r < tools.length; r++) {
+      let tool = await Tool.findById(tools[r]._id);
+      if (tool) {
         newToolsArr = [
           ...newToolsArr,
-          { tool: convTools[r]._id, total: Number(convTools[r].total) },
+          { tool: tools[r]._id, total: Number(tools[r].total) },
         ];
       }
     }
+  }
 
+  function setBoardData(board) {
     board.boardName = boardName;
     board.boardCode = boardCode;
     board.type = type;
     board.limit = limit;
     board.description = description;
     board.tools = newToolsArr;
+  }
 
-    // อัพโหลดโปรไฟล์อุปกรณ์
+  async function handleImages(board, previousAvartar_id) {
     // ถ้ารูปอุปกรณ์ถูกลบหรือไม่ได้กำหนดมา
-    if (avartar === "false") {
-      // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
-      if (board.avartar.public_id) {
-        delImgArr = [...delImgArr, board.avartar.public_id];
-        board.avartar = {};
-        // console.log("set default image and delete");
-      }
+    if (avartarNotExist(avartar)) {
+      deletePreviousImage(board, delImgArr);
     }
     // ผู้ใช้งานกำหนดรูปภาพใหม่
-    else if (avartar === "true") {
-      // ถ้ามีรูปเก่าในระบบให้ลบ และเพิ่มรุปภาพใหม่เข้าไป
-      if (board.avartar.public_id) {
-        delImgArr = [...delImgArr, board.avartar.public_id];
-        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
-          if (error) console.log("can not upload image on clound");
-          board.avartar = {
-            public_id: result.public_id,
-            url: result.secure_url,
-          };
-        });
+    else if (avartarExist(avartar)) {
+      if (previousAvartar_id) {
+        addDeletedAvartarToArray(delImgArr, previousAvartar_id);
       }
-      // ถ้าไม่มีรุปภาพเก่าในระบบ ให้เพิ่มอย่างเดียว
-      else {
-        console.log("add only image to db");
-        await cloudinary.uploader.upload(req.files[0].path, (error, result) => {
-          if (error) console.log("can not upload image on clound");
-          board.avartar = {
-            public_id: result.public_id,
-            url: result.secure_url,
-          };
-        });
-      }
+      await uploadImageToCloudinary(req.files[0].path, board);
     }
-    // Multi Images
-    let newImgArr = [];
-    // ถ้ามีรูปภาพใหม่ที่อัพมา มากกว่า 1
-    if (images === "true") {
-      // console.log("have images");
-      // ทำการแยกรูปภาพโปรไฟล์อุปกรณ์ออกจากรายการ ถ้ามี
-      if (avartar === "true") {
-        for (var round = 0; round < req.files.length; round++) {
-          if (round !== 0) {
-            await cloudinary.uploader.upload(
-              req.files[round].path,
-              (error, result) => {
-                if (error) {
-                  console.log("can not upload image on clound");
-                } else {
-                  newImgArr = [
-                    ...newImgArr,
-                    {
-                      url: result.secure_url,
-                      public_id: result.public_id,
-                    },
-                  ];
-                }
-              }
-            );
-          }
-        }
-      } else {
-        // console.log("Only many imges");
-        for (var round1 = 0; round1 < req.files.length; round1++) {
-          await cloudinary.uploader.upload(
-            req.files[round1].path,
-            (error, result) => {
-              if (error) console.log("can not upload image on clound");
-              newImgArr = [
-                ...newImgArr,
-                {
-                  public_id: result.public_id,
-                  url: result.secure_url,
-                },
-              ];
-            }
-          );
-        }
-      }
-      // เพิ่มรุปภาพเก่าไปยังที่เดิม
-      if (JSON.parse(oldImages).length !== 0) {
-        let convOldImages = JSON.parse(oldImages);
-        newImgArr = [...newImgArr, ...convOldImages];
-      }
 
-      if (JSON.parse(delImages).length !== 0) {
-        // console.log("delete images section 1");
-        let convDelImages = JSON.parse(delImages);
-        for (var x = 0; x < convDelImages.length; x++) {
-          delImgArr = [...delImgArr, convDelImages[x].public_id];
-        }
+    if (imagesExist(images)) {
+      let isAvartar = false;
+      if (avartarExist(avartar)) {
+        isAvartar = true;
       }
-      board.images = newImgArr;
+      await uploadMultipleImageToCloudinary(req.files, newImgArr, isAvartar);
     }
-    // ถ้าไม่มีรูปภาพที่อัพมาใหม่ แต่เป็นรูปภาพเก่าที่ถูกลบจากฐานข้อมูล
-    else {
-      // console.log("have no images");
-      // เพิ่มรุปภาพเก่าไปยังที่เดิม
-      if (JSON.parse(oldImages).length !== 0) {
-        let convOldImages = JSON.parse(oldImages);
-        newImgArr = [...newImgArr, ...convOldImages];
-      }
 
-      if (JSON.parse(delImages).length !== 0) {
-        // console.log("delete images section 2");
-        let convDelImages = JSON.parse(delImages);
-        for (var x = 0; x < convDelImages.length; x++) {
-          delImgArr = [...delImgArr, convDelImages[x].public_id];
-        }
-      }
-      board.images = newImgArr;
+    if (oldImagesExist(oldImages)) {
+      newImgArr = addImageToDB(newImgArr, oldImages);
     }
+
+    if (deletedImagesExist(delImages)) {
+      for (var x = 0; x < delImages.length; x++) {
+        delImgArr = [...delImgArr, delImages[x].public_id];
+      }
+    }
+
+    board.images = newImgArr;
 
     // ลบรูปภาพออกจากระบบ
-    if (delImgArr.length !== 0) {
+    if (deletedImagesExist(delImgArr.length)) {
       for (var i = 0; i < delImgArr.length; i++) {
-        await cloudinary.uploader.destroy(delImgArr[i], (error, res) => {
-          if (error) console.log("can not delete image");
-          else console.log("delete image");
-        });
+        await deleteImageInCloudinary(delImgArr[i]);
       }
     }
-    await board.save();
-    res.status(200).json(board);
-  } catch (error) {
-    catchError(res, "ไม่สามารถแก้ไขรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+  }
+
+  function deletePreviousImage(board, deletedImageArr) {
+    // ลบรูปภาพเดิมออกแล้วเพิ่มรูปภาพระบบไปแทน
+    let avartar_id = board.avartar.public_id;
+    if (avartar_id) {
+      addDeletedAvartarToArray(deletedImageArr, avartar_id);
+      board.avartar = {};
+    }
   }
 };
 
 // การเบิกบอร์ด
 const requestBoard = async (req, res) => {
   const { msgs, description } = req.body;
-  // console.log(msgs.success.tools[0].toolName)
-  if(msgs.success.tools.length === 0 && msgs.error.tools.length === 0) {
+  let newDate = new Date();
+  let usedToolList = [];
+  let incompleteToolList = [];
+  let boardId = msgs.success.board._id;
+  let actionType = "เบิกอุปกรณ์พร้อมบอร์ด";
+  let insuffTool_id = null;
+  let newInsuffiTool = null;
+
+  if (usedToolNotExist(msgs)) {
     return res
-        .status(401)
-        .send("ไม่สามารถทำรายการได้ เนื่องจากไม่มีรายการอุปกรณ์อยู่ในบอร์ดนี้");
+      .status(401)
+      .send("ไม่สามารถทำรายการได้ เนื่องจากไม่มีรายการอุปกรณ์อยู่ในบอร์ดนี้");
   }
   try {
-    let usedToolList = [];
-    let incompleteToolList = [];
-    let board = await Board.findById(msgs.success.board._id);
-    let actionType = "เบิกอุปกรณ์พร้อมบอร์ด";
-    let insuffTool_id = null;
-    let newInsuffiTool = null;
+    let board = await Board.findById(boardId);
+
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
+
     board.total = msgs.success.board.boardInStock;
 
     let cntBoard = await HistoryCnt.findById("614c2b490e1240c5f3e5a6c5");
     let cntTool = await HistoryCnt.findById("614c2b3d246f3c25995dc745");
+
     if (!cntBoard || !cntTool)
       return res
         .status(401)
         .send("ไม่สามารถกำหนดเลขที่การเบิกได้ โปรดลองทำรายการอีกครั้ง");
 
-    if (msgs.success.tools.length !== 0) {
+    if (usedToolExist(msgs.success.tools)) {
       let tools = msgs.success.tools;
 
-      for (let r = 0; r < tools.length; r++) {
-        let tool = await Tool.findById(tools[r]._id);
-        if (!tool)
-          return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
-      }
-
-      for (let r = 0; r < tools.length; r++) {
-        let tool = await Tool.findById(tools[r]._id);
-        tool.total = tools[r].toolInStock;
-        let newHistoryTool = new HistoryTool({
-          code: `${cntTool.name}${cntTool.cntNumber}`,
-          tool: tools[r]._id,
-          user: req.userId,
-          total: tools[r].usedTool,
-          actionType: "เบิกอุปกรณ์พร้อมบอร์ด",
-          date: new Date(),
-          exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
-          description: description,
-          tags: [
-            {
-              user: req.userId,
-              code: `${cntTool.name}${cntTool.cntNumber}-1`,
-              action: "เบิกอุปกรณ์พร้อมบอร์ด",
-              total: tools[r].usedTool,
-              date: new Date(),
-              boardName: msgs.success.board.boardName,
-              description: description,
-            },
-          ],
-        });
-
-        usedToolList.push({
-          tid: tool._id,
-          toolName: tool.toolName,
-          total: tools[r].usedTool,
-          hist: newHistoryTool._id,
-        });
-        cntTool.cntNumber = cntTool.cntNumber + 1;
-
-        // console.log("------Tool------");
-        // console.log(tool);
-        // console.log("------HistoryTool------");
-        // console.log(newHistoryTool);
-        await createNotificationTool(tool);
-        await cntTool.save();
-        await newHistoryTool.save();
-        await tool.save();
-      }
+      await checkToolInDB(tools);
+      await processRequestingTool(tools, cntTool);
     }
 
-    if (msgs.error.tools.length !== 0) {
+    if (toolNotEnough(msgs.error.tools)) {
       let tools = msgs.error.tools;
       actionType = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
 
-      for (let r = 0; r < tools.length; r++) {
-        let tool = await Tool.findById(tools[r]._id);
-        if (!tool)
-          return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
-      }
-
-      for (let r = 0; r < tools.length; r++) {
-        let tool = await Tool.findById(tools[r]._id);
-        let newHistoryTool = new HistoryTool({
-          code: `${cntTool.name}${cntTool.cntNumber}`,
-          tool: tools[r]._id,
-          user: req.userId,
-          total: tool.total,
-          actionType: "เบิกอุปกรณ์พร้อมบอร์ด",
-          date: new Date(),
-          exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
-          description: description,
-          tags: [
-            {
-              user: req.userId,
-              code: `${cntTool.name}${cntTool.cntNumber}-1`,
-              action: "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)",
-              total: tool.total,
-              date: new Date(),
-              boardName: msgs.success.board.boardName,
-              description: description,
-              insuffTotal: tools[r].insuffTotal,
-            },
-          ],
-        });
-
-        usedToolList.push({
-          tid: tool._id,
-          toolName: tool.toolName,
-          total: tool.total,
-          hist: newHistoryTool._id,
-          insuffTotal: tools[r].insuffTotal,
-        });
-
-        incompleteToolList.push({
-          tool: tool._id,
-          total: tool.total,
-          hist: newHistoryTool._id,
-          insuffTotal: tools[r].insuffTotal,
-        });
-        tool.total = 0;
-        cntTool.cntNumber = cntTool.cntNumber + 1;
-
-        // console.log("------Tool-In------");
-        // console.log(tool);
-        // console.log("------HistoryTool------");
-        // console.log(newHistoryTool);
-        await createNotificationTool(tool);
-        await cntTool.save();
-        await newHistoryTool.save();
-        await tool.save();
-      }
-      newInsuffiTool = new InsufficientTool({
-        board: board._id,
-        user: req.userId,
-        tools: incompleteToolList,
-      });
-
-      insuffTool_id = newInsuffiTool._id;
+      await checkToolInDB(tools);
+      await processRequestingInsufficientTool(tools, cntTool);
+      createNewInsufficientTool(board._id);
     }
 
-    let newHistoryBoard = new HistoryBoard({
+    let newHistoryBoard = createNewHistoryBoard(cntBoard);
+
+    if (hasInsufficientTool(insuffTool_id)) {
+      newHistoryBoard.insuffTool = insuffTool_id;
+      newInsuffiTool.hisb = newHistoryBoard._id;
+      await newInsuffiTool.save();
+    }
+
+    cntBoard.cntNumber = cntBoard.cntNumber + 1;
+
+    await createNotificationBoard(board);
+    await cntBoard.save();
+    await newHistoryBoard.save();
+    await board.save();
+
+    await sendDataToClient();
+    res.status(200).json(msgs);
+  } catch (error) {
+    catchError(
+      res,
+      "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  function usedToolNotExist(msgs) {
+    return msgs.success.tools.length === 0 && msgs.error.tools.length === 0;
+  }
+
+  function usedToolExist(tools) {
+    return tools.length !== 0;
+  }
+
+  async function checkToolInDB(tools) {
+    for (let r = 0; r < tools.length; r++) {
+      let tool = await Tool.findById(tools[r]._id);
+      if (!tool)
+        return res.status(401).send("รายการอุปกรณ์นี้ไม่มีอยู่ในฐานข้อมูล");
+    }
+  }
+
+  async function processRequestingTool(tools, cntTool) {
+    for (let r = 0; r < tools.length; r++) {
+      let tool = await Tool.findById(tools[r]._id);
+      tool.total = tools[r].toolInStock;
+      let newHistoryTool = new HistoryTool({
+        code: `${cntTool.name}${cntTool.cntNumber}`,
+        tool: tools[r]._id,
+        user: req.userId,
+        total: tools[r].usedTool,
+        actionType: "เบิกอุปกรณ์พร้อมบอร์ด",
+        date: newDate,
+        exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
+        description: description,
+        tags: [
+          {
+            user: req.userId,
+            code: `${cntTool.name}${cntTool.cntNumber}-1`,
+            action: "เบิกอุปกรณ์พร้อมบอร์ด",
+            total: tools[r].usedTool,
+            date: newDate,
+            boardName: msgs.success.board.boardName,
+            description: description,
+          },
+        ],
+      });
+
+      usedToolList.push({
+        tid: tool._id,
+        toolName: tool.toolName,
+        total: tools[r].usedTool,
+        hist: newHistoryTool._id,
+      });
+
+      cntTool.cntNumber = cntTool.cntNumber + 1;
+
+      await createNotificationTool(tool);
+      await cntTool.save();
+      await newHistoryTool.save();
+      await tool.save();
+    }
+  }
+
+  async function processRequestingInsufficientTool(tools, cntTool) {
+    for (let r = 0; r < tools.length; r++) {
+      let tool = await Tool.findById(tools[r]._id);
+      let newHistoryTool = new HistoryTool({
+        code: `${cntTool.name}${cntTool.cntNumber}`,
+        tool: tools[r]._id,
+        user: req.userId,
+        total: tool.total,
+        actionType: "เบิกอุปกรณ์พร้อมบอร์ด",
+        date: newDate,
+        exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
+        description: description,
+        tags: [
+          {
+            user: req.userId,
+            code: `${cntTool.name}${cntTool.cntNumber}-1`,
+            action: "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)",
+            total: tool.total,
+            date: newDate,
+            boardName: msgs.success.board.boardName,
+            description: description,
+            insuffTotal: tools[r].insuffTotal,
+          },
+        ],
+      });
+
+      usedToolList.push({
+        tid: tool._id,
+        toolName: tool.toolName,
+        total: tool.total,
+        hist: newHistoryTool._id,
+        insuffTotal: tools[r].insuffTotal,
+      });
+
+      incompleteToolList.push({
+        tool: tool._id,
+        total: tool.total,
+        hist: newHistoryTool._id,
+        insuffTotal: tools[r].insuffTotal,
+      });
+
+      tool.total = 0;
+      cntTool.cntNumber = cntTool.cntNumber + 1;
+
+      await createNotificationTool(tool);
+      await cntTool.save();
+      await newHistoryTool.save();
+      await tool.save();
+    }
+  }
+
+  function createNewInsufficientTool(boardId) {
+    newInsuffiTool = new InsufficientTool({
+      board: boardId,
+      user: req.userId,
+      tools: incompleteToolList,
+    });
+
+    insuffTool_id = newInsuffiTool._id;
+  }
+
+  function toolNotEnough(tools) {
+    return tools.length !== 0;
+  }
+
+  function hasInsufficientTool(tool) {
+    return tool !== null;
+  }
+
+  function createNewHistoryBoard(cntBoard) {
+    return new HistoryBoard({
       code: `${cntBoard.name}${cntBoard.cntNumber}`,
       board: msgs.success.board._id,
       user: req.userId,
       total: msgs.success.board.usedBoard,
       actionType: "เบิกบอร์ดแบบชุด",
-      date: new Date(),
+      date: newDate,
       exp: new Date(new Date().getTime() + 1000 * 60 * (1440 * 180)),
       description: description,
       tags: [
@@ -583,42 +664,12 @@ const requestBoard = async (req, res) => {
           code: `${cntBoard.name}${cntBoard.cntNumber}-1`,
           action: actionType,
           total: msgs.success.board.usedBoard,
-          date: new Date(),
+          date: newDate,
           description: description,
           tools: usedToolList,
         },
       ],
     });
-
-    if (insuffTool_id !== null) {
-      newHistoryBoard.insuffTool = insuffTool_id;
-      newInsuffiTool.hisb = newHistoryBoard._id;
-      await newInsuffiTool.save();
-    }
-
-    cntBoard.cntNumber = cntBoard.cntNumber + 1;
-
-    // console.log("------Board------");
-    // console.log(board);
-    // console.log("------HistoryBoard------");
-    // console.log(newHistoryBoard);
-    // console.log("------InsuffTool------");
-    // console.log(newInsuffiTool);
-    await createNotificationBoard(board);
-    await cntBoard.save();
-    await newHistoryBoard.save();
-    await board.save();
-
-    let boards = await Board.find();
-    io.emit("board-actions", boards);
-    let tools = await Tool.find();
-    let stt = await Stt.find();
-    covertTypeandCateTool(tools, stt);
-    io.emit("tool-actions", tools);
-
-    res.status(200).json(msgs);
-  } catch (error) {
-    catchError(res, "ไม่สามารถเรียกข้อมูลรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -629,12 +680,53 @@ const restoreBoard = async (req, res) => {
     let board = await Board.findById(bid);
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
+
     let hisb = await HistoryBoard.findById(hbid);
     if (!hisb)
       return res
         .status(401)
         .send("ไม่พบข้อมูลประวัติรายการบอร์ดนี้ในฐานข้อมูล");
 
+    await calculateBoardTotal(board, hisb);
+
+    let newTag = {
+      user: req.userId,
+      code: `${hisb.code}-${hisb.tags.length + 1}`,
+      action: "คืนสต๊อก",
+      total: hisb.total,
+      date: new Date(),
+      description: description,
+    };
+
+    hisb.total = 0;
+    await hisb.tags.unshift(newTag);
+
+    await board.save();
+    await hisb.save();
+
+    let hisbs = await HistoryBoard.find()
+      .populate("board")
+      .populate("user")
+      .populate("tags.user");
+
+    // Sort from latest date to oldest date and Check expairation of data.
+    let responseData = [];
+    await covertHistoryBoardByCheckingDate(hisbs, responseData);
+
+    let boards = await Board.find();
+    io.emit("board-actions", boards);
+
+    res.status(200).json(responseData);
+  } catch (error) {
+    catchError(
+      res,
+      "ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  async function calculateBoardTotal(board, hisb) {
     if (hisb.actionType === "เพิ่ม") {
       if (board.total < hisb.total)
         return res
@@ -648,36 +740,6 @@ const restoreBoard = async (req, res) => {
         board.isAlert = false;
       }
     }
-
-    let newTag = {
-      user: req.userId,
-      code: `${hisb.code}-${hisb.tags.length + 1}`,
-      action: "คืนสต๊อก",
-      total: hisb.total,
-      date: new Date(),
-      description: description,
-    };
-    hisb.total = 0;
-    await hisb.tags.unshift(newTag);
-
-    await board.save();
-    await hisb.save();
-
-    let hisbs = await HistoryBoard.find()
-      .populate("board")
-      .populate("user")
-      .populate("tags.user");
-
-    // Sort from latest date to oldest date and Check expairation of data.
-    let responseData = [];
-    covertHistoryBoardByCheckingDate(hisbs, responseData);
-
-    let boards = await Board.find();
-    io.emit("board-actions", boards);
-
-    res.status(200).json(responseData);
-  } catch (error) {
-    catchError(res, "ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
   }
 };
 
@@ -689,13 +751,14 @@ const restoreBoardandTools = async (req, res) => {
     let board = await Board.findById(bid);
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
+
     let hisb = await HistoryBoard.findById(hbid);
     if (!hisb)
       return res
         .status(401)
         .send("ไม่พบข้อมูลประวัติรายการบอร์ดนี้ในฐานข้อมูล");
 
-    board.total = board.total + hisb.total;
+    increaseBoard(board, hisb.total);
 
     let newTag = {
       user: req.userId,
@@ -706,45 +769,11 @@ const restoreBoardandTools = async (req, res) => {
       description: description,
       tools: hisb.tags[0].tools,
     };
+
     hisb.total = 0;
+
     await hisb.tags.unshift(newTag);
-
-    for (let r = 0; r < hisb.tags[0].tools.length; r++) {
-      let data = hisb.tags[0].tools[r];
-      let tool = await Tool.findById(data.tid);
-      let hist = await HistoryTool.findById(data.hist);
-      if (tool) {
-        tool.total = tool.total + data.total;
-        if (hist) {
-          let newTag = {
-            user: req.userId,
-            code: `${hist.code}-${hist.tags.length + 1}`,
-            action: "คืนสต๊อก",
-            total: data.total,
-            date: new Date(),
-            description: description,
-            boardName: hist.tags[0].boardName,
-          };
-          hist.total = 0;
-          await hist.tags.unshift(newTag);
-        }
-
-        // console.log("-----Tool-----");
-        // console.log(tool);
-        // console.log("-----HistoryTool-----");
-        // console.log(hist);
-        if (tool.total > tool.limit) {
-          tool.isAlert = false;
-        }
-        await hist.save();
-        await tool.save();
-      }
-    }
-
-    // console.log("-----Board-----");
-    // console.log(board);
-    // console.log("-----HistoryBoard-----");
-    // console.log(hisb);
+    await calculateLeftTool(hisb);
 
     if (hisb.insuffTool) {
       let insuffTool = await InsufficientTool.findById(hisb.insuffTool);
@@ -753,9 +782,8 @@ const restoreBoardandTools = async (req, res) => {
       }
     }
 
-    if (board.total > board.limit) {
-      board.isAlert = false;
-    }
+    setBoardStatus(board);
+
     await hisb.save();
     await board.save();
 
@@ -766,18 +794,51 @@ const restoreBoardandTools = async (req, res) => {
 
     // Sort from latest date to oldest date and Check expairation of data.
     let responseData = [];
-    covertHistoryBoardByCheckingDate(hisbs, responseData);
-
-    let boards = await Board.find();
-    io.emit("board-actions", boards);
-    let tools = await Tool.find();
-    let stt = await Stt.find();
-    covertTypeandCateTool(tools, stt);
-    io.emit("tool-actions", tools);
+    await covertHistoryBoardByCheckingDate(hisbs, responseData);
+    await sendDataToClient();
 
     res.status(200).json(responseData);
   } catch (error) {
-    catchError(res, "ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถคืนรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  async function calculateLeftTool(hisb) {
+    for (let r = 0; r < hisb.tags[0].tools.length; r++) {
+      let data = hisb.tags[0].tools[r];
+      let tool = await Tool.findById(data.tid);
+      let hist = await HistoryTool.findById(data.hist);
+
+      if (tool) {
+        tool.total = tool.total + data.total;
+
+        if (hist) {
+          let newTag = {
+            user: req.userId,
+            code: `${hist.code}-${hist.tags.length + 1}`,
+            action: "คืนสต๊อก",
+            total: data.total,
+            date: new Date(),
+            description: description,
+            boardName: hist.tags[0].boardName,
+          };
+
+          hist.total = 0;
+          await hist.tags.unshift(newTag);
+        }
+
+        if (tool.total > tool.limit) {
+          tool.isAlert = false;
+        }
+
+        await hist.save();
+        await tool.save();
+      }
+    }
   }
 };
 
@@ -794,8 +855,8 @@ const checkBoardEquipment = async (req, res) => {
     let board = await Board.find({ _id: boardId }).populate("tools.tool");
     if (!board)
       return res.status(401).send("รายการบอร์ดนี้ไม่มีอยู่ในฐานข้อมูล");
-    if (board[0].total < total) {
-      let calTotalBoard = board[0].total - total;
+    if (boardNotEnough(board[0].total, total)) {
+      let calTotalBoard = decreaseBoard(board[0], total);
       return res.status(401).send(`ขาดบอร์ดจำนวน ${calTotalBoard} บอร์ด`);
     } else {
       successMsgList.board = {
@@ -811,14 +872,17 @@ const checkBoardEquipment = async (req, res) => {
       let tool = await Tool.findById(data.tool._id);
       // จำนวนที่ผู้ใช้กรอกมา * จำนวนอุปกรณ์ที่ต้องใช้ต่อ 1 บอร์ด
       let allUsedTool = total * data.total;
+
       if (!tool)
         return res
           .status(401)
           .send(
             `รายการอุปกรณ์บางอย่างไม่อยู่ในฐานข้อมูล โปรดตรวจสอบข้อมูลอีกครั้ง`
           );
-      if (allUsedTool > tool.total) {
+
+      if (toolIsNotEnough(tool.total, allUsedTool)) {
         let calInsuffTotal = allUsedTool - tool.total;
+        // set data
         let arr = {
           _id: tool._id,
           toolName: tool.toolName,
@@ -828,20 +892,32 @@ const checkBoardEquipment = async (req, res) => {
         errMsgList.tools.push(arr);
       } else {
         let calToolInStock = tool.total - allUsedTool;
+        // set data
         let arr = {
           _id: tool._id,
           toolName: tool.toolName,
           toolInStock: calToolInStock,
           usedTool: allUsedTool,
         };
-        // console.log()
         successMsgList.tools.push(arr);
       }
     }
 
     res.status(200).json({ success: successMsgList, error: errMsgList });
   } catch (error) {
-    catchError(res, "ไม่สามารถตรวจสอบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+    catchError(
+      res,
+      "ไม่สามารถตรวจสอบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  function boardNotEnough(boardTotal, usedTotal) {
+    return boardTotal < usedTotal;
+  }
+  function toolIsNotEnough(toolInStock, usedTool) {
+    return usedTool > toolInStock;
   }
 };
 
@@ -856,38 +932,63 @@ const requestIncompleteTool = async (req, res) => {
   let newUsedTotal;
   let newInsuffTotal;
   let isToolOut = [];
-  let arr = [{ tool: {}, hist: {}, hisb: {}, incom: {} }];
+
   try {
     if (totalInput <= 0)
       return res.status(401).send("จำนวนตัวเลขต้องมีค่าอย่างน้อย 1");
-    if (totalInput >= insuffTotal) {
-      totalInput = insuffTotal;
-      newInsuffTotal = 0;
-      newUsedTotal = totalInput + usedTotal;
-    } else {
-      newInsuffTotal = insuffTotal - totalInput;
-      newUsedTotal = usedTotal + totalInput;
-    }
+
+    calculateLeftTool();
+
     let insuffiToolModel = await InsufficientTool.findById(req.params.incomid);
     let tool = await Tool.findById(toolId);
+
     if (!tool)
       return res
         .status(401)
         .send("ไม่ข้อมูลอุปกรณ์นี้ในฐานข้อมูล โปรดตรวจสอบข้อมูลอีกครั้ง");
+
     let hisb = await HistoryBoard.findById(hisbId);
     let hist = await HistoryTool.findById(histId);
+
     if (tool.total < totalInput)
       return res
         .status(401)
         .send("จำนวนอุปกรณ์ในสต๊อกมีไม่เพียงพอ โปรดตรวจสอบข้อมูลอีกครั้ง");
+
     tool.total = tool.total - totalInput;
     hist.total = newUsedTotal;
-    // Edit tool-history
+
+    await editToolHistory(hist);
+    await editBoardHistory(hisb, insuffiToolModel, tool);
+
+    await createNotificationTool(tool);
+    await tool.save();
+
+    let stt = await Stt.find();
+    await updateToolData(stt);
+
+    let lists = await InsufficientTool.find()
+      .populate("board")
+      .populate("user")
+      .populate("hisb")
+      .populate("tools.tool");
+    let newData = await orderData(lists);
+
+    if (newData.length !== 0) {
+      await covertTypeandCateTool4(newData, stt);
+    }
+    res.status(200).json(newData);
+  } catch (error) {
+    catchError(res, "เซิร์ฟเวอร์ขัดข้อง ไม่สามารถทำรายการได้", 500, error);
+  }
+
+  async function editToolHistory(hist) {
     if (hist) {
       let actionTypeTool = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
       if (newInsuffTotal === 0) {
         actionTypeTool = "เบิกอุปกรณ์พร้อมบอร์ด";
       }
+
       let newTag = {
         user: req.userId,
         code: `${hist.code}-${hist.tags.length + 1}`,
@@ -901,14 +1002,15 @@ const requestIncompleteTool = async (req, res) => {
 
       await hist.tags.unshift(newTag);
       await hist.save();
-      // arr[0].hist = hist;
     }
-    // Edit board-history
+  }
+  async function editBoardHistory(hisb, insuffiToolModel, tool) {
     if (hisb) {
       let actionType = "เบิกอุปกรณ์พร้อมบอร์ด (อุปกรณ์ยังไม่ครบ)";
       let newToolsArr = [];
-      for (let r = 0; r < hisb.tags[0].tools.length; r++) {
-        if (hisb.tags[0].tools[r].tid.toString() === toolId) {
+      let currentTag = hisb.tags[0];
+      for (let r = 0; r < currentTag.tools.length; r++) {
+        if (currentTag.tools[r].tid.toString() === toolId) {
           newToolsArr.push({
             tid: tool._id,
             toolName: tool.toolName,
@@ -917,22 +1019,22 @@ const requestIncompleteTool = async (req, res) => {
             insuffTotal: newInsuffTotal,
           });
           if (newInsuffTotal !== 0) {
-            isToolOut.push(hisb.tags[0].tools[r].tid);
+            isToolOut.push(currentTag.tools[r].tid);
           }
         } else {
-          newToolsArr.push(hisb.tags[0].tools[r]);
+          newToolsArr.push(currentTag.tools[r]);
           if (
-            hisb.tags[0].tools[r].insuffTotal &&
-            hisb.tags[0].tools[r].insuffTotal !== 0
+            currentTag.tools[r].insuffTotal &&
+            currentTag.tools[r].insuffTotal !== 0
           ) {
-            isToolOut.push(hisb.tags[0].tools[r].tid);
+            isToolOut.push(currentTag.tools[r].tid);
           }
         }
       }
+
       // If there is no insufficient tool. Delete incomplete-tool document
       if (insuffiToolModel) {
         if (isToolOut.length === 0) {
-          console.log("delete");
           actionType = "เบิกอุปกรณ์พร้อมบอร์ด";
           await insuffiToolModel.remove();
         } else {
@@ -941,11 +1043,11 @@ const requestIncompleteTool = async (req, res) => {
               insuffiToolModel.tools[r].total = newUsedTotal;
               insuffiToolModel.tools[r].insuffTotal = newInsuffTotal;
             }
-            // arr[0].incom = insuffiToolModel;
             await insuffiToolModel.save();
           }
         }
       }
+
       let newTag = {
         user: req.userId,
         code: `${hisb.code}-${hisb.tags.length + 1}`,
@@ -954,32 +1056,26 @@ const requestIncompleteTool = async (req, res) => {
         description: description,
         tools: newToolsArr,
       };
+
       newTag.action = actionType;
       await hisb.tags.unshift(newTag);
       await hisb.save();
-      // arr[0].hisb = hisb;
     }
-
-    // arr[0].tool = tool;
-    await createNotificationTool(tool);
-    await tool.save();
-    let tools = await Tool.find();
-    let stt = await Stt.find();
-    covertTypeandCateTool(tools, stt);
-    io.emit("tool-actions", tools);
-
-    let lists = await InsufficientTool.find()
-      .populate("board")
-      .populate("user")
-      .populate("hisb")
-      .populate("tools.tool");
-    let newData = await orderData(lists);
-    if(newData.length !== 0) {
-      await covertTypeandCateTool4(newData, stt);
   }
-    res.status(200).json(newData);
-  } catch (error) {
-    catchError(res, "เซิร์ฟเวอร์ขัดข้อง ไม่สามารถทำรายการได้", 500, error);
+  function calculateLeftTool() {
+    if (totalInput >= insuffTotal) {
+      totalInput = insuffTotal;
+      newInsuffTotal = 0;
+      newUsedTotal = totalInput + usedTotal;
+    } else {
+      newInsuffTotal = insuffTotal - totalInput;
+      newUsedTotal = usedTotal + totalInput;
+    }
+  }
+  async function updateToolData(stt) {
+    let tools = await Tool.find();
+    await covertTypeandCateTool(tools, stt);
+    io.emit("tool-actions", tools);
   }
 };
 
@@ -987,46 +1083,43 @@ const requestIncompleteTool = async (req, res) => {
 const deleteBoard = async (req, res) => {
   let boardId = req.params.bid;
 
-  // หาข้อมูลอุปกรณ์
   try {
     let board = await Board.findById(boardId);
+
     if (!board)
       return res.status(401).send("ไม่พบข้อมูลรายการบอร์ดในฐานข้อมูล");
 
+    let avartar = board.avartar.public_id;
+
+    await handleImages(board, avartar);
+    await board.remove();
+
+    res.status(200).send("delete success");
+  } catch (error) {
+    catchError(
+      res,
+      "ไม่สามารถลบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง",
+      500,
+      error
+    );
+  }
+
+  async function handleImages(board, avartar) {
     // ลบรูปภาพของอุปกรณ์
-    if (board.images.length !== 0) {
+    if (imageExist(board.images)) {
       for (var i = 0; i < board.images.length; i++) {
-        await cloudinary.uploader.destroy(
-          board.images[i].public_id,
-          (error, res) => {
-            if (error) console.log("can not delete image");
-            else console.log("delete images");
-          }
-        );
+        await deleteImageInCloudinary(board.images[i].public_id);
       }
     }
 
     // ลบรูปภาพโปรไฟล์ของอุปกรณ์
-    if (board.avartar.public_id) {
-      await cloudinary.uploader.destroy(
-        board.avartar.public_id,
-        (error, res) => {
-          if (error) console.log("can not delete image");
-          else console.log("delete image");
-        }
-      );
+    if (avartar) {
+      await deleteImageInCloudinary(avartar);
     }
+  }
 
-    await board.remove();
-
-    // let boards = await board.find();
-    // let stt = await Stt.find();
-    // covertTypeandCateboard(boards, stt);
-    // io.emit("board-actions", tools);
-
-    res.status(200).send("delete success");
-  } catch (error) {
-    catchError(res, "ไม่สามารถลบรายการบอร์ดได้ เนื่องจากเซิร์ฟเวอร์ขัดข้อง", 500, error);
+  function imageExist(image) {
+    return image.length !== 0;
   }
 };
 
