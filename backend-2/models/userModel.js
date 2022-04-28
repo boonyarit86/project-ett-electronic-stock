@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'staff', 'unapprove', 'admin'],
     default: 'unapprove'
   },
-  avartar: {
+  avatar: {
     url: String,
     publicId: String,
   },
@@ -45,3 +45,6 @@ const userSchema = new mongoose.Schema({
   },
   passwordChangedAt: Date
 });
+
+const User = mongoose.model('Tour', userSchema);
+module.exports = User;
