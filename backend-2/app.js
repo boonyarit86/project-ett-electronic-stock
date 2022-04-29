@@ -24,24 +24,24 @@ mongoose.connect(process.env.DATABASE_URL).then((con) => {
 });
 
 // Socket.io or Real-time Database
-const io = socketIo(server, {
-  transports: ["polling"],
-  cors: {
-    cors: {
-      origin: process.env.FRONTEND_URL,
-    },
-  },
-});
+// const io = socketIo(server, {
+//   transports: ["polling"],
+//   cors: {
+//     cors: {
+//       origin: process.env.FRONTEND_URL,
+//     },
+//   },
+// });
 
-io.on("connection", (socket) => {
-  console.log("Socket.io is connecting...");
+// io.on("connection", (socket) => {
+//   console.log("Socket.io is connecting...");
 
-  socket.on("disconnect", () => {
-    console.log("Socket.io disconnected...");
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log("Socket.io disconnected...");
+//   });
+// });
 
-exports.io = io
+// exports.io = io
 
 // Set security HTTP headers
 app.use(helmet());
@@ -106,7 +106,7 @@ process.on("uncaughtException", (err) => {
 
 // Server
 const port = process.env.PORT || 5000;
-const handleServer = server.listen(port, (err) => {
+const handleServer = app.listen(port, (err) => {
   if (err) console.log("Cannot connect server.");
   console.log(`Server is connecting on port ${port}`);
 });
@@ -118,5 +118,4 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 });
-
 

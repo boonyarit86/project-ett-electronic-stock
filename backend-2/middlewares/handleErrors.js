@@ -1,5 +1,6 @@
 const AppError = require("../utils/appError");
 
+// Invalid different id 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
   return new AppError(message, 400);
@@ -41,6 +42,8 @@ const sendErrorDev = (err, res) => {
 };
 
 const sendErrorProd = (err, res) => {
+  // console.log(err.isOperational);
+  // console.log(err);
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
@@ -77,6 +80,8 @@ module.exports = (err, req, res, next) => {
     if (err.name === "JsonWebTokenError") error = handleJWTError();
     // Error from JWT, When Token is expired.
     if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
+
+    if(!error.message && err.message) error.message = err.message;
     sendErrorProd(error, res);
   }
 };
