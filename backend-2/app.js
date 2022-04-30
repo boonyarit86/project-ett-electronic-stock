@@ -90,9 +90,11 @@ app.use((req, res, next) => {
 const userRoutes = require("./routes/userRoutes");
 const ttsRoutes = require("./routes/ttsRoutes");
 const tcsRoutes = require("./routes/tcsRoutes");
+const numHistoryRoutes = require("./routes/numHistoryRoutes");
 app.use("/api/users", userRoutes);
 app.use("/api/tts", ttsRoutes);
 app.use("/api/tcs", tcsRoutes);
+app.use("/api/numHistory", numHistoryRoutes);
 
 // Page 404
 app.all("*", (req, res, next) => {
@@ -123,5 +125,3 @@ process.on("unhandledRejection", (err) => {
   });
 });
 
-// let x = ObjectId("1515");
-// console.log(x);
