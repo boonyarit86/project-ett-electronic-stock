@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   passwordChangedAt: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  unreadNotification: Number
 });
 
 // For routes: post(register), patch(/)

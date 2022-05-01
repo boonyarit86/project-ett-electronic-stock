@@ -1,6 +1,6 @@
 const AppError = require("../utils/appError");
 
-// Invalid different id 
+// Invalid different id
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
   return new AppError(message, 400);
@@ -30,6 +30,16 @@ const handleJWTError = () => {
 const handleJWTExpiredError = () => {
   const message = "Your token has expired! Please log in again.";
   return new AppError(message, 401);
+};
+
+// From Multer, when user uploads images too many,
+const handleMulterError = (err) => {
+  let message;
+  message = `Invalid input data. Input นี้กำจัดการอัพโหลดไม่เกิน 3 รูปภาพ`;
+  if (err.field === "avatar") {
+    message = `Invalid input data. Input นี้กำจัดการอัพโหลดเพียงแค่ 1 รูปภาพ`;
+  }
+  return new AppError(message, 400);
 };
 
 const sendErrorDev = (err, res) => {
@@ -65,7 +75,7 @@ module.exports = (err, req, res, next) => {
 
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, res);
-    //   } else {
+    // } else {
   } else if (process.env.NODE_ENV === "production") {
     // --- Some bug ---
     // error.name = undefined
@@ -80,8 +90,10 @@ module.exports = (err, req, res, next) => {
     if (err.name === "JsonWebTokenError") error = handleJWTError();
     // Error from JWT, When Token is expired.
     if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
+    // Error from Multer
+    if (err.name === "MulterError") error = handleMulterError(error);
 
-    if(!error.message && err.message) error.message = err.message;
+    if (!error.message && err.message) error.message = err.message;
     sendErrorProd(error, res);
   }
 };

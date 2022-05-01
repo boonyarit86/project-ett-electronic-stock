@@ -3,7 +3,7 @@ const catchAsync = require("../utils/catchAsync");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const { hasImage } = require("../utils/index");
-const { deleteOneImage, uploadOneImage } = require("../utils/handleImage");
+const { deleteOneImage, handleOneImage } = require("../utils/handleImage");
 // const { io } = require("../app");
 // console.log(io);
 
@@ -42,11 +42,6 @@ const sendResponse = (user, statusCode, res) => {
     },
   });
 };
-
-const userHaveImage = (img) => {
-  return hasImage(img?.url) && hasImage(img?.public_id);
-};
-
 
 // --- Controllers ---
 
@@ -107,16 +102,9 @@ exports.editProfile = catchAsync(async (req, res, next) => {
     req.body;
   const user = await User.findById(req.params.userId).select("+password");
   if (!user) return next(new AppError("ไม่พบผู้ใช้งานนี้", 404));
-  await setPassword({ oldPassword, password, passwordConfirm }, user);
 
-  // Check if image is deleted from user on frontend and there is image in DB
-  if (!userHaveImage(avatar) && Boolean(user.avatar.public_id)) {
-    await deleteOneImage(user.avatar.public_id, user);
-  }
-  // Check user uploads new image
-  if (hasImage(req.file)) {
-    await uploadOneImage(req.file.path, user);
-  }
+  await setPassword({ oldPassword, password, passwordConfirm }, user);
+  await handleOneImage(user, req.file, avatar);
 
   user.email = email;
   user.name = name;
@@ -158,7 +146,7 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.userId).select("+active");
   if (!user) return next(new AppError("ไม่พบผู้ใช้งานนี้", 404));
 
-  if (userHaveImage(user?.avatar)) {
+  if (hasImage(user?.avatar)) {
     await deleteOneImage(user?.avatar?.public_id, user);
   }
   user.active = false;
