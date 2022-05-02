@@ -15,7 +15,7 @@ router.route("/:tid").get(toolController.getTool);
 router.route("/action/:tid").patch(toolController.toolAction);
 
 router.use(restrictTo("admin", "staff"));
-router.route("/").post(toolController.createTool);
+router.route("/").post(imageUpload.single("avatar") ,toolController.createTool);
 router.route("/:tid").patch(
     imageUpload.fields([
       { name: "newAvatar", maxCount: 1 },

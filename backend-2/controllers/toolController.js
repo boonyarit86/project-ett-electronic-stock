@@ -13,7 +13,8 @@ const {
   handleOneImage,
   handleManyImages,
   deleteAllImage,
-  deleteOneImage
+  deleteOneImage,
+  uploadOneImage,
 } = require("../utils/handleImage");
 const { handleNotification } = require("../utils/notification");
 // const { io } = require("../app");
@@ -48,7 +49,11 @@ exports.getTool = catchAsync(async (req, res, next) => {
 });
 
 exports.createTool = catchAsync(async (req, res, next) => {
-  const tool = await Tool.create(req.body);
+  const tool = new Tool(req.body);
+  await tool.save();
+  await uploadOneImage(req.file.path, tool)
+  tool.size = "small";
+  await tool.save({ validateBeforeSave: false });
   sendResponse(tool, 201, res);
 });
 
@@ -60,8 +65,8 @@ exports.editTool = catchAsync(async (req, res, next) => {
   const newImages = Boolean(req.files?.newImages) ? req.files.newImages : [];
   // Resolve this array to be req.body.imagesDeleted later.
   const imagesDeleted = [
-    { public_id: "mhotn5zxyglw3a3t5tqs" },
-    { public_id: "lra3v2ap88tpqz7ebldx" },
+    // { public_id: "mhotn5zxyglw3a3t5tqs" },
+    // { public_id: "lra3v2ap88tpqz7ebldx" },
   ];
   const tool = await Tool.findById(req.params.tid);
   if (!tool) return next(new AppError("ไม่พบรายการอุปกรณ์นี้", 404));
@@ -73,10 +78,11 @@ exports.editTool = catchAsync(async (req, res, next) => {
   tool.limit = limit;
   tool.total = total;
   tool.size = size;
+  await tool.save();
 
   await handleOneImage(tool, newAvatar, avatar);
   await handleManyImages(tool, newImages, imagesDeleted);
-  await tool.save();
+  await tool.save({ validateBeforeSave: false });
   sendResponse(tool, 200, res);
 });
 

@@ -10,7 +10,6 @@ const { deleteOneImage, handleOneImage } = require("../utils/handleImage");
 // --- Warning --- //
 // Every function in catchAsync() must define async(). otherwise there are some waring message about headers.
 
-
 // --- Utilities ---
 
 const signToken = (id) => {
@@ -104,11 +103,12 @@ exports.editProfile = catchAsync(async (req, res, next) => {
   if (!user) return next(new AppError("ไม่พบผู้ใช้งานนี้", 404));
 
   await setPassword({ oldPassword, password, passwordConfirm }, user);
-  await handleOneImage(user, req.file, avatar);
 
   user.email = email;
   user.name = name;
+  await user.save();
 
+  await handleOneImage(user, req.file, avatar);
   // Before saving, there are some middleware functionalities working.
   await user.save();
   user.password = undefined;
