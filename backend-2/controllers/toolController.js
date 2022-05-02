@@ -30,6 +30,22 @@ const sendResponse = (tool, statusCode, res) => {
   });
 };
 
+const deleteExpireditem = async (data) => {
+  let docs = [];
+  if (data.length > 0) {
+    data.forEach(async (item) => {
+      let expHistory = new Date(item.exp).getTime();
+      let currentDate = new Date().getTime();
+      if (item.tool === null && expHistory < currentDate) {
+        await ToolHistory.findByIdAndDelete(item.id);
+        return;
+      }
+      docs.push(item);
+    });
+  }
+  return docs;
+};
+
 exports.getAllTools = catchAsync(async (req, res, next) => {
   const tools = await Tool.find();
 
@@ -38,6 +54,19 @@ exports.getAllTools = catchAsync(async (req, res, next) => {
     results: tools.length,
     data: {
       tools,
+    },
+  });
+});
+
+exports.getAllToolHistory = catchAsync(async (req, res, next) => {
+  const toolHistories = await ToolHistory.find();
+  const docs = await deleteExpireditem(toolHistories);
+
+  res.status(200).json({
+    status: "success",
+    results: docs.length,
+    data: {
+      toolHistories: docs,
     },
   });
 });
@@ -51,7 +80,7 @@ exports.getTool = catchAsync(async (req, res, next) => {
 exports.createTool = catchAsync(async (req, res, next) => {
   const tool = new Tool(req.body);
   await tool.save();
-  await uploadOneImage(req.file.path, tool)
+  await uploadOneImage(req.file.path, tool);
   tool.size = "small";
   await tool.save({ validateBeforeSave: false });
   sendResponse(tool, 201, res);

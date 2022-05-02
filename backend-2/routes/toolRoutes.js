@@ -11,6 +11,7 @@ router.use(checkAuth);
 // For members can access all of those routes
 router.use(restrictTo("user", "admin", "staff"));
 router.route("/").get(toolController.getAllTools);
+router.route("/history").get(toolController.getAllToolHistory);
 router.route("/:tid").get(toolController.getTool);
 router.route("/action/:tid").patch(toolController.toolAction);
 
