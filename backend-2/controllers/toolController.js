@@ -8,6 +8,7 @@ const {
   calculateLeftItem,
   definedAction,
   calculateAndRestoreItem,
+  hasFile,
 } = require("../utils/index");
 const {
   handleOneImage,
@@ -80,15 +81,15 @@ exports.getTool = catchAsync(async (req, res, next) => {
 exports.createTool = catchAsync(async (req, res, next) => {
   const tool = new Tool(req.body);
   await tool.save();
-  await uploadOneImage(req.file.path, tool);
-  tool.size = "small";
-  await tool.save({ validateBeforeSave: false });
+  if (hasFile(req.file)) {
+    await uploadOneImage(req.file.path, tool);
+    await tool.save({ validateBeforeSave: false });
+  }
   sendResponse(tool, 201, res);
 });
 
 exports.editTool = catchAsync(async (req, res, next) => {
-  // Bug Fixed: Save tool data before images
-  const { toolName, toolCode, type, category, limit, total, size, avatar } =
+  const { toolName, toolCode, type, category, limit, size, avatar, description } =
     req.body;
   const newAvatar = Boolean(req.files?.newAvatar) ? req.files.newAvatar[0] : {};
   const newImages = Boolean(req.files?.newImages) ? req.files.newImages : [];
@@ -105,11 +106,12 @@ exports.editTool = catchAsync(async (req, res, next) => {
   tool.type = type;
   tool.category = category;
   tool.limit = limit;
-  tool.total = total;
   tool.size = size;
+  tool.description = description;
   await tool.save();
 
   await handleOneImage(tool, newAvatar, avatar);
+  await tool.save({ validateBeforeSave: false });
   await handleManyImages(tool, newImages, imagesDeleted);
   await tool.save({ validateBeforeSave: false });
   sendResponse(tool, 200, res);

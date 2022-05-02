@@ -36,7 +36,7 @@ const handleJWTExpiredError = () => {
 const handleMulterError = (err) => {
   let message;
   message = `Invalid input data. Input นี้กำจัดการอัพโหลดไม่เกิน 3 รูปภาพ`;
-  if (err.field === "avatar") {
+  if (err.field === "avatar" || err.field === "newAvatar") {
     message = `Invalid input data. Input นี้กำจัดการอัพโหลดเพียงแค่ 1 รูปภาพ`;
   }
   return new AppError(message, 400);

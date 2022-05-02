@@ -16,7 +16,6 @@ const toolSchema = new mongoose.Schema({
   images: [{ url: { type: String }, public_id: { type: String } }],
   description: { type: String },
   isAlert: { type: Boolean, default: false },
-  passwordChangedAt: Date,
   createdAt: {
     type: Date,
     default: Date.now,
