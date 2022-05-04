@@ -1,5 +1,4 @@
 const Tool = require("../models/toolModel");
-const AppError = require("./appError");
 
 // Image
 const hasImage = (img) =>

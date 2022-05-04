@@ -7,6 +7,10 @@ const boardHistorySchema = new mongoose.Schema({
     required: [true, "Please defined a board"],
     ref: "Board",
   },
+  insufficientToolId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InsufficientTool",
+  },
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     required: [true, "This must have a creator"],
@@ -49,6 +53,9 @@ const boardHistorySchema = new mongoose.Schema({
       ],
     },
   ],
+},{
+  toObject: { virtuals: true },
+  toJSON: { virtuals: true }
 });
 
 boardHistorySchema.pre(/^find/, function (next) {

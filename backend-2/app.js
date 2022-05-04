@@ -129,6 +129,4 @@ process.on("unhandledRejection", (err) => {
   });
 });
 
-// let arr = [{name: "J"}, {name: "K"}, {name: "L"}]
-
 

@@ -73,7 +73,9 @@ exports.getAllToolHistory = catchAsync(async (req, res, next) => {
 });
 
 exports.getTool = catchAsync(async (req, res, next) => {
-  const tool = await Tool.findById(req.params.tid).populate({path: "type", select: "name"}).populate({path: "category", select: "name"});
+  const tool = await Tool.findById(req.params.tid)
+    .populate({ path: "type", select: "name" })
+    .populate({ path: "category", select: "name" });
   if (!tool) return next(new AppError("ไม่พบรายการอุปกรณ์นี้", 404));
   tool.type.categories = null;
   sendResponse(tool, 200, res);
@@ -90,8 +92,16 @@ exports.createTool = catchAsync(async (req, res, next) => {
 });
 
 exports.editTool = catchAsync(async (req, res, next) => {
-  const { toolName, toolCode, type, category, limit, size, avatar, description } =
-    req.body;
+  const {
+    toolName,
+    toolCode,
+    type,
+    category,
+    limit,
+    size,
+    avatar,
+    description,
+  } = req.body;
   const newAvatar = Boolean(req.files?.newAvatar) ? req.files.newAvatar[0] : {};
   const newImages = Boolean(req.files?.newImages) ? req.files.newImages : [];
   // Resolve this array to be req.body.imagesDeleted later.

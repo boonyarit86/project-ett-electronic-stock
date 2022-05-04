@@ -97,6 +97,21 @@ exports.getAllBoardHistory = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getAllInsufficientToolList = catchAsync(async (req, res, next) => {
+  const insufficientToolList = await InsufficientTool.find();
+
+  // *** Do it later ***
+  // 1. Remove tool in array that equals null value, before sending to frontend.
+
+  res.status(200).json({
+    status: "success",
+    results: insufficientToolList.length,
+    data: {
+      insufficientToolList
+    },
+  });
+});
+
 exports.getBoard = catchAsync(async (req, res, next) => {
   const board = await Board.findById(req.params.bid);
   if (!board) return next(new AppError("ไม่พบรายการบอร์ดนี้", 404));
@@ -473,6 +488,7 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
       creator: req.user.id,
       tools: insufficientToolList,
     });
+    newBoardHistory.insufficientToolId = newInsufficientTool.id;
     pendingData.push(newInsufficientTool);
   }
   newTagOfBoard.action = actionName;
@@ -627,18 +643,112 @@ exports.requestInsufficientTool = catchAsync(async (req, res, next) => {
   await toolHistory.save();
 
   // Update insufficient tool
-  if(isItemOut(insufficientToolList.tools.length)) {
+  if (isItemOut(insufficientToolList.tools.length)) {
     await insufficientToolList.remove();
   } else {
     await insufficientToolList.save();
   }
+
+  // *** Using socket.io for sending board data ***
+  // Do it here later
+
   sendResponse(insufficientToolList, 200, res);
 });
 
 exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
-  // const { tools, boardName, boardCode, type, description, creator } = req.body;
+  const action = "ยกเลิกเบิกบอร์ดพร้อมกับอุปกรณ์";
+  let pendingData = [];
+  const boardHistory = await BoardHistory.findById(req.params.bhid);
+  if (!boardHistory) {
+    return next(new AppError("ไม่พบประวัติรายการบอร์ดนี้", 404));
+  }
+  if (boardHistory.action.includes("ยกเลิก")) {
+    return next(new AppError("ข้อมูลนี้ไม่สามารถดำเนินการได้", 400));
+  }
+  // Update Board
+  const bid = boardHistory.board.id;
+  const board = await Board.findById(bid);
+  if (!board) return next(new AppError("ไม่พบรายการบอร์ดนี้", 404));
+  board.total += boardHistory.total;
+  board.action = action;
+  if (board.total > board.limit) {
+    board.isAlert = false;
+  }
+  // Update board history
+  const prevTagOfBoardHistory = boardHistory.tags[boardHistory.tags.length - 1];
+  let newToolArr = [];
+  prevTagOfBoardHistory.tools.map((item) => {
+    let obj = {
+      total: item.total,
+      insufficientTotal: item.insufficientTotal,
+      tool: item.tool,
+      th: item.th,
+    };
+    newToolArr.push(obj);
+  });
+  newToolArr.map(async (item) => {
+    item.insufficientTotal = 0;
+    return item;
+  });
+  let newTagOfBoardHistory = {
+    creator: req.user.id,
+    total: prevTagOfBoardHistory.total,
+    action: action,
+    description: req.body.description,
+    tools: newToolArr,
+  };
+  boardHistory.tags.push(newTagOfBoardHistory);
+  boardHistory.action = action;
+  for (let r = 0; r < newToolArr.length; r++) {
+    let item = newToolArr[r];
+    // Update Tool History
+    const toolHistory = await ToolHistory.findById(item.th);
+    if (toolHistory) {
+      const prevTagOfToolHistory =
+        toolHistory.tags[toolHistory.tags.length - 1];
+      let newTagOfTool = {
+        creator: req.user.id,
+        board: prevTagOfToolHistory.board,
+        description: req.body.description,
+        bhCode: prevTagOfToolHistory.bhCode,
+        total: 0,
+        allToolTotalUsed: item.total,
+        insufficientTotal: 0,
+        action: action,
+      };
+      toolHistory.action = action;
+      toolHistory.tags.push(newTagOfTool);
 
-  sendResponse([], 200, res);
+      // Update Tool
+      const tool = await Tool.findById(item.tool);
+      if (tool) {
+        tool.total += item.total;
+        if (tool.total > tool.limit) {
+          tool.isAlert = false;
+        }
+      }
+      pendingData.push(tool);
+      pendingData.push(toolHistory);
+    }
+  }
+  pendingData.push(boardHistory);
+  pendingData.push(board);
+
+  await Promise.all([
+    pendingData.map(async (doc) => {
+      await doc.save();
+    }),
+  ]);
+
+  const insufficientToolList = await InsufficientTool.findById(boardHistory.insufficientToolId);
+  if (insufficientToolList) {
+    await insufficientToolList.remove();
+  }
+
+  // *** Using socket.io for sending board data ***
+  // Do it here later
+
+  sendResponse(boardHistory, 200, res);
 });
 
 exports.deleteBoard = catchAsync(async (req, res, next) => {

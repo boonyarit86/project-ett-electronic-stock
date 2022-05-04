@@ -12,6 +12,7 @@ router.use(checkAuth);
 router.use(restrictTo("user", "admin", "staff"));
 router.route("/").get(boardController.getAllBoards);
 router.route("/history").get(boardController.getAllBoardHistory);
+router.route("/insufficientTool").get(boardController.getAllInsufficientToolList);
 router.route("/:bid").get(boardController.getBoard);
 router.route("/action/:bid").patch(boardController.boardAction);
 
