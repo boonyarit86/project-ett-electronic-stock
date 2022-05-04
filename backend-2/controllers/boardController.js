@@ -4,6 +4,8 @@ const Board = require("../models/boardModel");
 const Tool = require("../models/toolModel");
 const NumHistory = require("../models/numHistory");
 const BoardHistory = require("../models/boardHistoryModel");
+const ToolHistory = require("../models/toolHistoryModel");
+const InsufficientTool = require("../models/insufficientToolModel");
 const {
   hasImage,
   calculateLeftItem,
@@ -12,6 +14,7 @@ const {
   hasItem,
   hasFile,
   handleSelectedItem,
+  isItemOut,
 } = require("../utils/index");
 const {
   handleOneImage,
@@ -309,7 +312,7 @@ exports.checkAllToolOfBoard = catchAsync(async (req, res, next) => {
         404
       )
     );
-  } 
+  }
 
   // Calcualting leftover board
   let calcBoard = board.total - givenBoard;
@@ -331,27 +334,311 @@ exports.checkAllToolOfBoard = catchAsync(async (req, res, next) => {
 });
 
 exports.requestBoard = catchAsync(async (req, res, next) => {
-  const board = await Board.findById(boardHistory.board);
+  const givenBoard = Number(req.body.total);
+  const tools = req.body.tools;
+  const insufficientToolList = [];
+  const toolUsedInBoardList = [];
+  let isToolEnough = true;
+  if (givenBoard <= 0) {
+    return next(new AppError("จำนวนบอร์ดต้องมีค่าอย่างน้อย 1", 400));
+  }
+  const board = await Board.findById(req.params.bid);
   if (!board) return next(new AppError("ไม่พบรายการบอร์ดนี้", 404));
-  // await handleNotification(board, "บอร์ด", board.boardName);
+  const numBoardHistory = await NumHistory.findById("626d00c8b1b7113cb4da1695");
+  const numToolHistory = await NumHistory.findById("626d011f9857ade448157c24");
+  if (!numBoardHistory || !numToolHistory) {
+    return next(new AppError("ไม่พบข้อมูลรหัสประวัติการใช้งาน", 404));
+  }
+  if (givenBoard > board.total) {
+    return next(
+      new AppError(
+        `จำนวนบอร์ดที่ต้องการใช้มีมากกว่าในสต๊อก ${givenBoard}:${board.total}`,
+        400
+      )
+    );
+  }
+  if (!hasItem(tools)) {
+    return next(
+      new AppError("function นี้ต้องมีอุปกรณ์อย่างน้อย 1 เพื่อดำเนินการ", 400)
+    );
+  }
 
-  // let newTag = {
-  //   creator: req.user.id,
-  //   action: newActionName,
-  //   total: boardHistory.total,
-  //   description: req.body.description,
-  // };
-  // boardHistory.action = newActionName;
-  // boardHistory.description = req.body.description;
-  // boardHistory.tags.push(newTag);
+  // Check board
+  board.total -= givenBoard;
+  let newBoardHistory = new BoardHistory({
+    code: `${numBoardHistory.name}${numBoardHistory.countNumber}`,
+    board: board.id,
+    creator: req.user.id,
+    total: givenBoard,
+    description: req.body.description,
+  });
+  numBoardHistory.countNumber += 1;
 
-  // await boardHistory.save();
-  // await board.save();
+  let newTagOfBoard = {
+    creator: req.user.id,
+    total: givenBoard,
+    description: req.body.description,
+  };
+
+  // Check Tool
+  let isNotToolFound = null;
+  // some obj data waiting to save will be save later simultaneously.
+  let pendingData = [];
+  for (let r = 0; r < tools.length; r++) {
+    const tool = await Tool.findById(tools[r].tid);
+    const givenTool = tools[r].total;
+    let action = "เบิกบอร์ดพร้อมกับอุปกรณ์";
+    let newToolHistory = new ToolHistory({
+      code: `${numToolHistory.name}${numToolHistory.countNumber}`,
+      tool: tool.id,
+      creator: req.user.id,
+      description: req.body.description,
+      tags: [
+        {
+          creator: req.user.id,
+          description: req.body.description,
+          board: board.id,
+          bhCode: newBoardHistory.code,
+        },
+      ],
+    });
+
+    if (!tool) {
+      isNotToolFound = true;
+      break;
+    }
+    let calcTool = tool.total - givenTool;
+    // In case, Tool is not enough
+    if (calcTool < 0) {
+      newToolHistory.total = tool.total;
+      newToolHistory.tags[0].total = tool.total;
+      newToolHistory.tags[0].allToolTotalUsed = tool.total;
+      // -5 => --5 => 5
+      newToolHistory.tags[0].insufficientTotal = -calcTool;
+      // Remaining tool in stock
+      isToolEnough = false;
+      action = "เบิกบอร์ดพร้อมกับอุปกรณ์ (อุปกรณ์ไม่ครบ)";
+      insufficientToolList.push({
+        type: tool.type,
+        category: tool.category,
+        detail: tool.id,
+        insufficientTotal: -calcTool,
+        th: newToolHistory.id,
+      });
+      toolUsedInBoardList.push({
+        total: tool.total,
+        insufficientTotal: -calcTool,
+        tool: tool.id,
+        th: newToolHistory.id,
+      });
+      tool.total = 0;
+    } else {
+      newToolHistory.total = givenTool;
+      newToolHistory.tags[0].total = givenTool;
+      newToolHistory.tags[0].allToolTotalUsed = givenTool;
+      // -5 => --5 => 5
+      newToolHistory.tags[0].insufficientTotal = 0;
+      // Remaining tool in stock
+      tool.total = calcTool;
+      toolUsedInBoardList.push({
+        total: givenTool,
+        insufficientTotal: 0,
+        tool: tool.id,
+      });
+    }
+
+    newToolHistory.action = action;
+    newToolHistory.tags[0].action = action;
+    numToolHistory.countNumber += 1;
+
+    pendingData.push(tool);
+    pendingData.push(newToolHistory);
+    await handleNotification(tool, "อุปกรณ์", tool.toolName);
+  } // end loop
+
+  if (isNotToolFound) {
+    return next(
+      new AppError(
+        "ไม่พบรายการอุปกรณ์บางอย่างในฐานข้อมูล โปรดอัปเดตข้อมูลรายการบอร์ดนี้ หน้ารายละเอียดบอร์ดอีกครั้ง",
+        404
+      )
+    );
+  }
+
+  let actionName = "เบิกบอร์ดพร้อมกับอุปกรณ์";
+  if (!isToolEnough) {
+    actionName = "เบิกบอร์ดพร้อมกับอุปกรณ์ (อุปกรณ์ไม่ครบ)";
+    let newInsufficientTool = new InsufficientTool({
+      bh: newBoardHistory.id,
+      creator: req.user.id,
+      tools: insufficientToolList,
+    });
+    pendingData.push(newInsufficientTool);
+  }
+  newTagOfBoard.action = actionName;
+  newTagOfBoard.tools = toolUsedInBoardList;
+
+  newBoardHistory.action = actionName;
+  newBoardHistory.tags.push(newTagOfBoard);
+  pendingData.push(newBoardHistory);
+
+  await handleNotification(board, "บอร์ด", board.boardName);
+  await board.save();
+  await Promise.all([
+    pendingData.map(async (doc) => {
+      await doc.save();
+    }),
+  ]);
+  await numBoardHistory.save();
+  await numToolHistory.save();
 
   // *** Using socket.io for sending board data ***
   // Do it here later
 
-  sendResponse(board, 200, res);
+  sendResponse(pendingData, 200, res);
+});
+
+exports.requestInsufficientTool = catchAsync(async (req, res, next) => {
+  const { description, tid } = req.body;
+  const givenTool = Number(req.body.total);
+  if (givenTool <= 0)
+    return next(new AppError("จำนวนอุปกรณ์ต้องมีค่าอย่างน้อย 1", 400));
+  const insufficientToolList = await InsufficientTool.findById(
+    req.params.insuffiTool_id
+  );
+  if (!insufficientToolList) {
+    return next(
+      new AppError(
+        `ไม่พบข้อมูลรายการอุปกรณ์ไม่ครบนี้ โปรดรีเฟรชหน้าจออีกครั้งเพื่ออัปเดตข้อมูล`,
+        400
+      )
+    );
+  }
+
+  let insuffiTool = insufficientToolList.tools.find(
+    (item) => item.detail.id === tid
+  );
+  let tool = await Tool.findById(insuffiTool.detail);
+  if (!tool) return next(new AppError("ไม่พบรายการอุปกรณ์นี้", 404));
+  let boardHistory = await BoardHistory.findById(insufficientToolList.bh);
+  if (!boardHistory) {
+    return next(new AppError("ไม่พบประวัติรายการบอร์ดนี้", 404));
+  }
+  let toolHistory = await ToolHistory.findById(insuffiTool.th);
+  if (!toolHistory) {
+    return next(new AppError("ไม่พบประวัติรายการอุปกรณ์นี้", 404));
+  }
+
+  if (givenTool > tool.total) {
+    return next(
+      new AppError(
+        `จำนวนอุปกรณ์ที่ต้องการใช้มีมากกว่าในสต๊อก ${givenTool}:${tool.total}`,
+        400
+      )
+    );
+  }
+
+  // Update tool in stock
+  let calcToolInStock;
+  let toolUsed;
+  let action = "เบิกบอร์ดพร้อมกับอุปกรณ์";
+
+  // Update insufficient tool
+  let insufficientToolLeft;
+  if (
+    givenTool > insuffiTool.insufficientTotal ||
+    givenTool === insuffiTool.insufficientTotal
+  ) {
+    // 10 & 8 => 10 - (10 - 8)
+    calcToolInStock = tool.total - insuffiTool.insufficientTotal;
+    toolUsed = insuffiTool.insufficientTotal;
+    insufficientToolLeft = 0;
+    insufficientToolList.tools = insufficientToolList.tools.filter(
+      (item) => item.detail.id !== tid
+    );
+  } else {
+    // 100 - 5 = 95
+    calcToolInStock = tool.total - givenTool;
+    toolUsed = givenTool;
+    // 10 - 5 = 5
+    insufficientToolLeft = insuffiTool.insufficientTotal - givenTool;
+    insufficientToolList.tools.map((item) => {
+      if (item.detail.id === tid) {
+        item.insufficientTotal = insufficientToolLeft;
+      }
+      return item;
+    });
+    action = "เบิกบอร์ดพร้อมกับอุปกรณ์ (อุปกรณ์ไม่ครบ)";
+  }
+  tool.total = calcToolInStock;
+
+  // Update board tag
+  let prevTagOfBoard = boardHistory.tags[boardHistory.tags.length - 1];
+  let newToolArr = [];
+  prevTagOfBoard.tools.map((item) => {
+    let obj = {
+      total: item.total,
+      insufficientTotal: item.insufficientTotal,
+      tool: item.tool,
+      th: item.th,
+    };
+    newToolArr.push(obj);
+  });
+  newToolArr.map((item) => {
+    if (item.tool.toString() === tid) {
+      item.total += toolUsed;
+      item.insufficientTotal -= toolUsed;
+    }
+    return item;
+  });
+  let newTagOfBoard = {
+    creator: req.user.id,
+    total: prevTagOfBoard.total,
+    description: description,
+    tools: newToolArr,
+  };
+  let isAllToolOut = newToolArr.every((item) => item.insufficientTotal === 0);
+  if (isAllToolOut) boardHistory.action = "เบิกบอร์ดพร้อมกับอุปกรณ์";
+  newTagOfBoard.action = boardHistory.action;
+  boardHistory.tags.push(newTagOfBoard);
+
+  // Update tool tag
+  let prevTagOfTool = toolHistory.tags[toolHistory.tags.length - 1];
+  let newTagOfTool = {
+    creator: req.user.id,
+    board: prevTagOfTool.board,
+    description: description,
+    bhCode: prevTagOfTool.bhCode,
+    total: toolUsed,
+    allToolTotalUsed: prevTagOfTool.allToolTotalUsed + toolUsed,
+    insufficientTotal: prevTagOfTool.insufficientTotal - toolUsed,
+    action: action,
+  };
+  toolHistory.tags.push(newTagOfTool);
+  toolHistory.total += toolUsed;
+  toolHistory.action = action;
+
+  // Create notification
+  await handleNotification(tool, "อุปกรณ์", tool.toolName);
+
+  // Staring saving all documents
+  await tool.save();
+  await boardHistory.save();
+  await toolHistory.save();
+
+  // Update insufficient tool
+  if(isItemOut(insufficientToolList.tools.length)) {
+    await insufficientToolList.remove();
+  } else {
+    await insufficientToolList.save();
+  }
+  sendResponse(insufficientToolList, 200, res);
+});
+
+exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
+  // const { tools, boardName, boardCode, type, description, creator } = req.body;
+
+  sendResponse([], 200, res);
 });
 
 exports.deleteBoard = catchAsync(async (req, res, next) => {

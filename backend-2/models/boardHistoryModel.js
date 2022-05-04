@@ -42,8 +42,9 @@ const boardHistorySchema = new mongoose.Schema({
       tools: [
         {
           total: { type: Number, default: 0 },
-          insufficientTool: { type: Number },
-          tool: { type: mongoose.Schema.Types.ObjectId, ref: "Tool" }
+          insufficientTotal: { type: Number, default: 0 },
+          tool: { type: mongoose.Schema.Types.ObjectId, ref: "Tool" },
+          th: { type: mongoose.Schema.Types.ObjectId, ref: "ToolHistory" }
         },
       ],
     },

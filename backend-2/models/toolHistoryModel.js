@@ -39,8 +39,10 @@ const toolHistorySchema = new mongoose.Schema({
       },
       createAt: { type: Date, required: true, default: Date.now },
       board: { type: mongoose.Schema.Types.ObjectId, ref: "Board" },
-      insuffTotal: Number,
+      insufficientTotal: Number,
+      allToolTotalUsed: Number,
       description: String,
+      bhCode: String
     },
   ],
 });

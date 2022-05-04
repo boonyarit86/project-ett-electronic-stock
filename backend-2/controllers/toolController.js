@@ -73,8 +73,9 @@ exports.getAllToolHistory = catchAsync(async (req, res, next) => {
 });
 
 exports.getTool = catchAsync(async (req, res, next) => {
-  const tool = await Tool.findById(req.params.tid);
+  const tool = await Tool.findById(req.params.tid).populate({path: "type", select: "name"}).populate({path: "category", select: "name"});
   if (!tool) return next(new AppError("ไม่พบรายการอุปกรณ์นี้", 404));
+  tool.type.categories = null;
   sendResponse(tool, 200, res);
 });
 

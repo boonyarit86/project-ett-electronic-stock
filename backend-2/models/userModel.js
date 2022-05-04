@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  unreadNotification: Number
+  unreadNotification: {type: Number, default: 0}
 });
 
 // For routes: post(register), patch(/)

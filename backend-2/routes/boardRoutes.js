@@ -17,20 +17,22 @@ router.route("/action/:bid").patch(boardController.boardAction);
 
 router.use(restrictTo("admin", "staff"));
 router.route("/check/:bid").get(boardController.checkAllToolOfBoard);
-router.route("/").post(imageUpload.single("avatar"), boardController.createBoard);
+router
+  .route("/")
+  .post(imageUpload.single("avatar"), boardController.createBoard);
 router.route("/:bid").patch(
-    imageUpload.fields([
-      { name: "newAvatar", maxCount: 1 },
-      { name: "newImages", maxCount: 3 },
-    ]),
+  imageUpload.fields([
+    { name: "newAvatar", maxCount: 1 },
+    { name: "newImages", maxCount: 3 },
+  ]),
   boardController.editBoard
 );
-router.route("/restore/:bhid").patch(
-boardController.restoreBoard
-);
-router.route("/request/:bid").patch(
-  boardController.requestBoard
-  );
+router.route("/restore/:bhid").patch(boardController.restoreBoard);
+router.route("/restoreWithTool/:bhid").patch(boardController.restoreBoardWithTool);
+router.route("/request/:bid").patch(boardController.requestBoard);
+router
+  .route("/insufficientTool/request/:insuffiTool_id")
+  .patch(boardController.requestInsufficientTool);
 
 router.use(restrictTo("admin"));
 router.route("/:bid").delete(boardController.deleteBoard);

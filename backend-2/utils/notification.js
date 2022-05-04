@@ -34,10 +34,8 @@ const handleNotification = async (data, action, itemName) => {
     if (isItemOut(data.total)) {
       notificationMessage = `${action} ${itemName} หมด`;
     }
-    await Promise.all([
-    createNotification(notificationMessage),
-    countUnreadNotificationOfUsers()
-    ]);
+    await createNotification(notificationMessage)
+    await countUnreadNotificationOfUsers()
   }
 };
 
