@@ -1,0 +1,94 @@
+/*
+MEDIA QUERY MANAGER
+1em = 16px
+
+0 - 400px:      Vertical phone (max-width: 25em)
+400px - 600px:  Horizontal phone (max-width: 37.5em)
+600px - 900px:  Vertical Tablet (max-width: 56.25em)
+900px - 1200px: Horizontal Tablet (max-width: 75em)
+1200px +:       Desktop (Default)
+*/
+
+:root {
+  /* FONT */
+  --font-size--small-2: 1.2rem;
+  --font-size--small-1: 1.4rem;
+  --font-size--default: 1.6rem;
+  --font-size--title: 2.4rem;
+  --font-size--heading-2: 3.2rem;
+  --font-size--heading-1: 4rem;
+
+  /* COLOR */
+  --color-primary-blue: #1e87ff;
+  --color-primary-blue--shade: #006bde;
+  --color-primary-blue--palette: #f4f9ff;
+  --color-primary-black: #424656;
+  --color-primary-grey: #828282;
+  --color-primary-grey--medium: #bdbdbd;
+  --color-primary-grey--light-1: #e0e0e0;
+  --color-primary-grey--light-2: #f1f3f5;
+
+  --color-secondary-purple: #9463ff;
+  --color-secondary-purple--shade: #7447df;
+  --color-secondary-purple--palette: #fef6ff;
+  --color-secondary-red: #f34771;
+  --color-secondary-red--shade: #cf1d55;
+  --color-secondary-red--palette: #fff3f5;
+
+  --color-white: #fff;
+  --color-error: #e03131;
+  --color-error--palette: #fff5f5;
+  --color-success: #2f9e44;
+  --color-success--palette: #ebfbee;
+  --color-warning: #e8590c;
+  --color-warning--palette: #fff4e6;
+}
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  font-size: 62.5%; /*1 rem = 10px; 10px/16px = 62.5%*/
+}
+
+body {
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-primary-black);
+}
+
+/* UTILITIES */
+.u-mg-tb {
+  margin: 3rem 0 !important;
+}
+.u-mg-t {
+  margin-top: 3rem !important;
+}
+.u-mg-b {
+  margin-bottom: 3rem !important;
+}
+.u-mg-rl {
+  margin: 0 3rem !important;
+}
+
+/* Others */
+.title,
+.heading--main,
+.heading--sub {
+  display: block;
+  font-weight: 700;
+}
+
+/* @media only screen and (max-width: 75em) {
+    html { */
+/* 1 rem = 9px, 9/16 = 50% */
+/* font-size: 56.25%; 
+    }
+} */
