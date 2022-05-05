@@ -78,6 +78,9 @@ body {
 .u-mg-rl {
   margin: 0 3rem !important;
 }
+.u-mg-l {
+  margin-left: 3rem !important;
+}
 .fullWidth {
   width: 100% !important;
 }
@@ -88,6 +91,12 @@ body {
 .heading--sub {
   display: block;
   font-weight: 700;
+}
+
+.auth__text,
+.input__helperText,
+.input__error-message {
+  font-size: 1.4rem;
 }
 
 /* @media only screen and (max-width: 75em) {

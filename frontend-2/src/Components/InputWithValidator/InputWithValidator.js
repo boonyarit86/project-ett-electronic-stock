@@ -83,26 +83,26 @@ const Input = (props) => {
       // />
       <div
         className={`input__box ${props.fullWidth && "fullWidth"} ${
-          isInputEmpty(isValid, isTouched, props.errorText) &&
+          isInputEmpty(isValid, isTouched, props.errorMessage) &&
           "input__box-error"
         }`}
       >
-        <label className="input__label" htmlFor={props.name}>
+        <label className="input__label" htmlFor={props.id}>
           {props.label} {props.required && <span className="input__required">*</span>}
         </label>
         <input
-          id={props.name}
+          id={props.id}
           type={props.type}
-          name={props.name}
+          name={props.id}
           placeholder={props.placeholder}
           required={props.required}
           onBlur={touchHandler}
           onChange={changeHandler}
         />
-        {isInputEmpty(isValid, isTouched, props.errorText) ? (
+        {isInputEmpty(isValid, isTouched, props.errorMessage) ? (
           <span className="input__error-message">{props.errorMessage}</span>
         ) : props.helperText ? (
-          <span>{props.helperText}</span>
+          <span className="input__helperText">{props.helperText}</span>
         ) : null}
       </div>
     ) : (

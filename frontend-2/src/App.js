@@ -5,6 +5,7 @@ import Title from "./Components/Text/Title";
 import Test from "./Test";
 import { useForm } from "./hooks/form-hook";
 import { VALIDATOR_REQUIRE } from "./utils/validators";
+import Auth from "./Pages/Auth/Auth";
 
 function App() {
   const [formState, inputHandler] = useForm(
@@ -25,9 +26,8 @@ function App() {
 
   return (
     <div className="App">
-      <p>Hi</p>
-
-      <Test>
+      <Auth />
+      {/* <Test>
         <Heading type="main" text="Heading 1" />
         <Heading type="sub" text="Heading 2" />
         <Title>Hello Dev!!!!</Title>
@@ -45,7 +45,7 @@ function App() {
           required
           fullWidth
         />
-      </Test>
+      </Test> */}
     </div>
   );
 }
