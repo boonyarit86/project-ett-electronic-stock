@@ -42,6 +42,7 @@ MEDIA QUERY MANAGER
   --color-success--palette: #ebfbee;
   --color-warning: #e8590c;
   --color-warning--palette: #fff4e6;
+  --color-blue--light: #1967d2;
 }
 
 *,
@@ -76,6 +77,9 @@ body {
 }
 .u-mg-rl {
   margin: 0 3rem !important;
+}
+.fullWidth {
+  width: 100% !important;
 }
 
 /* Others */
