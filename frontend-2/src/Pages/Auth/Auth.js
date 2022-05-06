@@ -1,19 +1,33 @@
-import React, { useState } from "react";
+import Axios from "axios";
+import React, { useState, useContext } from "react";
+import { useDispatch } from "react-redux";
+
+// Components
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
 } from "../../utils/validators";
-import { useForm } from "../../hooks/form-hook";
+import Button from "../../Components/Button/Button";
+import Heading from "../../Components/Text/Heading";
+import Input from "../../Components/InputWithValidator/InputWithValidator";
 import Title from "../../Components/Text/Title";
+import Toast from "../../Components/Toast/Toast";
+
+import { startLoading, endLoading } from "../../Redux/features/stateSlice";
+import { AuthContext } from "../../context/auth-context";
+import { catchError } from "../../utils/handleError";
+import { useForm } from "../../hooks/form-hook";
 
 import "./Auth.css";
-import Input from "../../Components/InputWithValidator/InputWithValidator";
-import Heading from "../../Components/Text/Heading";
-import Button from "../../Components/Button/Button";
 
 const Auth = () => {
+  const auth = useContext(AuthContext);
+  const dispatch = useDispatch();
+  // const auth = useAuth();
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -58,6 +72,49 @@ const Auth = () => {
     }
     setIsLoginMode((prevMode) => !prevMode);
   };
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const { email, name, password, passwordConfirm } = formState.inputs;
+    let data;
+
+    try {
+      dispatch(startLoading());
+      // Login mode
+      if (isLoginMode) {
+        data = { email: email.value, password: password.value };
+        await Axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/users/login`,
+          data
+        ).then((res) => {
+          let userId = res.data.data.user._id;
+          let userData = res.data.data.user;
+          auth.login(res.data.token, userId, userData);
+        });
+      }
+      // Register mode
+      else {
+        data = {
+          email: email.value,
+          password: password.value,
+          passwordConfirm: passwordConfirm.value,
+          name: name.value,
+        };
+        // console.log(data)
+        await Axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/users/register`,
+          data
+        ).then((res) => {
+          setSuccessMessage("สมัครสมาชิกเรียบร้อยแล้ว");
+          setTimeout(() => setSuccessMessage(null), 10000);
+          setIsLoginMode(true);
+        });
+      }
+      dispatch(endLoading());
+    } catch (error) {
+      dispatch(endLoading());
+      catchError(error, setErrorMessage);
+    }
+  };
 
   return (
     <div className="auth">
@@ -84,8 +141,18 @@ const Auth = () => {
         </div>
 
         <div className="auth__form">
-          <form className="auth__form-box">
-            <Heading type="sub" text="เข้าสู่ระบบ" />
+          <form className="auth__form-box" onSubmit={onSubmit}>
+            <Heading type="sub" text={isLoginMode ? "เข้าสู่ระบบ" : "สมัครสมาชิก"} />
+            {errorMessage && (
+              <Toast element="error" type="default" message={errorMessage} />
+            )}
+            {successMessage && (
+              <Toast
+                element="success"
+                type="default"
+                message={successMessage}
+              />
+            )}
             <Input
               element="input"
               type="email"
@@ -121,7 +188,7 @@ const Auth = () => {
               validators={[VALIDATOR_MINLENGTH(4)]}
               onInput={inputHandler}
               errorMessage="โปรดใส่รหัสผ่านอย่างน้อย 4 ตัว"
-              helperText="รหัสผ่านต้องมอย่างน้อย 4 ตัว"
+              helperText="รหัสผ่านต้องมีอย่างน้อย 4 ตัว"
               required
               fullWidth
             />
@@ -129,13 +196,13 @@ const Auth = () => {
               <Input
                 element="input"
                 type="password"
-                label="รหัสผ่าน"
+                label="ยืนยันรหัสผ่าน"
                 id="passwordConfirm"
                 placeholder="กรุณายืนยันรหัสผ่านของคุณ"
                 validators={[VALIDATOR_MINLENGTH(4)]}
                 onInput={inputHandler}
                 errorMessage="โปรดใส่รหัสผ่านอย่างน้อย 4 ตัว"
-                helperText="รหัสผ่านต้องมอย่างน้อย 4 ตัว"
+                helperText="รหัสผ่านต้องมีอย่างน้อย 4 ตัว"
                 required
                 fullWidth
               />
@@ -147,7 +214,7 @@ const Auth = () => {
               </span>
             </p>
             <Button
-              type="button"
+              type="submit"
               element="button"
               className="btn-primary-blue fullWidth"
               disabled={!formState.isValid}

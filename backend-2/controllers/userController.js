@@ -78,19 +78,19 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return next(new AppError("Please provide email and password!", 400));
+    return next(new AppError("กรุณากรอกอีเมล์และรหัสผ่าน", 400));
   }
 
   const user = await User.findOne({ email }).select("+password");
   if (!user) return next(new AppError("ไม่พบผู้ใช้งานนี้", 404));
 
-  if (user.role === "unapprove") {
-    return next(new AppError("กำลังรอการอนุมัติจาก Admin", 401));
-  }
-
   // Use methods.correctPassword
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError("Incorrect email or password", 401));
+    return next(new AppError("อีเมล์หรือรหัสผ่านไม่ถูกต้อง", 401));
+  }
+
+  if (user.role === "unapprove") {
+    return next(new AppError("กำลังรอการอนุมัติจาก Admin", 401));
   }
 
   createSendToken(user, 200, res);

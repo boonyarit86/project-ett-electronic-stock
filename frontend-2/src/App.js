@@ -1,51 +1,56 @@
-import "./App.css";
-import Input from "./Components/InputWithValidator/InputWithValidator";
-import Heading from "./Components/Text/Heading";
-import Title from "./Components/Text/Title";
-import Test from "./Test";
-import { useForm } from "./hooks/form-hook";
-import { VALIDATOR_REQUIRE } from "./utils/validators";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useAuth } from "./hooks/auth-hook";
+import { AuthContext } from "./context/auth-context";
 import Auth from "./Pages/Auth/Auth";
+import LoadingSpinner from "./Components/LoadingSpinner/LoadingSpinner";
+import Main from "./Layouts/Main";
+import "./App.css";
 
 function App() {
-  const [formState, inputHandler] = useForm(
-    {
-      name: {
-        value: "",
-        isValid: false,
-      },
-    },
-    {
-      type: {
-        value: false,
-        isValid: false,
-      },
-    },
-    false
-  );
+  const { token, logout, login } = useAuth();
+  const { loading } = useSelector((state) => state.initialState);
 
+  let routes;
+  if (token) {
+    routes = (
+      <React.Fragment>
+        <Route path="/" element={<Main />}></Route>
+      </React.Fragment>
+    );
+  } else {
+    routes = (
+      <React.Fragment>
+        <Route path="/" element={<Auth />}></Route>
+      </React.Fragment>
+    );
+  }
   return (
     <div className="App">
-      <Auth />
-      {/* <Test>
-        <Heading type="main" text="Heading 1" />
-        <Heading type="sub" text="Heading 2" />
-        <Title>Hello Dev!!!!</Title>
-        <h3>Input</h3>
-        <Input
-          element="input"
-          type="email"
-          label="อีเมล์"
-          name="email"
-          placeholder="กรุณากรอกอีเมล์ของคุณ"
-          validators={[VALIDATOR_REQUIRE()]}
-          errorText="โปรดใส่ข้อมูล."
-          onInput={inputHandler}
-          errorMessage="กรุณากรอกอีเมล์ของคุณ"
-          required
-          fullWidth
-        />
-      </Test> */}
+      <AuthContext.Provider
+        value={{
+          token: token,
+          userId: "",
+          login: login,
+          logout: logout,
+        }}
+      >
+        <Router>
+          {loading && <LoadingSpinner />}
+          <Routes>
+            {routes}
+
+            {/* Catch all - replace with 404 component if you want */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </AuthContext.Provider>
     </div>
   );
 }

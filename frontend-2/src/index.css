@@ -95,8 +95,19 @@ body {
 
 .auth__text,
 .input__helperText,
-.input__error-message {
+.input__error-message,
+.toast__heading {
   font-size: 1.4rem;
+}
+
+.toast__error--default {
+  color: var(--color-white);
+}
+
+/* Icons */
+.icon--medium {
+  width: 2.4rem;
+  height: 2.4rem;
 }
 
 /* @media only screen and (max-width: 75em) {

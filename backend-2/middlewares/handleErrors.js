@@ -9,35 +9,35 @@ const handleCastErrorDB = (err) => {
 // In case of data having the same value or index
 const handleDuplicateFieldsDB = (err) => {
   const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-  const message = `Duplicate field value: ${value}. Please use another value!`;
+  const message = `ข้อมูล ${value} นี้มีในฐานข้อมูลแล้ว. โปรดลองใช้ค่าอื่น!`;
   return new AppError(message, 400);
 };
 
 // From Mongo Schema
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
-  const message = `Invalid input data. ${errors.join(". ")}`;
+  const message = `Invalid input data: ${errors.join(". ")}`;
   return new AppError(message, 400);
 };
 
 // From JWT when Token is incorrect.
 const handleJWTError = () => {
-  const message = `Invalid token. Please log in again!`;
+  const message = `Invalid token: กรุณาเข้าสู่ระบบอีกครั้ง!`;
   return new AppError(message, 401);
 };
 
 // From JWT when Token is expired
 const handleJWTExpiredError = () => {
-  const message = "Your token has expired! Please log in again.";
+  const message = "Token หมดอายุการใช้งาน! กรุณาเข้าสู่ระบบอีกครั้ง!.";
   return new AppError(message, 401);
 };
 
 // From Multer, when user uploads images too many,
 const handleMulterError = (err) => {
   let message;
-  message = `Invalid input data. Input นี้กำจัดการอัพโหลดไม่เกิน 3 รูปภาพ`;
+  message = `Invalid input data: Input นี้กำจัดการอัพโหลดไม่เกิน 3 รูปภาพ`;
   if (err.field === "avatar" || err.field === "newAvatar") {
-    message = `Invalid input data. Input นี้กำจัดการอัพโหลดเพียงแค่ 1 รูปภาพ`;
+    message = `Invalid input data: Input นี้กำจัดการอัพโหลดเพียงแค่ 1 รูปภาพ`;
   }
   return new AppError(message, 400);
 };
@@ -83,7 +83,7 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
     if (err.name === "CastError") error = handleCastErrorDB(error);
     // // In case of data having the same value or index
-    if (err.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (err.code === 11000) error = handleDuplicateFieldsDB(err);
     // Error from Mongo Schema
     if (err.name === "ValidationError") error = handleValidationErrorDB(error);
     // Error from JWT, when Token is incorrect.

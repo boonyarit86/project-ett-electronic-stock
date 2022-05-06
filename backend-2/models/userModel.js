@@ -5,31 +5,31 @@ const { default: isEmail } = require("validator/lib/isEmail");
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: [true, "Please provide your email"],
+    required: [true, "กรุณากรอกอีเมล์"],
     lowercase: true,
-    validate: [isEmail, "Please provide a valid email"],
+    validate: [isEmail, "รูปแบบอีเมล์ไม่ถูกต้อง"],
     unique: true,
   },
   name: {
     type: String,
-    required: [true, "Please provide your name"],
+    required: [true, "กรุณากรอกชื่อ"],
     unique: true,
   },
   password: {
     type: String,
-    required: [true, "Please provide a password"],
+    required: [true, "โปรดกรอกรหัสผ่าน"],
     minlength: 4,
     select: false,
   },
   passwordConfirm: {
     type: String,
-    required: [true, "Please confirm your password"],
+    required: [true, "โปรดยืนยันรหัสผ่าน"],
     validate: {
       // This only works on CREATE and SAVE!!!
       validator: function (el) {
         return el === this.password;
       },
-      message: "Passwords are not the same!",
+      message: "รหัสผ่านไม่ตรงกัน",
     },
   },
   role: {
@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema({
 // Middleware 1
 userSchema.pre("save", async function (next) {
   if(this.isNew || this.isModified("password")) {
-    console.log("New data or Data edited")
+    // console.log("New data or Data edited")
     this.password = await bcrypt.hash(this.password, 12);
   }
   if(!this.isNew && this.isModified("password")) {

@@ -1,0 +1,20 @@
+.toast {
+    width: 100%;
+    min-height: 4rem;
+    padding: 0.8rem 0;
+    border-radius: 4px;
+    display: flex;
+    padding: 1rem;
+    gap: 1rem;
+}
+.toast__heading {
+    font-weight: 500;
+}
+
+/* Toast options */
+.toast__error--default {
+    background-color: var(--color-error);
+}
+.toast__success--default {
+    background-color: var(--color-sucess);
+}
