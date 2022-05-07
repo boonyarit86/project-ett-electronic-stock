@@ -27,8 +27,9 @@ const ProfileMenu = () => {
             <Avatar
               className="icon--large"
               avatar={user?.avatar?.url ? user.avatar.url : null}
+              onClick={handleDropdownMenu}
             />
-            <span className="profileMenu__username">{user.name}</span>
+            <span className="profileMenu__username" onClick={handleDropdownMenu}>{user.name}</span>
           </React.Fragment>
         )}
 

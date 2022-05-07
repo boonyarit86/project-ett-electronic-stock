@@ -1,6 +1,7 @@
 .main {
-    background-color: darkmagenta;
+    background-color: var(--color-primary-grey--light-2);
     overflow: scroll;
+    padding: 3rem;
 }
 .main::-webkit-scrollbar {
     display: none;

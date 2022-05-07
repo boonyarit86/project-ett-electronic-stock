@@ -99,7 +99,7 @@ body {
 .toast__heading,
 .profileMenu__username,
 .profileMenu__item,
-.notification__message, .notification__time {
+.notification__message, .notification__time, .sidebar__text {
   font-size: 1.4rem;
 }
 
