@@ -1,0 +1,52 @@
+.notification__list, .notification__bell-icon, .notification__count {
+    z-index: 10;
+}
+
+.notification {
+  position: relative;
+  cursor: pointer;
+  margin-top: 0.8rem;
+}
+.notification__count {
+  color: var(--color-white);
+  position: absolute;
+  top: -30%;
+}
+.notification__number {
+  border-radius: 4px;
+  padding: 0.2rem 0.4rem;
+  font-size: 1rem;
+  background-color: var(--color-error);
+}
+.notification__list {
+    width: 30rem;
+    position: absolute;
+    top: 140%;
+    left: -900%;
+    background-color: var(--color-white);
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+    border-radius: 4px;
+    list-style: none;
+    padding: 0.5rem 0;
+    animation: fadeIn 0.3s ease-in-out;
+    max-height: 30rem;
+    overflow: scroll;
+}
+.notification__list::-webkit-scrollbar {
+    display: none;
+}
+.notification__item {
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    cursor: initial;
+}
+.notification__item:hover {
+    background-color: var(--color-primary-grey--light-2);
+}
+.notification__time {
+    color: var(--color-primary-blue);
+}
+
+
+

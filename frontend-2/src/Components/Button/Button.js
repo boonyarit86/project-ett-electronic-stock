@@ -8,7 +8,7 @@ const Button = React.memo((props) => {
         {props.children}
       </button>
     ) : (
-      <a></a>
+      <a href="/">test</a>
     );
   return <React.Fragment>{ element }</React.Fragment>;
 });

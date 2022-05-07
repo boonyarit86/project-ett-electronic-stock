@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,18 +10,18 @@ import { useAuth } from "./hooks/auth-hook";
 import { AuthContext } from "./context/auth-context";
 import Auth from "./Pages/Auth/Auth";
 import LoadingSpinner from "./Components/LoadingSpinner/LoadingSpinner";
-import Main from "./Layouts/Main";
+import Layout from "./Layouts/Layout";
 import "./App.css";
 
 function App() {
-  const { token, logout, login } = useAuth();
+  const { token, logout, login, userId } = useAuth();
   const { loading } = useSelector((state) => state.initialState);
 
   let routes;
   if (token) {
     routes = (
       <React.Fragment>
-        <Route path="/" element={<Main />}></Route>
+        <Route path="/" element={<Layout />}></Route>
       </React.Fragment>
     );
   } else {
@@ -36,7 +36,7 @@ function App() {
       <AuthContext.Provider
         value={{
           token: token,
-          userId: "",
+          userId: userId,
           login: login,
           logout: logout,
         }}

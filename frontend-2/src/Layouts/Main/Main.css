@@ -1,0 +1,8 @@
+.main {
+    background-color: darkmagenta;
+    overflow: scroll;
+}
+.main::-webkit-scrollbar {
+    display: none;
+}
+

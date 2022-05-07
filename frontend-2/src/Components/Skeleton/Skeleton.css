@@ -1,0 +1,35 @@
+.skeleton {
+  opacity: 0.7;
+  animation: skeleton-loading 1s linear infinite alternate;
+}
+
+.skeleton__text {
+  height: 1.5rem;
+  border-radius: 2px;
+}
+
+.skeleton__text--small {
+  width: 5rem;
+}
+.skeleton__text--medium {
+  width: 10rem;
+}
+.skeleton__text--large {
+  width: 15rem;
+}
+.skeleton__text--fullWidth {
+  width: 100%;
+}
+
+.skeleton__image-shape--circle {
+    border-radius: 50%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-color: var(--color-primary-grey);
+  }
+  100% {
+    background-color: var(--color-primary-grey--light-1);
+  }
+}

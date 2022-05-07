@@ -8,8 +8,9 @@ const url = process.env.REACT_APP_BACKEND_URL;
 
 export const useAuth = () => {
   const dispatch = useDispatch();
-  const [token, setToken] = useState(false);
-  const [tokenExpirationDate, setTokenExpirationDate] = useState(false);
+  const [token, setToken] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [tokenExpirationDate, setTokenExpirationDate] = useState(null);
 
   // function นี้ให้ผู้ใช้มีระยะเวลาใช้งานเว็บแค่ 1 ชั่วโมง หลังจากนั้นระบบจะทำการ logout auto
   const login = useCallback(
@@ -17,6 +18,7 @@ export const useAuth = () => {
       setToken(token);
 
       if (!userData && Boolean(userId)) {
+        // Get user data
         await Axios.get(`${url}/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
@@ -33,6 +35,16 @@ export const useAuth = () => {
       if (userData) {
         dispatch(setUser(userData));
       }
+      setUserId(userId);
+
+      // Get notitication data
+      await Axios.get(`${url}/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch((error) => {
+        // Show error on Modal and Do it later.
+        console.error(error);
+        console.error(error.response.data.message);
+      });
 
       // 60000(มิลลิเซก) * 1 = 1 นาที
       // (1000 * 60) * 60 = 1 ชั่วโมง
@@ -54,6 +66,7 @@ export const useAuth = () => {
   const logout = useCallback(() => {
     setToken(null);
     setTokenExpirationDate(null);
+    setUserId(null);
     localStorage.removeItem("userData");
   }, []);
 
@@ -86,5 +99,5 @@ export const useAuth = () => {
     }
   }, [login]);
 
-  return { login, logout, token };
+  return { login, logout, token, userId };
 };

@@ -24,24 +24,24 @@ mongoose.connect(process.env.DATABASE_URL).then((con) => {
 });
 
 // Socket.io or Real-time Database
-// const io = socketIo(server, {
-//   transports: ["polling"],
-//   cors: {
-//     cors: {
-//       origin: process.env.FRONTEND_URL,
-//     },
-//   },
-// });
+const io = socketIo(server, {
+  transports: ["polling"],
+  cors: {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+    },
+  },
+});
 
-// io.on("connection", (socket) => {
-//   console.log("Socket.io is connecting...");
+io.on("connection", (socket) => {
+  // console.log(`A user: ${socket.id} is connected `);
 
-//   socket.on("disconnect", () => {
-//     console.log("Socket.io disconnected...");
-//   });
-// });
+  socket.on("disconnect", () => {
+    // console.log(`All socket ${socket.id} disconnected`);
+  });
+});
 
-// exports.io = io
+exports.io = io;
 
 // Set security HTTP headers
 app.use(helmet());
@@ -93,12 +93,14 @@ const boardRoutes = require("./routes/boardRoutes");
 const ttsRoutes = require("./routes/ttsRoutes");
 const tcsRoutes = require("./routes/tcsRoutes");
 const numHistoryRoutes = require("./routes/numHistoryRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 app.use("/api/users", userRoutes);
 app.use("/api/tools", toolRoutes);
 app.use("/api/boards", boardRoutes);
 app.use("/api/tts", ttsRoutes);
 app.use("/api/tcs", tcsRoutes);
 app.use("/api/numHistory", numHistoryRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Page 404
 app.all("*", (req, res, next) => {
@@ -116,7 +118,7 @@ process.on("uncaughtException", (err) => {
 
 // Server
 const port = process.env.PORT || 5000;
-const handleServer = app.listen(port, (err) => {
+const handleServer = server.listen(port, (err) => {
   if (err) console.log("Cannot connect server.");
   console.log(`Server is connecting on port ${port}`);
 });
@@ -128,5 +130,3 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 });
-
-

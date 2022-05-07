@@ -1,0 +1,40 @@
+.profileMenu__item a, .profileMenu__arrow-icon, .profileMenu__item:last-child {
+    cursor: pointer;
+}
+
+.profileMenu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+.profileMenu__arrow-icon {
+    z-index: 10;
+    transition: all 0.3s;
+}
+.profileMenu__arrow-icon.active {
+    transform: rotate(180deg);
+}
+.profileMenu__list {
+    list-style: none;
+    width: 100%;
+    padding: 0.5rem 0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+    position: absolute;
+    top: 140%;
+    left: 0;
+    background-color: var(--color-white);
+    z-index: 10;
+    animation: fadeIn 0.3s ease-in-out;
+}
+.profileMenu__item {
+    padding: 0.5rem 1rem;
+}
+.profileMenu__item a {
+    color: var(--color-primary-black);
+    text-decoration: none;
+}
+.profileMenu__item:hover {
+    background-color: var(--color-primary-grey--light-2);
+}
