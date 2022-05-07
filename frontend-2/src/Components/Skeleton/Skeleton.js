@@ -7,7 +7,7 @@ const Skeleton = React.memo((props) => {
     element = (
       <div
         className={`skeleton skeleton__text ${
-          props.size && `skeleton__text--${props.size}`
+          props.size && `skeleton__text--${props.size} ${props.className}`
         }`}
       />
     );

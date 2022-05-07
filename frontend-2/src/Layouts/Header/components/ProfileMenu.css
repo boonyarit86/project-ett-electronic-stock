@@ -1,4 +1,4 @@
-.profileMenu__item a, .profileMenu__arrow-icon, .profileMenu__item:last-child {
+.profileMenu__item a, .profileMenu__arrow-icon, .profileMenu__item:last-child, .profileMenu__username {
     cursor: pointer;
 }
 
@@ -37,4 +37,14 @@
 }
 .profileMenu__item:hover {
     background-color: var(--color-primary-grey--light-2);
+}
+
+@media (max-width: 37.5em) {
+    .profileMenu__username {
+        display: none;
+    }
+    .profileMenu__list {
+        width: 15rem;
+        left: -150%;
+    }
 }

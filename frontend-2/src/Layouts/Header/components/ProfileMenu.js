@@ -20,7 +20,7 @@ const ProfileMenu = () => {
         {!user ? (
           <React.Fragment>
             <Skeleton element="image" width="3.2" height="3.2" shape="circle" />
-            <Skeleton element="text" size="small" />
+            <Skeleton element="text" size="small" className="profileMenu__username" />
           </React.Fragment>
         ) : (
           <React.Fragment>
