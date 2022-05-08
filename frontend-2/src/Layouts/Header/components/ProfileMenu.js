@@ -15,50 +15,54 @@ const ProfileMenu = () => {
   const user = useSelector((state) => state.user.user);
   //   console.log("Re-render ProfileMenu component")
   return (
-    <>
-      <div className="profileMenu">
-        {!user ? (
-          <React.Fragment>
-            <Skeleton element="image" width="3.2" height="3.2" shape="circle" />
-            <Skeleton element="text" size="small" className="profileMenu__username" />
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <Avatar
-              className="icon--large"
-              avatar={user?.avatar?.url ? user.avatar.url : null}
-              onClick={handleDropdownMenu}
-            />
-            <span className="profileMenu__username" onClick={handleDropdownMenu}>{user.name}</span>
-          </React.Fragment>
-        )}
+    <div className="profileMenu">
+      {!user ? (
+        <React.Fragment>
+          <Skeleton element="image" width="3.2" height="3.2" shape="circle" />
+          <Skeleton
+            element="text"
+            size="small"
+            className="profileMenu__username"
+          />
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <Avatar
+            className="icon--large"
+            avatar={user?.avatar?.url ? user.avatar.url : null}
+            onClick={handleDropdownMenu}
+          />
+          <span className="profileMenu__username" onClick={handleDropdownMenu}>
+            {user.name}
+          </span>
+        </React.Fragment>
+      )}
 
-        <IoIosArrowDown
-          onClick={handleDropdownMenu}
-          className={`profileMenu__arrow-icon ${
-            isOpen ? "active" : null
-          } icon--medium`}
-        />
-        {isOpen && (
-          <ul className="profileMenu__list">
-            <li className="profileMenu__item">
-              <Link to="/" onClick={handleDropdownMenu}>
-                โพรไฟล์
-              </Link>
-            </li>
-            <li className="profileMenu__item">
-              <Link to="/" onClick={handleDropdownMenu}>
-                แก้ไขโพรไฟล์
-              </Link>
-            </li>
-            <li className="profileMenu__item" onClick={() => auth.logout()}>
-                ออกจากระบบ
-            </li>
-          </ul>
-        )}
-        {isOpen && <Backdrop onClick={handleDropdownMenu} />}
-      </div>
-    </>
+      <IoIosArrowDown
+        onClick={handleDropdownMenu}
+        className={`profileMenu__arrow-icon ${
+          isOpen ? "active" : null
+        } icon--medium`}
+      />
+      {isOpen && (
+        <ul className="profileMenu__list">
+          <li className="profileMenu__item">
+            <Link to="/" onClick={handleDropdownMenu}>
+              โพรไฟล์
+            </Link>
+          </li>
+          <li className="profileMenu__item">
+            <Link to="/" onClick={handleDropdownMenu}>
+              แก้ไขโพรไฟล์
+            </Link>
+          </li>
+          <li className="profileMenu__item" onClick={() => auth.logout()}>
+            ออกจากระบบ
+          </li>
+        </ul>
+      )}
+      {isOpen && <Backdrop onClick={handleDropdownMenu} />}
+    </div>
   );
 };
 

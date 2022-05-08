@@ -12,6 +12,8 @@
   /* width: 25rem; */
   /* background-color: darkgoldenrod; */
   /* height: 100%; */
+  position: relative;
+  z-index: 10;
 }
 .sidebar__list {
   padding: 3rem 1rem;
@@ -19,7 +21,6 @@
 .sidebar__item {
   padding: 0.8rem 2rem;
   border-radius: 4px;
-  /* transition: all 0.3s; */
 }
 .sidebar__item:hover,
 .sidebar__item.active {
@@ -41,4 +42,19 @@
   border: 0.5px solid var(--color-primary-grey--light-2);
   background-color: var(--color-primary-grey--light-2);
   margin: 1rem 0;
+}
+.sidebar.open {
+  left: 0;
+}
+
+@media (max-width: 56.25em) {
+  .sidebar {
+    width: 25rem;
+    position: fixed;
+    height: calc(100% - 6.2rem);
+    left: -100%;
+    top: 6.2rem;
+    background-color: var(--color-white);
+    transition: left 0.3s ease-in-out;
+  }
 }

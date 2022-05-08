@@ -1,3 +1,8 @@
+.header__icons,
+.header__right-side {
+  display: flex;
+  align-items: center;
+}
 .header {
   height: 6.2rem;
   grid-column: 1 / -1;
@@ -6,10 +11,22 @@
   align-items: center;
   grid-template-columns: auto 1fr;
 }
+.header__icons {
+  gap: 2rem;
+  color: var(--color-primary-grey);
+}
+.header__menu-icon {
+  cursor: pointer;
+  display: none;
+}
 .header__right-side {
   justify-self: right;
-  display: flex;
-  align-items: center;
   height: 100%;
   gap: 2rem;
+}
+
+@media (max-width: 56.25em) {
+  .header__menu-icon {
+    display: block;
+  }
 }

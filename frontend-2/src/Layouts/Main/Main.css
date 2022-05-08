@@ -7,3 +7,9 @@
     display: none;
 }
 
+@media (max-width: 56.25em) {
+    .main {
+        grid-column: 1 / -1;
+    }
+}
+
