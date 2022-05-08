@@ -29,3 +29,10 @@
 .btn-primary-grey:hover, .btn-primary-grey:active {
     background-color: var(--color-primary-grey--medium);
 }
+.btn-white {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-primary-grey);
+}
+.btn-white:hover, .btn-white:active {
+    background-color: var(--color-primary-grey--light-1);
+}
