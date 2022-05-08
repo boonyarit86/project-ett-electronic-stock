@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import Axios from "axios";
 import { setUser } from "../Redux/features/userSlice";
+import { setBoards } from "../Redux/features/boardSlice";
+import { setTools } from "../Redux/features/toolSlice";
 
 let logoutTimer;
 const url = process.env.REACT_APP_BACKEND_URL;
@@ -38,13 +40,37 @@ export const useAuth = () => {
       setUserId(userId);
 
       // Get notitication data
-      await Axios.get(`${url}/notifications`, {
+      let fetchNotification = Axios.get(`${url}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       }).catch((error) => {
         // Show error on Modal and Do it later.
         console.error(error);
         console.error(error.response.data.message);
       });
+
+      // Get board data
+      let fetctBoard = Axios.get(`${url}/boards`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => dispatch(setBoards(res.data.data.docs)))
+        .catch((error) => {
+          // Show error on Modal and Do it later.
+          console.error(error);
+          console.error(error.response.data.message);
+        });
+
+      // Get notitication data
+      let fetchTool = Axios.get(`${url}/tools`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => dispatch(setTools(res.data.data.tools)))
+        .catch((error) => {
+          // Show error on Modal and Do it later.
+          console.error(error);
+          console.error(error.response.data.message);
+        });
+
+      await Promise.all([fetchNotification, fetchTool, fetctBoard]);
 
       // 60000(มิลลิเซก) * 1 = 1 นาที
       // (1000 * 60) * 60 = 1 ชั่วโมง

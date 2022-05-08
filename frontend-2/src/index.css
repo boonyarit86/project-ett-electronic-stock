@@ -81,6 +81,9 @@ body {
 .u-mg-l {
   margin-left: 3rem !important;
 }
+.u-mg-b--sm {
+  margin-bottom: 0.5rem;
+}
 .fullWidth {
   width: 100% !important;
 }
@@ -99,7 +102,10 @@ body {
 .toast__heading,
 .profileMenu__username,
 .profileMenu__item,
-.notification__message, .notification__time, .sidebar__text {
+.notification__message,
+.notification__time,
+.sidebar__text,
+.equipment-box__text {
   font-size: 1.4rem;
 }
 
@@ -128,12 +134,11 @@ body {
     }
 } */
 
-
 @keyframes fadeIn {
   0% {
-      opacity: 0;
+    opacity: 0;
   }
   100% {
-      opacity: 1;
+    opacity: 1;
   }
 }
