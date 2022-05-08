@@ -47,14 +47,26 @@ const deleteExpireditem = async (data) => {
   return docs;
 };
 
+const factoryData = (doc) => {
+  if (doc.length > 0) {
+    let newToolList = doc.map((tool) => {
+      tool.type.categories = null;
+      return tool;
+    });
+    doc = newToolList;
+  }
+  return doc;
+};
+
 exports.getAllTools = catchAsync(async (req, res, next) => {
-  const tools = await Tool.find();
+  const tools = await Tool.find().populate("type category");
+  let docs = factoryData(tools);
 
   res.status(200).json({
     status: "success",
     results: tools.length,
     data: {
-      tools,
+      tools: docs
     },
   });
 });

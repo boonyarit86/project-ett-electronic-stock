@@ -1,18 +1,17 @@
 .btn {
-    font-size: 1.4rem;
     height: 4.4rem;
     width: fit-content;
     padding: 0 2rem;
-    border-radius: 4px;
+    border: none;
     cursor: pointer;
+    transition: 0.3s ease-in;
+    border-radius: 4px;
 }
 
 /* Btn options */
 .btn-primary-blue {
     background-color: var(--color-primary-blue);
     color: var(--color-white);
-    border: none;
-    transition: 0.3s ease-in;
 }
 .btn-primary-blue:hover, .btn-primary-blue:active {
     background-color: var(--color-primary-blue--shade);
@@ -21,4 +20,12 @@
     background-color: var(--color-primary-grey);
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+.btn-primary-grey {
+    background-color: var(--color-primary-grey);
+    color: var(--color-white);
+}
+.btn-primary-grey:hover, .btn-primary-grey:active {
+    background-color: var(--color-primary-grey--medium);
 }

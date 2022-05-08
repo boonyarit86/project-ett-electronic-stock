@@ -13,3 +13,9 @@
     }
 }
 
+@media (max-width: 37.25em) {
+    .main {
+        padding: 1rem;
+    }
+}
+

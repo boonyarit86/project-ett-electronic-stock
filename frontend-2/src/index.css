@@ -105,7 +105,9 @@ body {
 .notification__message,
 .notification__time,
 .sidebar__text,
-.equipment-box__text {
+.equipment-box__text,
+.btn-link,
+.btn {
   font-size: 1.4rem;
 }
 
