@@ -4,6 +4,7 @@ import Axios from "axios";
 import { setUser } from "../Redux/features/userSlice";
 import { setBoards } from "../Redux/features/boardSlice";
 import { setTools } from "../Redux/features/toolSlice";
+import { startLoading, endLoading } from "../Redux/features/stateSlice";
 
 let logoutTimer;
 const url = process.env.REACT_APP_BACKEND_URL;
@@ -17,6 +18,7 @@ export const useAuth = () => {
   // function นี้ให้ผู้ใช้มีระยะเวลาใช้งานเว็บแค่ 1 ชั่วโมง หลังจากนั้นระบบจะทำการ logout auto
   const login = useCallback(
     async (token, userId, userData, expirationDate) => {
+      dispatch(startLoading());
       setToken(token);
 
       if (!userData && Boolean(userId)) {
@@ -85,6 +87,7 @@ export const useAuth = () => {
           expiration: tokenExpirationDate.toISOString(),
         })
       );
+      dispatch(endLoading());
     },
     [dispatch]
   );

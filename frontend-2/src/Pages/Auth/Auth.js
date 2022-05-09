@@ -10,7 +10,7 @@ import {
 } from "../../utils/validators";
 import Button from "../../Components/Button/Button";
 import Heading from "../../Components/Text/Heading";
-import Input from "../../Components/InputWithValidator/InputWithValidator";
+import Input from "../../Components/Input/InputWithValidator";
 import Title from "../../Components/Text/Title";
 import Toast from "../../Components/Toast/Toast";
 

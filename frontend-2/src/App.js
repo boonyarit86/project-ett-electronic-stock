@@ -17,6 +17,7 @@ import Sidebar from "./Layouts/Sidebar/Sidebar";
 import Header from "./Layouts/Header/Header";
 import "./Layouts/Layout.css";
 import Main from "./Layouts/Main/Main";
+import CreateTool from "./Pages/CreateTool/CreateTool";
 
 function App() {
   const { token, logout, login, userId } = useAuth();
@@ -32,7 +33,8 @@ function App() {
           <Sidebar />
           <Main>
             <Routes>
-              <Route path="/" element={<Dashboard />}></Route>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/createTool" element={<CreateTool />} />
               {/* Catch all - replace with 404 component if you want */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

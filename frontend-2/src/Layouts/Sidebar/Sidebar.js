@@ -47,7 +47,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="sidebar__item" id="m3" onClick={() => onClick("m3")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/createTool" className="sidebar__link">
               <AiOutlineAppstore className="sidebar__icon icon--medium" />
               <p className="sidebar__text">สร้างรายการอุปกรณ์</p>
             </Link>

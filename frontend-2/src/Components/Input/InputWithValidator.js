@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect } from "react";
 import { validate } from "../../utils/validators";
-import "./InputWithValidator.css";
+import "./Input.css";
 
 // Input of Login page
 const inputReducer = (state, action) => {

@@ -6,4 +6,9 @@ const catchError = (error, setMessage) => {
   }, 10000);
 };
 
-export { catchError };
+const catchRequestError = (error, setMessage) => {
+  console.error(error.response.data.message);
+  setMessage(error.response.data.message);
+};
+
+export { catchError, catchRequestError };

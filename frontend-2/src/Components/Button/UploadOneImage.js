@@ -20,7 +20,9 @@ const UploadOneImage = (props) => {
   };
 
   const deleteImage = () => {
-    setFileDeleted(initialValue);
+    if(initialValue) {
+      setFileDeleted(initialValue);
+    }
     setPreviewUrl(null);
     setFile(null);
   };

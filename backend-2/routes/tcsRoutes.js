@@ -7,7 +7,7 @@ const tcsController = require("../controllers/tcsController");
 // Check if user logged in
 router.use(checkAuth);
 // Check if this user is Admin
-router.use(restrictTo("admin"));
+router.use(restrictTo("user", "admin", "staff"));
 router.route("/").get(tcsController.getAll).post(tcsController.createOne);
 router
   .route("/:tcsId")

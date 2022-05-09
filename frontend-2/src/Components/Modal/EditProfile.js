@@ -13,7 +13,7 @@ import {
   VALIDATOR_REQUIRE,
 } from "../../utils/validators";
 import Button from "../Button/Button";
-import InputWithValidator from "../../Components/InputWithValidator/InputWithValidator";
+import InputWithValidator from "../Input/InputWithValidator";
 import Toast from "../Toast/Toast";
 import Title from "../Text/Title";
 import UploadOneImage from "../Button/UploadOneImage";
@@ -28,7 +28,7 @@ const EditProfile = (props) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  const [formState, inputHandler, setFormData] = useForm(
+  const [formState, inputHandler] = useForm(
     {
       email: {
         value: "",

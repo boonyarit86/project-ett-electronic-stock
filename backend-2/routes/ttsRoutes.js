@@ -7,7 +7,7 @@ const ttsController = require("../controllers/ttsController");
 // Check if user logged in
 router.use(checkAuth);
 // Check if this user is Admin
-router.use(restrictTo("admin"));
+router.use(restrictTo("admin", "user", "staff"));
 router.route("/").get(ttsController.getAll).post(ttsController.createOne);
 router
   .route("/:ttsId")
