@@ -1,13 +1,14 @@
 import Button from "../../../../Components/Button/Button";
 import Title from "../../../../Components/Text/Title";
 import "../../../../Components/Table.css";
+import Avatar from "../../../../Components/Avatar/Avatar";
 
 const ToolTable = (props) => {
   const state = props.state;
 
   return (
     <>
-    <Title className="table__title">รายการอุปกรณ์หมด</Title>
+      <Title className="table__title">รายการอุปกรณ์หมด</Title>
       {props.data.length > 0 ? (
         <div className="table">
           <div className="table__headers">
@@ -33,14 +34,10 @@ const ToolTable = (props) => {
                   width: `${state[0].maxW}rem`,
                 }}
               >
-                <img
+                <Avatar
+                  shape="square"
+                  src={item?.avatar?.url ? item.avatar.url : null}
                   className="icon--large"
-                  src={
-                    item?.avatar?.url
-                      ? item.avatar.url
-                      : null
-                  }
-                  alt="avatar"
                 />
               </div>
               <div
@@ -60,7 +57,9 @@ const ToolTable = (props) => {
                   width: `${state[2].maxW}rem`,
                 }}
               >
-                <p className="table__col-text">{item?.toolCode ? item.toolCode : "ไม่ได้กำหนด"}</p>
+                <p className="table__col-text">
+                  {item?.toolCode ? item.toolCode : "ไม่ได้กำหนด"}
+                </p>
               </div>
               <div
                 className="table__col"
@@ -78,7 +77,9 @@ const ToolTable = (props) => {
                   width: `${state[4].maxW}rem`,
                 }}
               >
-                <p className="table__col-text">{item?.category?.name ? item.category.name : "ไม่ได้กำหนด"}</p>
+                <p className="table__col-text">
+                  {item?.category?.name ? item.category.name : "ไม่ได้กำหนด"}
+                </p>
               </div>
               <div
                 className="table__col"
@@ -87,7 +88,9 @@ const ToolTable = (props) => {
                   width: `${state[5].maxW}rem`,
                 }}
               >
-                <p className="table__col-text">{item?.size ? item.size : "ไม่ได้กำหนด"}</p>
+                <p className="table__col-text">
+                  {item?.size ? item.size : "ไม่ได้กำหนด"}
+                </p>
               </div>
               <div
                 className="table__col table__col-btns"

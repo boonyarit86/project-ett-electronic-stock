@@ -21,6 +21,15 @@
     cursor: not-allowed;
     opacity: 0.5;
 }
+.btn-primary-blue--outline {
+    background-color: var(--color-white);
+    color: var(--color-primary-blue);
+    border: 1px solid var(--color-primary-blue);
+}
+.btn-primary-blue--outline:hover, .btn-primary-blue--outline:active {
+    background-color: var(--color-primary-blue);
+    color: var(--color-white);
+}
 
 .btn-primary-grey {
     background-color: var(--color-primary-grey);

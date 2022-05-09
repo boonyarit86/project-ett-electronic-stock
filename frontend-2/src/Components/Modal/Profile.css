@@ -3,7 +3,7 @@
 }
 
 .profile {
-    max-width: 50rem;
+    width: 50rem;
     padding: 3rem;
     position: fixed;
     top: 50%;
@@ -45,4 +45,13 @@
 .profile__avatar {
     width: 12rem;
     height: 12rem;
+}
+
+@media (max-width: 37.5em) {
+    .profile {
+        width: 80%;
+    }
+    .profile__intro {
+        flex-direction: column;
+    }
 }

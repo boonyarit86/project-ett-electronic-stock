@@ -1,13 +1,14 @@
 import Button from "../../../../Components/Button/Button";
 import Title from "../../../../Components/Text/Title";
 import "../../../../Components/Table.css";
+import Avatar from "../../../../Components/Avatar/Avatar";
 
 const BoardTable = (props) => {
   const state = props.state;
 
   return (
     <>
-    <Title className="table__title">รายการบอร์ดหมด</Title>
+      <Title className="table__title">รายการบอร์ดหมด</Title>
       {props.data.length > 0 ? (
         <div className="table">
           <div className="table__headers">
@@ -33,14 +34,10 @@ const BoardTable = (props) => {
                   width: `${state[0].maxW}rem`,
                 }}
               >
-                <img
+                <Avatar
+                  shape="square"
+                  src={item?.avatar?.url ? item.avatar.url : null}
                   className="icon--large"
-                  src={
-                    item?.avatar?.url
-                      ? item.avatar.url
-                      : null
-                  }
-                  alt="avatar"
                 />
               </div>
               <div
@@ -60,7 +57,9 @@ const BoardTable = (props) => {
                   width: `${state[2].maxW}rem`,
                 }}
               >
-                <p className="table__col-text">{item?.boardCode ? item.boardCode : "ไม่ได้กำหนด"}</p>
+                <p className="table__col-text">
+                  {item?.boardCode ? item.boardCode : "ไม่ได้กำหนด"}
+                </p>
               </div>
               <div
                 className="table__col"
@@ -69,7 +68,9 @@ const BoardTable = (props) => {
                   width: `${state[3].maxW}rem`,
                 }}
               >
-                <p className="table__col-text">{item?.type ? item.type : "ไม่ได้กำหนด"}</p>
+                <p className="table__col-text">
+                  {item?.type ? item.type : "ไม่ได้กำหนด"}
+                </p>
               </div>
               <div
                 className="table__col table__col-btns"

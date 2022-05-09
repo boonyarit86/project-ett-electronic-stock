@@ -98,6 +98,7 @@ const Input = (props) => {
           required={props.required}
           onBlur={touchHandler}
           onChange={changeHandler}
+          value={inputState.value}
         />
         {isInputEmpty(isValid, isTouched, props.errorMessage) ? (
           <span className="input__error-message">{props.errorMessage}</span>

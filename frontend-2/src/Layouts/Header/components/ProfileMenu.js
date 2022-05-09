@@ -1,6 +1,5 @@
 import React, { useState, useContext } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
 import Avatar from "../../../Components/Avatar/Avatar";
 import Backdrop from "../../../Components/Backdrop/Backdrop";
@@ -8,19 +7,30 @@ import Profile from "../../../Components/Modal/Profile";
 import Skeleton from "../../../Components/Skeleton/Skeleton";
 import { AuthContext } from "../../../context/auth-context";
 import "./ProfileMenu.css";
+import EditProfile from "../../../Components/Modal/EditProfile";
 
 const ProfileMenu = () => {
   const auth = useContext(AuthContext);
+  const user = useSelector((state) => state.user.user);
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenProfile, setIsOpenProfile] = useState(false);
+  const [isOpenEditProfile, setIsOpenEditProfile] = useState(false);
   const handleDropdownMenu = () => setIsOpen((prev) => !prev);
   const handleProfileModal = () => {
-    if(isOpen) {
+    if (isOpen) {
       setIsOpen(false);
     }
     setIsOpenProfile((prev) => !prev);
   };
-  const user = useSelector((state) => state.user.user);
+  const handleEditProfileModal = () => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+    if (isOpenProfile) {
+      setIsOpenProfile(false);
+    }
+    setIsOpenEditProfile((prev) => !prev);
+  };
   //   console.log("Re-render ProfileMenu component")
   return (
     <div className="profileMenu">
@@ -37,8 +47,10 @@ const ProfileMenu = () => {
         <React.Fragment>
           <Avatar
             className="icon--large"
-            avatar={user?.avatar?.url ? user.avatar.url : null}
+            src={user?.avatar?.url ? user.avatar.url : null}
+            shape="circle"
             onClick={handleDropdownMenu}
+            alt="user avatar"
           />
           <span className="profileMenu__username" onClick={handleDropdownMenu}>
             {user.name}
@@ -57,10 +69,8 @@ const ProfileMenu = () => {
           <li className="profileMenu__item" onClick={handleProfileModal}>
             โพรไฟล์
           </li>
-          <li className="profileMenu__item">
-            <Link to="/" onClick={handleDropdownMenu}>
-              แก้ไขโพรไฟล์
-            </Link>
+          <li className="profileMenu__item" onClick={handleEditProfileModal}>
+            แก้ไขโพรไฟล์
           </li>
           <li className="profileMenu__item" onClick={() => auth.logout()}>
             ออกจากระบบ
@@ -68,8 +78,28 @@ const ProfileMenu = () => {
         </ul>
       )}
       {isOpen && <Backdrop onClick={handleDropdownMenu} />}
-      {isOpenProfile && <Backdrop black onClick={handleProfileModal} style={{zIndex: "100"}} />}
-      {isOpenProfile && <Profile onClick={handleProfileModal} user={user} />}
+      {isOpenProfile && (
+        <Backdrop
+          black
+          onClick={handleProfileModal}
+          style={{ zIndex: "100" }}
+        />
+      )}
+      {isOpenEditProfile && (
+        <Backdrop
+          black
+          onClick={handleEditProfileModal}
+          style={{ zIndex: "100" }}
+        />
+      )}
+      {isOpenProfile && (
+        <Profile
+          onClick={handleProfileModal}
+          user={user}
+          handleEditProfileModal={handleEditProfileModal}
+        />
+      )}
+      {isOpenEditProfile && <EditProfile onClick={handleEditProfileModal} user={user} />}
     </div>
   );
 };

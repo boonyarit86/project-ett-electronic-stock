@@ -87,6 +87,16 @@ body {
 .fullWidth {
   width: 100% !important;
 }
+.input__group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 2rem;
+}
+.btn__group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
 /* Others */
 .title,
@@ -107,7 +117,7 @@ body {
 .sidebar__text,
 .equipment-box__text,
 .btn-link,
-.btn {
+.btn, .form-upload__header {
   font-size: 1.4rem;
 }
 
@@ -127,6 +137,10 @@ body {
 .icon--large-2 {
   width: 4.8rem;
   height: 4.8rem;
+}
+.icon--large-3 {
+  width: 5.6rem;
+  height: 5.6rem;
 }
 
 /* @media only screen and (max-width: 75em) {

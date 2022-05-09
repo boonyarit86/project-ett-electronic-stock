@@ -1,7 +1,6 @@
-.profileMenu__item a, .profileMenu__arrow-icon, .profileMenu__item:last-child, .profileMenu__username {
+.profileMenu__item a, .profileMenu__arrow-icon, .profileMenu__item, .profileMenu__username {
     cursor: pointer;
 }
-
 .profileMenu {
     display: flex;
     align-items: center;
@@ -30,10 +29,6 @@
 }
 .profileMenu__item {
     padding: 0.5rem 1rem;
-}
-.profileMenu__item a {
-    color: var(--color-primary-black);
-    text-decoration: none;
 }
 .profileMenu__item:hover {
     background-color: var(--color-primary-grey--light-2);

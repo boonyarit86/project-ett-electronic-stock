@@ -1,0 +1,46 @@
+.form-upload, .form-upload__btn, .form-upload__preview, .form-upload__delete-icon {
+    display: flex;
+}
+.form-upload__btn, .form-upload__preview, .form-upload__delete-icon {
+    justify-content: center;
+    align-items: center;
+}
+.form-upload__delete-icon, .form-upload__btn {
+    cursor: pointer;
+}
+
+.form-upload {
+    flex-direction: column;
+    gap: 1rem;
+   
+}
+.form-upload__preview {
+    gap: 1rem;
+    width: fit-content;
+}
+.form-upload__image {
+    position: relative;
+}
+.form-upload__delete-icon {
+    position: absolute;
+    top: -30%;
+    right: -30%;
+    background-color: var(--color-error);
+    color: var(--color-white);
+    border-radius: 50%;
+    font-size: 1.2rem;
+}
+.form-upload__input {
+    display: none;
+}
+.form-upload__btn {
+    background-color: var(--color-primary-grey--light-1);
+    transition: all 0.3s;
+    border: none;
+    border-radius: 4px;
+    padding: 1rem;
+    width: fit-content;
+}
+.form-upload__btn:hover {
+    background-color: var(--color-primary-grey--medium);
+}

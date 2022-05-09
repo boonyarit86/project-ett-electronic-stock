@@ -14,7 +14,7 @@ const Profile = (props) => {
                 <AiOutlineClose className="profile__close-icon icon--medium" onClick={props.onClick} />
             </div>
             <div className="profile__intro">
-                <Avatar className="profile__avatar" />
+                <Avatar src={user?.avatar?.url ? user.avatar.url : null} className="profile__avatar" alt="user avatar" shape="circle" />
                 <article className="profile__detail">
                     <div className="profile__text-box">
                         <p className="profile__title">อีเมล์</p>
@@ -28,7 +28,7 @@ const Profile = (props) => {
                         <p className="profile__title">สถานะ</p>
                         <p className="profile__text">{user?.role}</p>
                     </div>
-                    <Button element="button" className="btn-white" type="button" >แก้ไขโพรไฟล์</Button>
+                    <Button element="button" className="btn-white" type="button" onClick={props.handleEditProfileModal}>แก้ไขโพรไฟล์</Button>
                 </article>
             </div>
         </div>

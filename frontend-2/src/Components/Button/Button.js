@@ -9,6 +9,7 @@ const Button = React.memo((props) => {
         type={props.type}
         className={`btn ${props.className}`}
         disabled={props.disabled}
+        onClick={props.onClick}
       >
         {props.children}
       </button>

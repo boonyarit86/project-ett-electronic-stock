@@ -97,12 +97,21 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.editProfile = catchAsync(async (req, res, next) => {
-  const { email, password, passwordConfirm, oldPassword, name, avatar } =
-    req.body;
+  const { email, password, passwordConfirm, oldPassword, name } =
+  req.body;
+  // const avatar = req.body.avatar; // For development
+  const avatar = JSON.parse(req.body.avatar) || null;
   const user = await User.findById(req.params.userId).select("+password");
   if (!user) return next(new AppError("ไม่พบผู้ใช้งานนี้", 404));
 
-  await setPassword({ oldPassword, password, passwordConfirm }, user);
+  if(password !== "" && oldPassword !== "") {
+    // Password not changed
+    await setPassword({ oldPassword, password, passwordConfirm }, user);
+  } else {
+    // Password changed
+    user.password = user.password;
+    user.passwordConfirm = user.password;
+  }
 
   user.email = email;
   user.name = name;
@@ -110,7 +119,7 @@ exports.editProfile = catchAsync(async (req, res, next) => {
 
   await handleOneImage(user, req.file, avatar);
   // Before saving, there are some middleware functionalities working.
-  await user.save();
+  await user.save({ validateBeforeSave: false });
   user.password = undefined;
 
   sendResponse(user, 200, res);
