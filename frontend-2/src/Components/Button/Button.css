@@ -38,6 +38,15 @@
 .btn-primary-grey:hover, .btn-primary-grey:active {
     background-color: var(--color-primary-grey--medium);
 }
+
+.btn-secondary-purple {
+    background-color: var(--color-secondary-purple);
+    color: var(--color-white);
+}
+.btn-secondary-purple:hover, .btn-secondary-purple:active {
+    background-color: var(--color-secondary-purple--shade);
+}
+
 .btn-white {
     background-color: var(--color-white);
     border: 1px solid var(--color-primary-grey);

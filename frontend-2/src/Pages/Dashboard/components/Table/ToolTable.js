@@ -1,7 +1,11 @@
-import Button from "../../../../Components/Button/Button";
-import Title from "../../../../Components/Text/Title";
-import "../../../../Components/Table.css";
 import Avatar from "../../../../Components/Avatar/Avatar";
+import Button from "../../../../Components/Button/Button";
+import Column from "../../../../Components/Table/Column";
+import Row from "../../../../Components/Table/Row";
+import Table from "../../../../Components/Table/Table";
+import Thead from "../../../../Components/Table/Thead";
+import Title from "../../../../Components/Text/Title";
+import React from "react";
 
 const ToolTable = (props) => {
   const state = props.state;
@@ -10,107 +14,65 @@ const ToolTable = (props) => {
     <>
       <Title className="table__title">รายการอุปกรณ์หมด</Title>
       {props.data.length > 0 ? (
-        <div className="table">
-          <div className="table__headers">
+        <Table>
+          <Thead>
             {props.state.map((item, index) => (
-              <div
-                className="table__header"
-                key={index}
-                style={{
-                  minWidth: `${item.minW}rem`,
-                  width: `${item.maxW}rem`,
-                }}
-              >
-                <p className="table__header-text">{item.name}</p>
-              </div>
+              <React.Fragment key={index}>
+                <Column minW={item.minW} maxW={item.maxW}>
+                  <p className="table__header-text">{item.name}</p>
+                </Column>
+              </React.Fragment>
             ))}
-          </div>
+          </Thead>
           {props.data.map((item, index) => (
-            <div className="table__row" key={index}>
-              <div
-                className="table__col"
-                style={{
-                  minWidth: `${state[0].minW}rem`,
-                  width: `${state[0].maxW}rem`,
-                }}
-              >
-                <Avatar
-                  shape="square"
-                  src={item?.avatar?.url ? item.avatar.url : null}
-                  className="icon--large"
-                />
-              </div>
-              <div
-                className="table__col"
-                style={{
-                  minWidth: `${state[1].minW}rem`,
-                  width: `${state[1].maxW}rem`,
-                }}
-              >
-                <p className="table__col-text">{item.toolName}</p>
-              </div>
-
-              <div
-                className="table__col"
-                style={{
-                  minWidth: `${state[2].minW}rem`,
-                  width: `${state[2].maxW}rem`,
-                }}
-              >
-                <p className="table__col-text">
-                  {item?.toolCode ? item.toolCode : "ไม่ได้กำหนด"}
-                </p>
-              </div>
-              <div
-                className="table__col"
-                style={{
-                  minWidth: `${state[3].minW}rem`,
-                  width: `${state[3].maxW}rem`,
-                }}
-              >
-                <p className="table__col-text">{item.type.name}</p>
-              </div>
-              <div
-                className="table__col"
-                style={{
-                  minWidth: `${state[4].minW}rem`,
-                  width: `${state[4].maxW}rem`,
-                }}
-              >
-                <p className="table__col-text">
-                  {item?.category?.name ? item.category.name : "ไม่ได้กำหนด"}
-                </p>
-              </div>
-              <div
-                className="table__col"
-                style={{
-                  minWidth: `${state[5].minW}rem`,
-                  width: `${state[5].maxW}rem`,
-                }}
-              >
-                <p className="table__col-text">
-                  {item?.size ? item.size : "ไม่ได้กำหนด"}
-                </p>
-              </div>
-              <div
-                className="table__col table__col-btns"
-                style={{
-                  minWidth: `${state[6].minW}rem`,
-                  width: `${state[6].maxW}rem`,
-                }}
-              >
-                <Button
-                  element="link"
-                  type="submit"
-                  path="/"
-                  className="btn-primary-grey"
+            <React.Fragment key={index}>
+              <Row>
+                <Column minW={state[0].minW} maxW={state[0].maxW}>
+                  <Avatar
+                    shape="square"
+                    src={item?.avatar?.url ? item.avatar.url : null}
+                    className="icon--large"
+                  />
+                </Column>
+                <Column minW={state[1].minW} maxW={state[1].maxW}>
+                  <p className="table__col-text">{item.toolName}</p>
+                </Column>
+                <Column minW={state[2].minW} maxW={state[2].maxW}>
+                  <p className="table__col-text">
+                    {item?.toolCode ? item.toolCode : "ไม่ได้กำหนด"}
+                  </p>
+                </Column>
+                <Column minW={state[3].minW} maxW={state[3].maxW}>
+                  <p className="table__col-text">{item.type.name}</p>
+                </Column>
+                <Column minW={state[4].minW} maxW={state[4].maxW}>
+                  <p className="table__col-text">
+                    {item?.category?.name ? item.category.name : "ไม่ได้กำหนด"}
+                  </p>
+                </Column>
+                <Column minW={state[5].minW} maxW={state[5].maxW}>
+                  <p className="table__col-text">
+                    {item?.size ? item.size : "ไม่ได้กำหนด"}
+                  </p>
+                </Column>
+                <Column
+                  minW={state[6].minW}
+                  maxW={state[6].maxW}
+                  className="table__col-btns"
                 >
-                  ดู
-                </Button>
-              </div>
-            </div>
+                  <Button
+                    element="link"
+                    type="button"
+                    path="/"
+                    className="btn-primary-grey"
+                  >
+                    ดู
+                  </Button>
+                </Column>
+              </Row>
+            </React.Fragment>
           ))}
-        </div>
+        </Table>
       ) : (
         <div>ไม่มีข้อมูลอุปกรณ์</div>
       )}

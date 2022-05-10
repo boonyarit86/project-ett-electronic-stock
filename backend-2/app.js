@@ -130,3 +130,43 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 });
+
+let data = [
+  { name: "Ai", id: 1 },
+  { name: "Ben", id: 2 },
+  { name: "Cony", id: 3 },
+  { name: "Diabo", id: 4 },
+  { name: "Emilia", id: 5 },
+  { name: "Falco", id: 6 },
+  { name: "Gabi", id: 7 },
+  { name: "Hinata", id: 8 },
+  { name: "Iru", id: 9 },
+  { name: "Joey", id: 10 },
+  { name: "Kao", id: 11 },
+  { name: "Lee", id: 12 },
+  { name: "Mina", id: 13 },
+  { name: "Nino", id: 14 },
+  { name: "Oto", id: 15 },
+  { name: "Pina", id: 16 },
+  { name: "Q", id: 17 },
+  { name: "Risa", id: 18 },
+  { name: "Satori", id: 19 },
+  { name: "Toma", id: 20 },
+  { name: "Umi", id: 21 },
+  { name: "Viole", id: 22 },
+  { name: "Wan", id: 23 },
+  { name: "Xi", id: 24 },
+  { name: "Yuna", id: 25 },
+  { name: "Zero", id: 26 },
+];
+
+const calData = (page, row) => {
+  // (5 * (1-1)) = 0
+  let itemStart = row * (page-1);
+  let itemEnd = row * page;
+  let Allpages = Math.ceil(data.length / row);
+  let response = data.slice(itemStart, itemEnd);
+  console.log(response);
+  console.log(`${Allpages} pages`)
+}
+// calData(1, 10);

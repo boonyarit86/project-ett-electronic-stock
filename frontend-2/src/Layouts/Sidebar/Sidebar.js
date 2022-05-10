@@ -41,7 +41,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="sidebar__item" id="m2" onClick={() => onClick("m2")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/toolList" className="sidebar__link">
               <AiOutlineTool className="sidebar__icon icon--medium" />
               <p className="sidebar__text">รายการอุปกรณ์</p>
             </Link>

@@ -1,3 +1,8 @@
+.table__headers, .table__row, .table__col ,.table__col-btns {
+    display: flex;
+    align-items: center;
+}
+
 .table {
     width: 100%;
     background-color: var(--color-white);
@@ -14,21 +19,17 @@
 }
 .table__headers, .table__row {
     height: 6rem;
-    display: flex;
-    align-items: center;
 }
-.table__header, .table__col {
-    display: inline-block;
+.table__col {
     padding-left: 1rem;
+    height: inherit;
 }
 .table__header-text {
     font-weight: 700;
 }
-.table__row:hover {
+.table__row:hover .table__col {
     background-color: var(--color-primary-grey--light-1);
 }
 .table__col-btns {
-    display: flex;
-    align-items: center;
     gap: 1rem;
 }

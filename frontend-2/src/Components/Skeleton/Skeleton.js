@@ -9,6 +9,7 @@ const Skeleton = React.memo((props) => {
         className={`skeleton skeleton__text ${
           props.size && `skeleton__text--${props.size} ${props.className}`
         }`}
+        style={props.style}
       />
     );
   } else if (props.element === "image") {

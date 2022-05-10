@@ -4,17 +4,14 @@ import "./Select.css";
 // Function Input ตัวจับ Error
 const Select = (props) => {
   const { state, setState } = props;
-  
+
   const changeHandler = (e) => {
     setState(e.target.value);
   };
 
   return (
     <div className={`select ${props.fullWidth && "fullWidth"}`}>
-      <label
-        htmlFor={props.id}
-        className={`select__label`}
-      >
+      <label htmlFor={props.id} className={`select__label`}>
         {props.label}{" "}
         {props.required && <span className="input__required">*</span>}
       </label>
@@ -26,12 +23,18 @@ const Select = (props) => {
         value={state}
         required={props.required}
       >
-        <option value="" className="select__option" disabled>
-          --- {props.placeholder} ---
-        </option>
+        {props.placeholder && (
+          <option value="" className="select__option" disabled>
+            --- {props.placeholder} ---
+          </option>
+        )}
         {props.data.length > 0 &&
           props.data.map((item) => (
-            <option value={item.value} className="select__option" key={item.value}>
+            <option
+              value={item.value}
+              className="select__option"
+              key={item.value}
+            >
               {item.name}
             </option>
           ))}

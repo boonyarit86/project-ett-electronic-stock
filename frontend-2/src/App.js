@@ -18,6 +18,7 @@ import Header from "./Layouts/Header/Header";
 import "./Layouts/Layout.css";
 import Main from "./Layouts/Main/Main";
 import CreateTool from "./Pages/CreateTool/CreateTool";
+import ToolList from "./Pages/ToolList/ToolList";
 
 function App() {
   const { token, logout, login, userId } = useAuth();
@@ -34,6 +35,7 @@ function App() {
           <Main>
             <Routes>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/toolList" element={<ToolList />} />
               <Route path="/createTool" element={<CreateTool />} />
               {/* Catch all - replace with 404 component if you want */}
               <Route path="*" element={<Navigate to="/" replace />} />

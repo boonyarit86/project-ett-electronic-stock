@@ -14,6 +14,6 @@ const toolsSlice = createSlice({
   }
 });
 
-// export const getUser = (state) => state.user.user;
+// export const getTools = (state) => state.user.user;
 export const { setTools } = toolsSlice.actions;
 export default toolsSlice.reducer;

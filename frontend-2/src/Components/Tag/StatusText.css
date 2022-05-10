@@ -1,0 +1,16 @@
+.statusText {
+    padding: 2px 3px;
+}
+
+.statusText--success {
+    background-color: var(--color-success--palette);
+    color: var(--color-success);
+}
+.statusText--warning {
+    background-color: var(--color-warning--palette);
+    color: var(--color-warning);
+}
+.statusText--error {
+    background-color: var(--color-error--palette);
+    color: var(--color-error);
+}
