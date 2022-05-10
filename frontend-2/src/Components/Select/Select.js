@@ -1,10 +1,10 @@
-import React, { useReducer, useEffect } from "react";
+import React from "react";
 import "./Select.css";
 
 // Function Input ตัวจับ Error
 const Select = (props) => {
   const { state, setState } = props;
-
+  
   const changeHandler = (e) => {
     setState(e.target.value);
   };
@@ -24,7 +24,7 @@ const Select = (props) => {
         className={`select__input`}
         onChange={changeHandler}
         value={state}
-        required
+        required={props.required}
       >
         <option value="" className="select__option" disabled>
           --- {props.placeholder} ---

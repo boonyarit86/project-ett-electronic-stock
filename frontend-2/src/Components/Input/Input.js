@@ -3,7 +3,7 @@ import "./Input.css";
 
 // Function Input ตัวจับ Error
 const Input = (props) => {
- const { state, setState } = props;
+  const { state, setState } = props;
 
   const changeHandler = (e) => {
     setState(e.target.value);
@@ -11,11 +11,10 @@ const Input = (props) => {
 
   const element =
     props.element === "input" ? (
-      <div
-        className={`input__box ${props.fullWidth && "fullWidth"}`}
-      >
+      <div className={`input__box ${props.fullWidth && "fullWidth"}`}>
         <label className="input__label" htmlFor={props.id}>
-          {props.label} {props.required && <span className="input__required">*</span>}
+          {props.label}{" "}
+          {props.required && <span className="input__required">*</span>}
         </label>
         <input
           id={props.id}
@@ -31,12 +30,18 @@ const Input = (props) => {
         ) : null}
       </div>
     ) : (
-      <textarea
-        id={props.id}
-        rows={props.rows || 3}
-        onChange={changeHandler}
-        value={state}
-      />
+      <div className={`input__box ${props.fullWidth && "fullWidth"}`}>
+        <label className="input__label" htmlFor={props.id}>
+          {props.label}{" "}
+          {props.required && <span className="input__required">*</span>}
+        </label>
+        <textarea
+          id={props.id}
+          rows={props.rows || 3}
+          onChange={changeHandler}
+          value={state}
+        />
+      </div>
     );
 
   return <React.Fragment>{element}</React.Fragment>;

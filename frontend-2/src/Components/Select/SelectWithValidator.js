@@ -115,7 +115,7 @@ const Select = (props) => {
         onBlur={touchHandler}
         onChange={changeHandler}
         value={inputState.value}
-        required
+        required={props.required}
       >
         <option value="" className="select__option" disabled>
           --- {props.placeholder} ---

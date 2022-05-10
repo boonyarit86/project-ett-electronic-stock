@@ -1,26 +1,29 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Axios from "axios";
-import { AuthContext } from "../../context/auth-context";
+import Button from "../../Components/Button/Button";
 import Heading from "../../Components/Text/Heading";
 import InputWithValidator from "../../Components/Input/InputWithValidator";
 import Input from "../../Components/Input/Input";
-import Toast from "../../Components/Toast/Toast";
+import Select from "../../Components/Select/Select";
 import SelectWithValidator from "../../Components/Select/SelectWithValidator";
+import Toast from "../../Components/Toast/Toast";
 import UploadOneImage from "../../Components/Button/UploadOneImage";
+import { AuthContext } from "../../context/auth-context";
 import { VALIDATOR_REQUIRE } from "../../utils/validators";
 import { useForm } from "../../hooks/form-hook";
 import { startLoading, endLoading } from "../../Redux/features/stateSlice";
 import { setTts } from "../../Redux/features/ttsSlice";
 import { setTcs } from "../../Redux/features/tcsSlice";
-import Button from "../../Components/Button/Button";
 import { catchError, catchRequestError } from "../../utils/handleError";
-import Select from "../../Components/Select/Select";
+import "./CreateTool.css";
 
 const CreateTool = () => {
   const auth = useContext(AuthContext);
   const dispatch = useDispatch();
-  const { tts, ttsInSelect } = useSelector((state) => state.tts);
+  const navigate = useNavigate();
+  const { ttsInSelect } = useSelector((state) => state.tts);
   const { tcs } = useSelector((state) => state.tcs);
   const [isLoading, setIsLoading] = useState(true);
   const [file, setFile] = useState(null);
@@ -31,6 +34,7 @@ const CreateTool = () => {
   const [category, setCategory] = useState("");
   const [toolCode, setToolCode] = useState("");
   const [size, setSize] = useState("");
+  const [description, setDescription] = useState("");
 
   const [formState, inputHandler] = useForm(
     {
@@ -57,13 +61,11 @@ const CreateTool = () => {
           signal: ctrl.signal,
         })
           .then((res) => {
-            // console.log(res.data.data.tts);
             dispatch(setTts(res.data.data.tts));
             dispatch(endLoading());
             setIsLoading((prev) => false);
           })
           .catch((error) => {
-            // Show error on Modal and Do it later.
             setIsLoading((prev) => false);
             dispatch(endLoading());
             catchRequestError(error, setRequestError);
@@ -76,13 +78,11 @@ const CreateTool = () => {
           signal: ctrl.signal,
         })
           .then((res) => {
-            // console.log(res.data.data.tcs);
             dispatch(setTcs(res.data.data.tcs));
             setIsLoading((prev) => false);
             dispatch(endLoading());
           })
           .catch((error) => {
-            // Show error on Modal and Do it later.
             setIsLoading((prev) => false);
             dispatch(endLoading());
             catchRequestError(error, setRequestError);
@@ -97,7 +97,7 @@ const CreateTool = () => {
 
   useEffect(() => {
     let newArr = [];
-    setCategory("")
+    setCategory("");
     const ttsId = formState.inputs.type.value;
     if (tcs.length > 0 && ttsId !== "") {
       tcs.forEach((item) => {
@@ -109,8 +109,7 @@ const CreateTool = () => {
     }
   }, [formState.inputs.type.value, tcs]);
 
-//   console.log(formState.inputs.type, " : ", category)
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div />;
   if (!isLoading && requestError) {
     return (
       <div className="createTool">
@@ -124,18 +123,48 @@ const CreateTool = () => {
     );
   }
 
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const { type, toolName } = formState.inputs;
+
+    try {
+      dispatch(startLoading());
+      let formData = new FormData();
+      formData.append("toolName", toolName.value);
+      formData.append("toolCode", toolCode);
+      formData.append("type", type.value);
+      formData.append("category", category);
+      formData.append("size", size);
+      formData.append("avatar", file);
+
+      await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/tools`, formData, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      }).then((res) => {
+        console.log(res.data);
+        dispatch(endLoading());
+        navigate("/");
+      });
+    } catch (error) {
+      let mainElement = document.querySelector(".main");
+      dispatch(endLoading());
+      catchError(error, setErrorMessage);
+      mainElement.scrollTo(0, 0);
+    }
+  };
+
   return (
     <div className="createTool">
-      <Heading type="main" text="สร้างอุปกรณ์ใหม่" />
+      <Heading type="main" text="สร้างอุปกรณ์ใหม่" className="u-mg-b" />
       {errorMessage && (
         <Toast
           element="error"
           type="default"
           message={errorMessage}
           style={{ marginBottom: "1rem" }}
+          className="u-mg-b"
         />
       )}
-      <form>
+      <form className="createTool__form" onSubmit={onSubmit}>
         <InputWithValidator
           element="input"
           type="text"
@@ -193,6 +222,15 @@ const CreateTool = () => {
           />
         </div>
         <UploadOneImage setFile={setFile} initialValue={null} />
+        <Input
+          element="textarea"
+          label="รายละเอียดเพิ่มเติม"
+          id="description"
+          placeholder="ข้อมูลอื่นๆที่เกี่ยวกับอุปกรณ์"
+          setState={setDescription}
+          state={description}
+          fullWidth
+        />
         <div className="btn__group">
           <Button
             type="submit"

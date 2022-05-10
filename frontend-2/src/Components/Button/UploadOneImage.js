@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { MdAddPhotoAlternate } from "react-icons/md";
 import Avatar from "../Avatar/Avatar";
 import "./UploadOneImage.css";
 
-const UploadOneImage = (props) => {
+const UploadOneImage = memo((props) => {
   const { setFile, setFileDeleted, initialValue } = props;
   const [previewUrl, setPreviewUrl] = useState(initialValue?.url ? initialValue.url : null);
 
@@ -58,6 +58,6 @@ const UploadOneImage = (props) => {
       </label>
     </div>
   );
-};
+});
 
 export default UploadOneImage;

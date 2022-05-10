@@ -95,6 +95,7 @@ exports.getTool = catchAsync(async (req, res, next) => {
 
 exports.createTool = catchAsync(async (req, res, next) => {
   const tool = new Tool(req.body);
+  tool.creator = req.user._id;
   await tool.save();
   if (hasFile(req.file)) {
     await uploadOneImage(req.file.path, tool);

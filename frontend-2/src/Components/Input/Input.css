@@ -1,3 +1,10 @@
+.input__box input, .input__box textarea {
+    border-radius: 4px;
+    width: 100%;
+    border: 1px solid var(--color-primary-grey);
+    text-indent: 0.5rem;
+    outline: none;
+}
 .input__box {
     width: 20rem;
     display: flex;
@@ -6,16 +13,11 @@
 }
 .input__box input {
     height: 4rem;
-    border-radius: 4px;
-    width: 100%;
-    border: 1px solid var(--color-primary-grey);
-    text-indent: 0.5rem;
-    outline: none;
 }
 .input__box input::placeholder {
     font-size: inherit;
 }
-.input__box input:focus {
+.input__box input:focus, .input__box textarea:focus {
     border: 1px solid var(--color-blue--light);
 }
 .input__box-error input {
@@ -23,4 +25,7 @@
 }
 .input__box-error .input__label, .input__error-message, .input__box-error input::placeholder, .input__required{
     color: var(--color-error);
+}
+.input__box textarea {
+    height: 7rem;
 }
