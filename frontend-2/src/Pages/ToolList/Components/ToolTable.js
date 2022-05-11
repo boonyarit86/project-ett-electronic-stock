@@ -11,9 +11,7 @@ import { checkStatus } from "../../../utils/index";
 import Pagination from "../../../Components/Table/Pagination";
 
 const ToolTable = (props) => {
-  const state = props.state;
-  const setState = props.setState;
-  const initialData = props.initialData;
+  const {state, handleOpenModal, setState, initialData} = props;
 
   return (
     <>
@@ -77,6 +75,7 @@ const ToolTable = (props) => {
                     element="button"
                     type="button"
                     className="btn-primary-blue"
+                    onClick={() => handleOpenModal("เบิก", item)}
                   >
                     เบิก
                   </Button>
@@ -84,6 +83,7 @@ const ToolTable = (props) => {
                     element="button"
                     type="button"
                     className="btn-secondary-purple"
+                    onClick={() => handleOpenModal("เพิ่ม", item)}
                   >
                     เพิ่ม
                   </Button>

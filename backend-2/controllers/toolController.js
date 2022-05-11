@@ -18,8 +18,7 @@ const {
   uploadOneImage,
 } = require("../utils/handleImage");
 const { handleNotification } = require("../utils/notification");
-// const { io } = require("../app");
-// console.log(io);
+const { io } = require("../app");
 
 // UTILITIES
 const sendResponse = (tool, statusCode, res) => {
@@ -188,7 +187,7 @@ exports.toolAction = catchAsync(async (req, res, next) => {
   await tool.save();
 
   // *** Using socket.io for sending data ***
-  // Do it here later
+  io.emit("tool-action", {tid: tool._id, total: tool.total});
 
   sendResponse(tool, 200, res);
 });

@@ -10,12 +10,12 @@ import { useAuth } from "./hooks/auth-hook";
 import { AuthContext } from "./context/auth-context";
 import Auth from "./Pages/Auth/Auth";
 import LoadingSpinner from "./Components/LoadingSpinner/LoadingSpinner";
-// import Layout from "./Layouts/Layout";
+import Layout from "./Layouts/Layout";
 import "./App.css";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import Sidebar from "./Layouts/Sidebar/Sidebar";
 import Header from "./Layouts/Header/Header";
-import "./Layouts/Layout.css";
+// import "./Layouts/Layout.css";
 import Main from "./Layouts/Main/Main";
 import CreateTool from "./Pages/CreateTool/CreateTool";
 import ToolList from "./Pages/ToolList/ToolList";
@@ -29,7 +29,7 @@ function App() {
     routes = (
       <Router>
         {loading && <LoadingSpinner />}
-        <div className="layout">
+        <Layout>
           <Header />
           <Sidebar />
           <Main>
@@ -41,7 +41,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Main>
-        </div>
+        </Layout>
       </Router>
     );
   } else {

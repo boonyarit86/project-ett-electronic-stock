@@ -2,6 +2,7 @@
     background-color: var(--color-primary-grey--light-2);
     overflow: scroll;
     padding: 3rem;
+    scroll-behavior: smooth;
 }
 .main::-webkit-scrollbar {
     display: none;

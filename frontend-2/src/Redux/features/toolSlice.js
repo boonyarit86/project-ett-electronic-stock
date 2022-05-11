@@ -11,9 +11,18 @@ const toolsSlice = createSlice({
     setTools: (state, action) => {
       state.tools = action.payload;
     },
+    actionTool: (state, action) => {
+      let { tid, total } = action.payload;
+      state.tools.find((tool) => {
+        if(tool._id === tid) {
+          tool.total = total
+        }
+        return tool
+      })
+    }
   }
 });
 
 // export const getTools = (state) => state.user.user;
-export const { setTools } = toolsSlice.actions;
+export const { setTools, actionTool } = toolsSlice.actions;
 export default toolsSlice.reducer;

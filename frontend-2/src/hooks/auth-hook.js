@@ -77,7 +77,7 @@ export const useAuth = () => {
       // 60000(มิลลิเซก) * 1 = 1 นาที
       // (1000 * 60) * 60 = 1 ชั่วโมง
       const tokenExpirationDate =
-        expirationDate || new Date(new Date().getTime() + 1000 * 60 * 6000);
+        expirationDate || new Date(new Date().getTime() + 1000 * 60 * 600);
       setTokenExpirationDate(tokenExpirationDate);
       localStorage.setItem(
         "userData",

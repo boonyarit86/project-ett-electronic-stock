@@ -1,14 +1,15 @@
 const { isNotItemGoingOut, isItemOut, isItemGoingOut } = require("./index");
 const Notification = require("../models/notificationModel");
 const User = require("../models/userModel");
+const { io } = require("../app");
 
 const createNotification = async (message) => {
-  await Notification.create({
+  let newNotification = await Notification.create({
     message: message,
   });
 
   // *** Using socket.io for sending data ***
-  // Do it here later
+  io.emit("notification-action", newNotification);
 };
 
 const countUnreadNotificationOfUsers = async () => {
@@ -19,12 +20,9 @@ const countUnreadNotificationOfUsers = async () => {
     user.unreadNotification += 1;
     await user.save({ validateBeforeSave: false });
   });
-
-  // *** Using socket.io for sending data ***
-  // Do it here later
 };
 
-const handleNotification = async (data, action, itemName) => {
+const handleNotification = async (data, action, itemName, userId) => {
   if (isNotItemGoingOut(data)) {
     data.isAlert = false;
   } else if (isItemGoingOut(data) || isItemOut(data.total)) {

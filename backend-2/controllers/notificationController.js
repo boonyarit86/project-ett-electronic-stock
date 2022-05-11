@@ -30,7 +30,7 @@ exports.getAllnotifications = catchAsync(async (req, res, next) => {
     unreadNotifications: user.unreadNotification,
   };
 
-  io.emit("notification-action", data);
+  io.emit("Allnotification-action", data);
 
   res.status(200).json({
     status: "success",

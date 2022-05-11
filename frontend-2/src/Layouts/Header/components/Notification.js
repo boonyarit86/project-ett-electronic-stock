@@ -1,37 +1,26 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState, useContext } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { BsBell } from "react-icons/bs";
-import { io } from "socket.io-client";
 import Axios from "axios";
 import Avatar from "../../../Components/Avatar/Avatar";
 import Backdrop from "../../../Components/Backdrop/Backdrop";
 import { AuthContext } from "../../../context/auth-context";
+import { readNotification } from "../../../Redux/features/notificationSlice";
 import "./Notification.css";
 
 const Notification = () => {
   const auth = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const { notifications, unreadNotifications } = useSelector((state) => state.notification);
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unReadNotifications, setUnReadNotifications] = useState(0);
-  // Connect with Socket.io
-  useEffect(() => {
-    // const socket = io("ws://localhost:5000");
-    // const socket = io("https://ett-test.herokuapp.com");
-    const socket = io(process.env.REACT_APP_SOCKET_URL);
-    socket.on("notification-action", (data) => {
-      setUnReadNotifications(data.unreadNotifications);
-      setNotifications(data.notifications);
-    });
-
-    return () => socket.disconnect();
-  }, []);
 
   const handleNotification = async () => {
     setIsOpen((prev) => !prev);
-    if (!isOpen && unReadNotifications !== 0) {
+    if (!isOpen && unreadNotifications !== 0) {
       await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/notifications`, {}, {
         headers: { Authorization: `Bearer ${auth.token}` },
       })
-        .then((res) => setUnReadNotifications(0))
+        .then((res) => dispatch(readNotification()))
         .catch((error) => {
           console.error(error);
         });
@@ -40,8 +29,8 @@ const Notification = () => {
 
   return (
     <div className="notification">
-      <div className="notification__count" style={{right: `${unReadNotifications >= 10 ? '-40%' : '-10%'}`}} onClick={handleNotification}>
-        <span className="notification__number">{unReadNotifications}</span>
+      <div className="notification__count" style={{right: `${unreadNotifications >= 10 ? '-40%' : '-10%'}`}} onClick={handleNotification}>
+        <span className="notification__number">{unreadNotifications}</span>
       </div>
       <BsBell
         className="notification__bell-icon icon--medium"

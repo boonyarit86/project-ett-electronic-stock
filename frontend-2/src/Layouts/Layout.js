@@ -1,17 +1,31 @@
-// import { Outlet } from "react-router-dom";
-import Header from "./Header/Header";
-import Main from "./Main/Main";
-import Sidebar from "./Sidebar/Sidebar";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { io } from "socket.io-client";
+import { setNotification, addNewNotification } from "../Redux/features/notificationSlice";
+import { actionTool } from "../Redux/features/toolSlice";
 import "./Layout.css";
 
-const Layout = () => {
+const Layout = (props) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const socket = io(process.env.REACT_APP_SOCKET_URL);
+    socket.on("Allnotification-action", (data) => {
+      dispatch(setNotification(data));
+    });
+    socket.on("notification-action", (data) => {
+      dispatch(addNewNotification(data));
+    });
+    socket.on("tool-action", (data) => {
+      dispatch(actionTool(data));
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
   return (
     <div className="layout">
-      <Header />
-      <Sidebar />
-      <Main>
-  
-      </Main>
+      {props.children}
     </div>
   );
 };
