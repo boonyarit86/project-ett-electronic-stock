@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   tools: [],
+  tool: null
 };
 
 const toolsSlice = createSlice({
@@ -19,10 +20,16 @@ const toolsSlice = createSlice({
         }
         return tool
       })
+    },
+    getTool: (state, action) => {
+      state.tool = state.tools.find((tool) => tool._id === action.payload)
+    },
+    resetTool: (state) => {
+      state.tool = null
     }
   }
 });
 
-// export const getTools = (state) => state.user.user;
-export const { setTools, actionTool } = toolsSlice.actions;
+// export const getTool = (state) => state.user.user;
+export const { setTools, actionTool, getTool, resetTool } = toolsSlice.actions;
 export default toolsSlice.reducer;

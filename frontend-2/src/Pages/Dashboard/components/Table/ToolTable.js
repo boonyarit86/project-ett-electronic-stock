@@ -63,7 +63,7 @@ const ToolTable = (props) => {
                   <Button
                     element="link"
                     type="button"
-                    path="/"
+                    path={`/toolList/${item._id}`}
                     className="btn-primary-grey"
                   >
                     ดู

@@ -46,6 +46,13 @@
 .btn-secondary-purple:hover, .btn-secondary-purple:active {
     background-color: var(--color-secondary-purple--shade);
 }
+.btn-secondary-red {
+    background-color: var(--color-secondary-red);
+    color: var(--color-white);
+}
+.btn-secondary-red:hover, .btn-secondary-red:active {
+    background-color: var(--color-secondary-red--shade);
+}
 
 .btn-white {
     background-color: var(--color-white);

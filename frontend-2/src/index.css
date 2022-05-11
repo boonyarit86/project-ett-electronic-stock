@@ -121,11 +121,18 @@ body {
 .sidebar__text,
 .equipment-box__text,
 .btn-link,
-.btn, .form-upload__header, .select__label, .inputSearch__label {
+.btn,
+.form-upload__header,
+.select__label,
+.inputSearch__label {
   font-size: 1.4rem;
 }
 
-.statusText, .pagination__input, .inputSearch__input-box, .inputSearch__list {
+.statusText,
+.pagination__input,
+.inputSearch__input-box,
+.inputSearch__list,
+.itemDetail__container, .itemDetail__container {
   border-radius: 4px;
 }
 
