@@ -44,3 +44,6 @@
 .form-upload__btn:hover {
     background-color: var(--color-primary-grey--medium);
 }
+.form-upload__helperText {
+    color: var(--color-primary-grey);
+}

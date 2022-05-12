@@ -40,14 +40,20 @@ const ToolDetail = () => {
   useEffect(() => {
     dispatch(getTool(toolId));
     if (tool) {
-      let newImagesArr = imagesData;
-      newImagesArr.unshift({
-        url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWNF0SzA0NX5edmpURFtNJQzDCQjtBN9XeYQ&usqp=CAU",
-      });
+      let newImagesArr = [];
+      if (tool?.avatar?.url) {
+        newImagesArr.unshift(tool.avatar);
+      }
+      if (tool?.images?.length > 0) {
+        newImagesArr = [...newImagesArr, ...tool.images]
+      }
+      if (newImagesArr.length > 0) {
+        setPreviewImage(newImagesArr[0].url);
+      } else {
+        setPreviewImage("./images/avatars/user-2.jpg");
+      }
+      console.log(tool.images)
       setImages(newImagesArr);
-      setPreviewImage(
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWNF0SzA0NX5edmpURFtNJQzDCQjtBN9XeYQ&usqp=CAU"
-      );
     }
 
     return () => {
@@ -243,30 +249,3 @@ const ToolDetail = () => {
 };
 
 export default ToolDetail;
-
-let imagesData = [
-  {
-    url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  },
-  {
-    url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  },
-  {
-    url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  },
-  {
-    url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  },
-  {
-    url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  },
-  //   {
-  //     url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  //   },
-  //   {
-  //     url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  //   },
-  //   {
-  //     url: "https://cdn.donmai.us/original/fd/de/__yukinoshita_yukino_yahari_ore_no_seishun_lovecome_wa_machigatteiru_drawn_by_mahdi__fddef510ee9f978926b323a93afb387d.png",
-  //   },
-];

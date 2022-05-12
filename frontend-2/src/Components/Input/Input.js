@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./Input.css";
 
 // Function Input ตัวจับ Error
 const Input = (props) => {
-  const { state, setState } = props;
+  const { state, setState, initialValue } = props;
+
+  useEffect(() => {
+    if(initialValue) {
+      setState(initialValue);
+    }
+  }, [initialValue])
 
   const changeHandler = (e) => {
     setState(e.target.value);

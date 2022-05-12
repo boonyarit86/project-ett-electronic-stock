@@ -32,10 +32,18 @@ const toolsSlice = createSlice({
     },
     addNewTool: (state, action) => {
       state.tools.unshift(action.payload);
-    }
+    },
+    updateTool: (state, action) => {
+      state.tools = state.tools.map((tool) => {
+        if(tool._id === action.payload._id) {
+          tool = action.payload
+        }
+        return tool
+      })
+    },
   }
 });
 
 // export const getTool = (state) => state.user.user;
-export const { setTools, actionTool, getTool, resetTool, deleteTool, addNewTool } = toolsSlice.actions;
+export const { setTools, actionTool, getTool, resetTool, deleteTool, addNewTool, updateTool } = toolsSlice.actions;
 export default toolsSlice.reducer;

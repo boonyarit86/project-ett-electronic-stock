@@ -20,6 +20,7 @@ import Main from "./Layouts/Main/Main";
 import CreateTool from "./Pages/CreateTool/CreateTool";
 import ToolList from "./Pages/ToolList/ToolList";
 import ToolDetail from "./Pages/ToolDetail/ToolDetail";
+import UpdateTool from "./Pages/UpdateTool/UpdateTool";
 
 function App() {
   const { token, logout, login, userId } = useAuth();
@@ -38,6 +39,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/toolList" element={<ToolList />} />
               <Route path="/toolList/:toolId" element={<ToolDetail />} />
+              <Route path="/toolList/:toolId/update" element={<UpdateTool />} />
               <Route path="/createTool" element={<CreateTool />} />
               {/* Catch all - replace with 404 component if you want */}
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -57,6 +57,14 @@ const factoryData = (doc) => {
   return doc;
 };
 
+const getUpdatedTool = async (id) => {
+  const doc = await Tool.findById(id)
+    .populate({ path: "type", select: "name" })
+    .populate({ path: "category", select: "name" });
+  doc.type.categories = null;
+  return doc;
+};
+
 exports.getAllTools = catchAsync(async (req, res, next) => {
   const tools = await Tool.find().populate("type category");
   let docs = factoryData(tools);
@@ -104,37 +112,35 @@ exports.createTool = catchAsync(async (req, res, next) => {
   const doc = await Tool.findById(tool._id)
     .populate({ path: "type", select: "name" })
     .populate({ path: "category", select: "name" });
-  tool.type.categories = null;
+  doc.type.categories = null;
 
   io.emit("tool-adding", doc);
   sendResponse(tool, 201, res);
 });
 
 exports.editTool = catchAsync(async (req, res, next) => {
-  const {
-    toolName,
-    toolCode,
-    type,
-    category,
-    limit,
-    size,
-    avatar,
-    description,
-  } = req.body;
+  const { toolName, toolCode, type, category, limit, size, description } =
+    req.body;
   const newAvatar = Boolean(req.files?.newAvatar) ? req.files.newAvatar[0] : {};
   const newImages = Boolean(req.files?.newImages) ? req.files.newImages : [];
+  const avatar = req.body?.avatar ? JSON.parse(req.body.avatar) : null;
+  const imagesDeleted = req.body?.imagesDeleted
+    ? JSON.parse(req.body.imagesDeleted)
+    : [];
+
   // Resolve this array to be req.body.imagesDeleted later.
-  const imagesDeleted = [
-    // { public_id: "mhotn5zxyglw3a3t5tqs" },
-    // { public_id: "lra3v2ap88tpqz7ebldx" },
-  ];
+  // const imagesDeleted = [
+  // { public_id: "mhotn5zxyglw3a3t5tqs" },
+  // { public_id: "lra3v2ap88tpqz7ebldx" },
+  // ];
+
   const tool = await Tool.findById(req.params.tid);
   if (!tool) return next(new AppError("ไม่พบรายการอุปกรณ์นี้", 404));
 
   tool.toolName = toolName;
   tool.toolCode = toolCode;
   tool.type = type;
-  tool.category = category;
+  tool.category = category ? category : tool.category;
   tool.limit = limit;
   tool.size = size;
   tool.description = description;
@@ -144,6 +150,10 @@ exports.editTool = catchAsync(async (req, res, next) => {
   await tool.save({ validateBeforeSave: false });
   await handleManyImages(tool, newImages, imagesDeleted);
   await tool.save({ validateBeforeSave: false });
+
+  let docUpdated = await getUpdatedTool(tool._id);
+
+  io.emit("tool-updating", docUpdated);
   sendResponse(tool, 200, res);
 });
 

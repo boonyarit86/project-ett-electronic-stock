@@ -55,44 +55,6 @@ const Select = (props) => {
     });
   };
 
-  //   const element =
-  //     props.element === "input" ? (
-  //       <div
-  //         className={`input__box ${props.fullWidth && "fullWidth"} ${
-  //           isInputEmpty(isValid, isTouched, props.errorMessage) &&
-  //           "input__box-error"
-  //         }`}
-  //       >
-  //         <label className="input__label" htmlFor={props.id}>
-  //           {props.label}{" "}
-  //           {props.required && <span className="input__required">*</span>}
-  //         </label>
-  //         <input
-  //           id={props.id}
-  //           type={props.type}
-  //           name={props.id}
-  //           placeholder={props.placeholder}
-  //           required={props.required}
-  //           onBlur={touchHandler}
-  //           onChange={changeHandler}
-  //           value={inputState.value}
-  //         />
-  //         {isInputEmpty(isValid, isTouched, props.errorMessage) ? (
-  //           <span className="input__error-message">{props.errorMessage}</span>
-  //         ) : props.helperText ? (
-  //           <span className="input__helperText">{props.helperText}</span>
-  //         ) : null}
-  //       </div>
-  //     ) : (
-  //       <textarea
-  //         id={props.id}
-  //         rows={props.rows || 3}
-  //         onChange={changeHandler}
-  //         onBlur={touchHandler}
-  //         value={inputState.value}
-  //       />
-  //     );
-
   return (
     <div className={`select ${props.fullWidth && "fullWidth"}`}>
       <label
@@ -126,15 +88,6 @@ const Select = (props) => {
               {item.name}
             </option>
           ))}
-        {/* <option value="saab" className="select__option">
-          Saab
-        </option>
-        <option value="mercedes" className="select__option">
-          Mercedes
-        </option>
-        <option value="audi" className="select__option">
-          Audi
-        </option> */}
       </select>
       {isInputEmpty(isValid, isTouched, props.errorMessage) && (
         <span className="input__error-message">{props.errorMessage}</span>
