@@ -1,7 +1,6 @@
 .toast__error--default, .toast__success--default {
     color: var(--color-white);
 }
-
 .toast {
     width: 100%;
     min-height: 4rem;
@@ -21,4 +20,12 @@
 }
 .toast__success--default {
     background-color: var(--color-success);
+}
+.toast__success--light {
+    color: var(--color-success);
+    background-color: var(--color-success--palette);
+}
+.toast__error--light {
+    color: var(--color-error);
+    background-color: var(--color-error--palette);
 }

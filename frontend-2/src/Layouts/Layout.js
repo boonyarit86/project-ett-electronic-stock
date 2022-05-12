@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { io } from "socket.io-client";
 import { setNotification, addNewNotification } from "../Redux/features/notificationSlice";
-import { actionTool } from "../Redux/features/toolSlice";
+import { actionTool, deleteTool, addNewTool } from "../Redux/features/toolSlice";
 import "./Layout.css";
 
 const Layout = (props) => {
@@ -18,6 +18,12 @@ const Layout = (props) => {
     });
     socket.on("tool-action", (data) => {
       dispatch(actionTool(data));
+    });
+    socket.on("tool-deleting", (data) => {
+      dispatch(deleteTool(data.tid));
+    });
+    socket.on("tool-adding", (data) => {
+      dispatch(addNewTool(data));
     });
 
     return () => socket.disconnect();

@@ -7,7 +7,7 @@ const ModalAction = (props) => {
   return (
     <div className="modal modalAction">
       <div className="modal__header">
-        <Title className="modal__h3">{props.title} {props.itemName}</Title>
+        <Title className="modal__h3">{props.title}{props.itemName}</Title>
         <AiOutlineClose
           className="modal__close-icon icon--medium"
           onClick={props.onClick}

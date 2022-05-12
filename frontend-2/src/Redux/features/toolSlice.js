@@ -26,10 +26,16 @@ const toolsSlice = createSlice({
     },
     resetTool: (state) => {
       state.tool = null
+    },
+    deleteTool: (state, action) => {
+      state.tools = state.tools.filter((tool) => tool._id !== action.payload)
+    },
+    addNewTool: (state, action) => {
+      state.tools.unshift(action.payload);
     }
   }
 });
 
 // export const getTool = (state) => state.user.user;
-export const { setTools, actionTool, getTool, resetTool } = toolsSlice.actions;
+export const { setTools, actionTool, getTool, resetTool, deleteTool, addNewTool } = toolsSlice.actions;
 export default toolsSlice.reducer;

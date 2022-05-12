@@ -1,21 +1,41 @@
-import { useEffect, useState } from "react";
+import React from "react";
+import Axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import Backdrop from "../../Components/Backdrop/Backdrop";
 import Button from "../../Components/Button/Button";
 import Heading from "../../Components/Text/Heading";
+import ModalAction from "../../Components/Modal/ModalAction";
 import Slider from "../../Components/Slider/Slider";
 import StatusText from "../../Components/Tag/StatusText";
+import ToastList from "../../Components/Toast/ToastList";
 import Title from "../../Components/Text/Title";
+import Toast from "../../Components/Toast/Toast";
 import { getTool, resetTool } from "../../Redux/features/toolSlice";
 import { checkStatus } from "../../utils";
+import { catchError } from "../../utils/handleError";
+import { endLoading, startLoading } from "../../Redux/features/stateSlice";
+import { AuthContext } from "../../context/auth-context";
+
 import "./ToolDetail.css";
 
+const warningText = [
+  { text: "ประวัติการเบิกและเพิ่มอุปกรณ์", id: "t1" },
+  { text: "ข้อมูลอุปกรณ์ที่บันทึกไว้ในบอร์ดต่างๆ", id: "t2" },
+  { text: "ข้อมูลอุปกรณ์ในหน้าอุปกรณ์ไม่ครบ", id: "t3" },
+];
+
 const ToolDetail = () => {
+  const auth = useContext(AuthContext);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const toolId = useParams().toolId;
   const tool = useSelector((state) => state.tool.tool);
   const [images, setImages] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     dispatch(getTool(toolId));
@@ -48,6 +68,45 @@ const ToolDetail = () => {
     setPreviewImage(img);
   };
 
+  const handleModal = () => {
+    setOpenModal((prev) => !prev);
+  };
+
+  const onSubmitDeleting = async (e) => {
+    let mainElement = document.querySelector(".main");
+    let menu = document.querySelectorAll(".sidebar__item");
+    let newItemActive = document.getElementById("m2");
+    e.preventDefault();
+    console.log(tool._id);
+
+    try {
+      dispatch(startLoading());
+      await Axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/tools/${tool._id}`,
+        {
+          headers: { Authorization: `Bearer ${auth.token}` },
+        }
+      ).then((res) => {
+        menu.forEach((item) => {
+          let isItemActive = item.getAttribute("class").includes("active");
+          if (isItemActive) {
+            item.classList.remove("active");
+          }
+        });
+
+        newItemActive.classList.add("active");
+        dispatch(endLoading());
+        navigate("/toolList");
+      });
+    } catch (error) {
+      dispatch(endLoading());
+      catchError(error, setErrorMessage);
+      mainElement.scrollTo(0, 0);
+    }
+
+    setOpenModal(false);
+  };
+
   if (!tool) {
     return <div />;
   }
@@ -56,6 +115,14 @@ const ToolDetail = () => {
     <div className="itemDetail">
       <p className="u-mg-b">รายการอุปกรณ์ : {tool.toolName}</p>
       <Heading type="main" text="รายละเอียดอุปกรณ์" className="u-mg-b" />
+      {errorMessage && (
+        <Toast
+          element="error"
+          type="default"
+          message={errorMessage}
+          className="u-mg-b"
+        />
+      )}
       <div className="itemDetail__container">
         <div className="itemDetail__images-box">
           <img src={previewImage} alt="avatar" className="itemDetail__avatar" />
@@ -101,12 +168,7 @@ const ToolDetail = () => {
             </div>
             <div className="itemDetail__description">
               <p className="itemDetail__title">รายละเอียดเพิ่มเติม</p>
-              <p className="itemDetail__text">
-                {tool.description} This HTML file is a template. If you open it
-                directly in the browser, you will see an empty page. You can add
-                webfonts, meta tags, or analytics to this file. The build step
-                will place the bundled scripts into the body tag.
-              </p>
+              <p className="itemDetail__text">{tool.description}</p>
             </div>
           </article>
 
@@ -114,7 +176,7 @@ const ToolDetail = () => {
             <Button
               element="link"
               type="button"
-              path="/"
+              path={`/toolList/${tool._id}/update`}
               className="btn-primary-blue"
             >
               แก้ไข
@@ -123,6 +185,7 @@ const ToolDetail = () => {
               element="button"
               type="button"
               className="btn-secondary-red"
+              onClick={handleModal}
             >
               ลบ
             </Button>
@@ -137,6 +200,44 @@ const ToolDetail = () => {
           </div>
         </div>
       </div>
+
+      {openModal && (
+        <React.Fragment>
+          <ModalAction
+            title="ลบ"
+            itemName={`อุปกรณ์ ${tool.toolName}`}
+            onClick={handleModal}
+          >
+            <div className="modal__form">
+              <ToastList
+                element="error"
+                type="light"
+                message="การทำขั้นตอนนี้ข้อมูลที่เกี่ยวข้องจะถูกลบไปด้วย"
+                article={warningText}
+              />
+              <div className="btn__group justify--left">
+                <Button
+                  type="button"
+                  element="button"
+                  className="btn-white"
+                  onClick={handleModal}
+                >
+                  ยกเลิก
+                </Button>
+                <Button
+                  type="button"
+                  element="button"
+                  className="btn-secondary-red"
+                  onClick={onSubmitDeleting}
+                >
+                  ลบ
+                </Button>
+              </div>
+            </div>
+          </ModalAction>
+          <Backdrop black style={{ zIndex: 100 }} />
+        </React.Fragment>
+      )}
     </div>
   );
 };

@@ -1,0 +1,6 @@
+.toastList {
+  border-radius: 4px;
+}
+.toastList__article {
+    padding: 1rem 3rem;
+}

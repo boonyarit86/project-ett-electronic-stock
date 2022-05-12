@@ -65,7 +65,7 @@ exports.getAllTools = catchAsync(async (req, res, next) => {
     status: "success",
     results: tools.length,
     data: {
-      tools: docs
+      tools: docs,
     },
   });
 });
@@ -100,6 +100,13 @@ exports.createTool = catchAsync(async (req, res, next) => {
     await uploadOneImage(req.file.path, tool);
     await tool.save({ validateBeforeSave: false });
   }
+
+  const doc = await Tool.findById(tool._id)
+    .populate({ path: "type", select: "name" })
+    .populate({ path: "category", select: "name" });
+  tool.type.categories = null;
+
+  io.emit("tool-adding", doc);
   sendResponse(tool, 201, res);
 });
 
@@ -186,8 +193,7 @@ exports.toolAction = catchAsync(async (req, res, next) => {
   await newHistoryTool.save();
   await tool.save();
 
-  // *** Using socket.io for sending data ***
-  io.emit("tool-action", {tid: tool._id, total: tool.total});
+  io.emit("tool-action", { tid: tool._id, total: tool.total });
 
   sendResponse(tool, 200, res);
 });
@@ -239,7 +245,7 @@ exports.restoreTool = catchAsync(async (req, res, next) => {
 
 exports.deleteTool = catchAsync(async (req, res, next) => {
   const tool = await Tool.findById(req.params.tid);
-  if (!tool) return next(new AppError("ไม่อุปกรณ์นี้", 404));
+  if (!tool) return next(new AppError("ไม่มีอุปกรณ์นี้", 404));
 
   if (hasImage(tool?.avatar)) {
     await deleteOneImage(tool.avatar?.public_id, null);
@@ -247,8 +253,7 @@ exports.deleteTool = catchAsync(async (req, res, next) => {
   await deleteAllImage(tool.images);
   await tool.remove();
 
-  // *** Using socket.io for sending tool data ***
-  // Do it here later
+  io.emit("tool-deleting", { tid: tool._id });
 
   sendResponse(null, 204, res);
 });

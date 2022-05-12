@@ -5,6 +5,7 @@ import { setUser } from "../Redux/features/userSlice";
 import { setBoards } from "../Redux/features/boardSlice";
 import { setTools } from "../Redux/features/toolSlice";
 import { startLoading, endLoading } from "../Redux/features/stateSlice";
+// import { setNotification } from "../Redux/features/notificationSlice";
 
 let logoutTimer;
 const url = process.env.REACT_APP_BACKEND_URL;
@@ -44,7 +45,9 @@ export const useAuth = () => {
       // Get notitication data
       let fetchNotification = Axios.get(`${url}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
-      }).catch((error) => {
+      }).then((res) => {
+        // dispatch(setNotification(res.data.data));
+      }) .catch((error) => {
         // Show error on Modal and Do it later.
         console.error(error);
         console.error(error.response.data.message);
