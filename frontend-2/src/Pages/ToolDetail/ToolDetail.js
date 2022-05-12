@@ -50,9 +50,8 @@ const ToolDetail = () => {
       if (newImagesArr.length > 0) {
         setPreviewImage(newImagesArr[0].url);
       } else {
-        setPreviewImage("./images/avatars/user-2.jpg");
+        setPreviewImage("/images/avatars/user-2.jpg");
       }
-      console.log(tool.images)
       setImages(newImagesArr);
     }
 

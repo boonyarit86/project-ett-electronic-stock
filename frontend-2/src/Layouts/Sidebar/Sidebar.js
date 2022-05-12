@@ -53,7 +53,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="sidebar__item" id="m4" onClick={() => onClick("m4")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/tool/history" className="sidebar__link">
               <AiOutlineClockCircle className="sidebar__icon icon--medium" />
               <p className="sidebar__text">ประวัติรายการอุปกรณ์</p>
             </Link>
