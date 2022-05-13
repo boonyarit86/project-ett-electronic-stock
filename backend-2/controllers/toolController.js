@@ -65,6 +65,15 @@ const getUpdatedTool = async (id) => {
   return doc;
 };
 
+const getUpdatedToolHistory = async (id) => {
+  const doc = await ToolHistory.findById(id)
+  .populate({ path: "creator", select: "name role" })
+  .populate({path: "tool", select: "toolName"})
+  .populate({path: "tags.creator", select: "name role"})
+  .populate({path: "tags.board", select: "boardName"})
+  return doc;
+};
+
 exports.getAllTools = catchAsync(async (req, res, next) => {
   const tools = await Tool.find().populate("type category");
   let docs = factoryData(tools);
@@ -247,10 +256,15 @@ exports.restoreTool = catchAsync(async (req, res, next) => {
   await toolHistory.save();
   await tool.save();
 
-  // *** Using socket.io for sending tool data ***
-  // Do it here later
+  let docUpdated = await getUpdatedToolHistory(req.params.thid);
+  io.emit("tool-action", { tid: tool._id, total: tool.total });
 
-  sendResponse(tool, 200, res);
+  res.status(200).json({
+    status: "success",
+    data: {
+      doc: docUpdated
+    },
+  });
 });
 
 exports.deleteTool = catchAsync(async (req, res, next) => {

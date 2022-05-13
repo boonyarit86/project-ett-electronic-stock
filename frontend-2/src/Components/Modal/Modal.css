@@ -46,3 +46,10 @@
 .modal__text:last-child {
     flex: 1;
 }
+
+@media (max-width: 37.5em) {
+    .modal {
+        width: 90%;
+        padding: 1rem;
+    }
+}

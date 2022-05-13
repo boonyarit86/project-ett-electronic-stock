@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   tools: [],
-  tool: null
+  tool: null,
 };
 
 const toolsSlice = createSlice({
@@ -14,36 +14,44 @@ const toolsSlice = createSlice({
     },
     actionTool: (state, action) => {
       let { tid, total } = action.payload;
-      state.tools.find((tool) => {
-        if(tool._id === tid) {
-          tool.total = total
+      state.tools = state.tools.map((tool) => {
+        if (tool._id === tid) {
+          tool.total = total;
         }
-        return tool
-      })
+        return tool;
+      });
     },
     getTool: (state, action) => {
-      state.tool = state.tools.find((tool) => tool._id === action.payload)
+      state.tool = state.tools.find((tool) => tool._id === action.payload);
     },
     resetTool: (state) => {
-      state.tool = null
+      state.tool = null;
     },
     deleteTool: (state, action) => {
-      state.tools = state.tools.filter((tool) => tool._id !== action.payload)
+      state.tools = state.tools.filter((tool) => tool._id !== action.payload);
     },
     addNewTool: (state, action) => {
       state.tools.unshift(action.payload);
     },
     updateTool: (state, action) => {
       state.tools = state.tools.map((tool) => {
-        if(tool._id === action.payload._id) {
-          tool = action.payload
+        if (tool._id === action.payload._id) {
+          tool = action.payload;
         }
-        return tool
-      })
+        return tool;
+      });
     },
-  }
+  },
 });
 
 // export const getTool = (state) => state.user.user;
-export const { setTools, actionTool, getTool, resetTool, deleteTool, addNewTool, updateTool } = toolsSlice.actions;
+export const {
+  setTools,
+  actionTool,
+  getTool,
+  resetTool,
+  deleteTool,
+  addNewTool,
+  updateTool,
+} = toolsSlice.actions;
 export default toolsSlice.reducer;

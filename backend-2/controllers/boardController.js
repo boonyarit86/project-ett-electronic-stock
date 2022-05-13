@@ -24,8 +24,7 @@ const {
   uploadOneImage,
 } = require("../utils/handleImage");
 const { handleNotification } = require("../utils/notification");
-// const { io } = require("../app");
-// console.log(io);
+const { io } = require("../app");
 
 // UTILITIES
 const sendResponse = (board, statusCode, res) => {
@@ -222,8 +221,7 @@ exports.boardAction = catchAsync(async (req, res, next) => {
   await newHistoryBoard.save();
   await board.save();
 
-  // *** Using socket.io for sending data ***
-  // Do it here later
+  io.emit("board-action", { bid: board._id, total: board.total });
 
   sendResponse(board, 200, res);
 });

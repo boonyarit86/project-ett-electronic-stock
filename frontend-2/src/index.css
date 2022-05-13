@@ -124,7 +124,7 @@ body {
 .btn,
 .form-upload__header,
 .select__label,
-.inputSearch__label, .toastList__text, .form-upload__helperText {
+.inputSearch__label, .toastList__text, .form-upload__helperText, .modalHistory__tag-number {
   font-size: 1.4rem;
 }
 

@@ -1,17 +1,17 @@
 import React from "react";
-import Avatar from "../../../Components/Avatar/Avatar";
 import Button from "../../../Components/Button/Button";
 import Column from "../../../Components/Table/Column";
 import Row from "../../../Components/Table/Row";
-import StatusText from "../../../Components/Tag/StatusText";
 import Table from "../../../Components/Table/Table";
 import Thead from "../../../Components/Table/Thead";
 import Title from "../../../Components/Text/Title";
-import { checkStatus } from "../../../utils/index";
 import Pagination from "../../../Components/Table/Pagination";
+import { time } from "../../../utils/Time";
 
 const HistoryTable = (props) => {
-  const { state, handleOpenModal, setState, initialData } = props;
+  const { state, handleOpenModal, setState, initialData, handleOpenTag } =
+    props;
+  const [formatDate, formatTime] = time();
 
   return (
     <>
@@ -34,13 +34,17 @@ const HistoryTable = (props) => {
                   <p className="table__col-text">{item.code}</p>
                 </Column>
                 <Column minW={state[1].minW} maxW={state[1].maxW}>
-                  <p className="table__col-text">{item.createAt}</p>
+                  <p className="table__col-text">{formatDate(item.createAt)}</p>
                 </Column>
                 <Column minW={state[2].minW} maxW={state[2].maxW}>
-                  <p className="table__col-text">{item?.tool?.toolName ? item.tool.toolName : "ไม่ได้กำหนด"}</p>
+                  <p className="table__col-text">
+                    {item?.tool?.toolName ? item.tool.toolName : "ไม่ได้กำหนด"}
+                  </p>
                 </Column>
                 <Column minW={state[3].minW} maxW={state[3].maxW}>
-                  <p className="table__col-text">{item?.creator?.name ? item.creator.name : "ไม่ได้กำหนด"}</p>
+                  <p className="table__col-text">
+                    {item?.creator?.name ? item.creator.name : "ไม่ได้กำหนด"}
+                  </p>
                 </Column>
                 <Column minW={state[4].minW} maxW={state[4].maxW}>
                   <p className="table__col-text">
@@ -48,36 +52,50 @@ const HistoryTable = (props) => {
                   </p>
                 </Column>
                 <Column minW={state[5].minW} maxW={state[5].maxW}>
-                  <p className="table__col-text">{item.total}</p>
+                  {item.action.includes("เพิ่ม") ? (
+                    <p className="table__col-text" style={{ color: "#2f9e44" }}>
+                      +{item.total}
+                    </p>
+                  ) : (
+                    <p className="table__col-text" style={{ color: "#e03131" }}>
+                      -{item.total}
+                    </p>
+                  )}
                 </Column>
                 <Column minW={state[6].minW} maxW={state[6].maxW}>
-                  <p className="table__col-text">
-                    12:10
-                  </p>
+                  <p className="table__col-text">{formatTime(item.createAt)}</p>
                 </Column>
                 <Column minW={state[7].minW} maxW={state[7].maxW}>
-                  <p className="table__col-text">
-                    {item.exp}
-                  </p>
+                  <p className="table__col-text">{formatDate(item.exp)}</p>
                 </Column>
                 <Column
                   minW={state[8].minW}
                   maxW={state[8].maxW}
                   className="table__col-btns"
                 >
-                  <Button
-                    element="button"
-                    type="button"
-                    className="btn-secondary-red"
-                    onClick={() => handleOpenModal("เบิก", item)}
-                  >
-                    ยกเลิก
-                  </Button>
+                  {(item.action === "เบิกอุปกรณ์" ||
+                    item.action === "เพิ่มอุปกรณ์") && (
+                    <Button
+                      element="button"
+                      type="button"
+                      className="btn-secondary-red"
+                      onClick={() =>
+                        handleOpenModal(
+                          item.action.includes("เพิ่ม") ? "เพิ่ม" : "เบิก",
+                          { toolName: item?.tool?.toolName, total: item.total, _id: item._id }
+                        )
+                      }
+                    >
+                      ยกเลิก
+                    </Button>
+                  )}
                   <Button
                     element="button"
                     type="button"
                     className="btn-secondary-purple"
-                    onClick={() => handleOpenModal("เพิ่ม", item)}
+                    onClick={() =>
+                      handleOpenTag(item.tags, item?.tool?.toolName, item.code)
+                    }
                   >
                     ดู
                   </Button>

@@ -22,6 +22,7 @@ import ToolList from "./Pages/ToolList/ToolList";
 import ToolDetail from "./Pages/ToolDetail/ToolDetail";
 import UpdateTool from "./Pages/UpdateTool/UpdateTool";
 import ToolHistory from "./Pages/ToolHistory/ToolHistory";
+import BoardList from "./Pages/BoardList/BoardList";
 
 function App() {
   const { token, logout, login, userId } = useAuth();
@@ -43,6 +44,7 @@ function App() {
               <Route path="/toolList/:toolId/update" element={<UpdateTool />} />
               <Route path="/createTool" element={<CreateTool />} />
               <Route path="/tool/history" element={<ToolHistory />} />
+              <Route path="/boardList" element={<BoardList />} />
               {/* Catch all - replace with 404 component if you want */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

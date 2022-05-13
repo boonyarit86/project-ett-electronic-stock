@@ -60,7 +60,7 @@ const Sidebar = () => {
           </li>
           <hr className="sidebar__line" />
           <li className="sidebar__item" id="m5" onClick={() => onClick("m5")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/boardList" className="sidebar__link">
               <VscCircuitBoard className="sidebar__icon icon--medium" />
               <p className="sidebar__text">รายการบอร์ด</p>
             </Link>

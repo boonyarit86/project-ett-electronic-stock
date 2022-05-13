@@ -51,7 +51,8 @@ toolHistorySchema.pre(/^find/, function (next) {
   this.populate({ path: "creator", select: "name role" });
   this.populate({path: "tool", select: "toolName"});
   this.populate({path: "tags.creator", select: "name role"})
-  this.sort("-createAt");
+  this.populate({path: "tags.board", select: "boardName"})
+  this.sort({createAt: -1});
   next();
 });
 

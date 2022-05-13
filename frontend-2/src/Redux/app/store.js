@@ -6,6 +6,7 @@ import boardSlice from "../features/boardSlice";
 import ttsSlice from "../features/ttsSlice";
 import tcsSlice from "../features/tcsSlice";
 import notificationSlice from "../features/notificationSlice";
+import toolHistorySlice from "../features/toolHistorySlice";
 
 export const store = configureStore({
     reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
         board: boardSlice,
         tts: ttsSlice,
         tcs: tcsSlice,
-        notification: notificationSlice
+        notification: notificationSlice,
+        toolHistory: toolHistorySlice
     }
 })

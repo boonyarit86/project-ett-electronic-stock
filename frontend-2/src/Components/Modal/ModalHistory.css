@@ -1,0 +1,46 @@
+.modalHistory {
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-height: 50rem;
+    overflow: scroll;
+}
+.modalHistory::-webkit-scrollbar {
+    display: none;
+}
+.modalHistory__tags {
+    display: flex;
+    flex: 1;
+}
+.modalHistory__tag.active {
+    background-color: var(--color-primary-blue);
+    color: var(--color-white);
+    border: none;
+}
+.modalHistory__tag {
+    border: 1px solid var(--color-primary-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.modalHistory__article-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+.modalHistory__article-row:last-child {
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.modalHistory__title {
+    width: 15rem;
+    color: var(--color-primary-grey);
+}
+.modalHistory__text {
+    flex: 1;
+}
+.modalHistory__header {
+    display: flex;
+}

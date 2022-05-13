@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { io } from "socket.io-client";
 import { setNotification, addNewNotification } from "../Redux/features/notificationSlice";
 import { actionTool, deleteTool, addNewTool, updateTool } from "../Redux/features/toolSlice";
+import { actionBoard } from "../Redux/features/boardSlice";
 import "./Layout.css";
 
 const Layout = (props) => {
@@ -27,6 +28,9 @@ const Layout = (props) => {
     });
     socket.on("tool-updating", (data) => {
       dispatch(updateTool(data));
+    });
+    socket.on("board-action", (data) => {
+      dispatch(actionBoard(data));
     });
 
     return () => socket.disconnect();

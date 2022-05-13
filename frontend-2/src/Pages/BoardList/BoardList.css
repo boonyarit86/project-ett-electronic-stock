@@ -1,0 +1,16 @@
+.boardList__filter {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+@media (max-width: 37.5em) {
+    .boardList__filter {
+        grid-template-columns: 1fr 1fr;
+    }
+    .inputSearch {
+        grid-column: 1 / -1;
+        grid-row: 1 / 2;
+    }
+}
