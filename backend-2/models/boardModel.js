@@ -37,7 +37,7 @@ const boardSchema = new mongoose.Schema({
 boardSchema.pre(/^find/, function (next) {
   this.populate({
     path: "tools.detail",
-    select: "toolName code size avatar",
+    select: "toolName toolCode size avatar",
   });
   this.populate({ path: "tools.type", select: "name" });
   this.populate({ path: "tools.category", select: "name" });

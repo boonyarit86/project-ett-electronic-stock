@@ -55,7 +55,7 @@ const BoardTable = (props) => {
                   <Button
                     element="link"
                     type="button"
-                    path="/"
+                    path={`/boardList/${item._id}`}
                     className="btn-primary-grey"
                   >
                     ดู
