@@ -31,7 +31,7 @@ const toolsSlice = createSlice({
       state.tools = state.tools.filter((tool) => tool._id !== action.payload);
     },
     addNewTool: (state, action) => {
-      state.tools.unshift(action.payload);
+      state.tools.push(action.payload);
     },
     updateTool: (state, action) => {
       state.tools = state.tools.map((tool) => {

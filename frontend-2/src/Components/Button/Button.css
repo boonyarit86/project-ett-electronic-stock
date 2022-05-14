@@ -61,3 +61,7 @@
 .btn-white:hover, .btn-white:active {
     background-color: var(--color-primary-grey--light-1);
 }
+
+.btn--small {
+    height: 3.4rem;
+}

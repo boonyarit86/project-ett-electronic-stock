@@ -1,0 +1,42 @@
+.selectTool__title,
+.selectTool__header {
+  font-weight: 700;
+}
+.selectTool__total,
+.selectTool__delete-icon {
+  color: var(--color-primary-grey);
+}
+.selectTool__list,
+.selectTool__form {
+  border: 1px solid var(--color-primary-grey);
+  border-radius: 4px;
+}
+
+.selectTool {
+  width: 100%;
+}
+.selectTool__header {
+  margin-bottom: 2rem;
+}
+.selectTool__form {
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.selectTool__delete-icon {
+  cursor: pointer;
+}
+.selectTool__item {
+  padding: 1rem;
+  display: flex;
+}
+.selectTool__detail {
+  flex: 1;
+}
+.selectTool__total {
+  font-size: 1.2rem;
+}
+.selectTool__toolName {
+    line-height: 1;
+}

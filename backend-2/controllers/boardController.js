@@ -64,6 +64,17 @@ const factoryData = (doc) => {
   return doc;
 };
 
+const getUpdatedBoard = async (id) => {
+  const doc = await Board.findById(id)
+    .populate({
+      path: "tools.detail",
+      select: "toolName toolCode size avatar",
+    })
+    .populate({ path: "tools.type", select: "name" })
+    .populate({ path: "tools.category", select: "name" });
+  return doc;
+};
+
 exports.getAllBoards = catchAsync(async (req, res, next) => {
   const boards = await Board.find();
   let docs;
@@ -106,7 +117,7 @@ exports.getAllInsufficientToolList = catchAsync(async (req, res, next) => {
     status: "success",
     results: insufficientToolList.length,
     data: {
-      insufficientToolList
+      insufficientToolList,
     },
   });
 });
@@ -124,14 +135,19 @@ exports.getBoard = catchAsync(async (req, res, next) => {
 });
 
 exports.createBoard = catchAsync(async (req, res, next) => {
-  const { tools, boardName, boardCode, type, description, creator } = req.body;
+  const { boardName, boardCode, type, description } = req.body;
   const board = new Board({
     boardName,
     boardCode,
     type,
     description,
-    creator,
   });
+  // For testing on postman
+  // const tools = req.body.tools;
+
+  // For client
+  const tools = JSON.parse(req.body.tools);
+  board.creator = req.user._id;
   let err = { message: null, status: 400 };
   await handleSelectedItem(board, tools, err);
   if (err.message !== null) {
@@ -142,6 +158,10 @@ exports.createBoard = catchAsync(async (req, res, next) => {
     await uploadOneImage(req.file.path, board);
     await board.save({ validateBeforeSave: false });
   }
+
+  let docUpdated = await getUpdatedBoard(board._id);
+  io.emit("board-adding", docUpdated);
+
   sendResponse(board, 201, res);
 });
 
@@ -738,7 +758,9 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
     }),
   ]);
 
-  const insufficientToolList = await InsufficientTool.findById(boardHistory.insufficientToolId);
+  const insufficientToolList = await InsufficientTool.findById(
+    boardHistory.insufficientToolId
+  );
   if (insufficientToolList) {
     await insufficientToolList.remove();
   }

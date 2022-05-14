@@ -27,9 +27,12 @@ const boardsSlice = createSlice({
     resetBoard: (state) => {
       state.board = null;
     },
+    addNewBoard: (state, action) => {
+      state.boards.push(action.payload);
+    },
   }
 });
 
 // export const getUser = (state) => state.user.user;
-export const { setBoards, actionBoard, getBoard, resetBoard } = boardsSlice.actions;
+export const { setBoards, actionBoard, getBoard, resetBoard, addNewBoard } = boardsSlice.actions;
 export default boardsSlice.reducer;

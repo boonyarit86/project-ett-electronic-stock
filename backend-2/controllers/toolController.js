@@ -118,12 +118,9 @@ exports.createTool = catchAsync(async (req, res, next) => {
     await tool.save({ validateBeforeSave: false });
   }
 
-  const doc = await Tool.findById(tool._id)
-    .populate({ path: "type", select: "name" })
-    .populate({ path: "category", select: "name" });
-  doc.type.categories = null;
+  let docUpdated = await getUpdatedTool(tool._id);
 
-  io.emit("tool-adding", doc);
+  io.emit("tool-adding", docUpdated);
   sendResponse(tool, 201, res);
 });
 

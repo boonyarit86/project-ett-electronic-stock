@@ -63,7 +63,7 @@ const handleSelectedItem = async (board, tools, err) => {
         break;
       }
       toolArr.push({
-        total: tools[r].total,
+        total: Number(tools[r].total) < 0 ? 0 : Number(tools[r].total),
         detail: tools[r].tid,
         type: tool.type,
         category: tool.category,
