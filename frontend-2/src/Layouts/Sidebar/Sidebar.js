@@ -72,7 +72,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="sidebar__item" id="m7" onClick={() => onClick("m7")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/requestBoard" className="sidebar__link">
               <VscCircuitBoard className="sidebar__icon icon--medium" />
               <p className="sidebar__text">เบิกบอร์ดและอุปกรณ์</p>
             </Link>
@@ -85,7 +85,7 @@ const Sidebar = () => {
           </li>
           <hr className="sidebar__line" />
           <li className="sidebar__item" id="m9" onClick={() => onClick("m9")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/insTool" className="sidebar__link">
               <AiOutlineTool className="sidebar__icon icon--medium" />
               <p className="sidebar__text">รายการอุปกรณ์ไม่พอ</p>
             </Link>

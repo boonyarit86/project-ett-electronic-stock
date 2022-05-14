@@ -83,7 +83,13 @@ body {
   margin-left: 3rem !important;
 }
 .u-mg-b--sm {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem !important;
+}
+.u-mg-b--sm-2 {
+  margin-bottom: 1rem !important;
+}
+.u-mg-b--md {
+  margin-bottom: 2rem !important;
 }
 .fullWidth {
   width: 100% !important;

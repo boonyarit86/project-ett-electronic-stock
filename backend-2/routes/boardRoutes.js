@@ -17,7 +17,7 @@ router.route("/:bid").get(boardController.getBoard);
 router.route("/action/:bid").patch(boardController.boardAction);
 
 router.use(restrictTo("admin", "staff"));
-router.route("/check/:bid").get(boardController.checkAllToolOfBoard);
+router.route("/check/:bid/:total").get(boardController.checkAllToolOfBoard);
 router
   .route("/")
   .post(imageUpload.single("avatar"), boardController.createBoard);

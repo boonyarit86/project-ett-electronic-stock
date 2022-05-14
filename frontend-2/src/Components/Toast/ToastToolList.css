@@ -1,0 +1,36 @@
+.toastToolList {
+    padding: 1rem;
+    border-radius: 4px;
+    width: 100%;
+}
+.toastToolList--error {
+    background-color: var(--color-error--palette);
+    color: var(--color-error);
+}
+.toastToolList--success {
+    background-color: var(--color-success--palette);
+    color: var(--color-success);
+}
+.toastToolList__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.toastToolList__row {
+    padding: 1rem 0;
+    display: flex;
+    gap: 1rem;
+}
+.toastToolList__row p {
+    font-size: 1.4rem;
+}
+.toastToolList__row p {
+    flex: 1;
+} 
+.toastToolList__row p:nth-child(2) {
+    min-width: 6rem;
+}
+.toastToolList__row p:last-child {
+    min-width: 8rem;
+}

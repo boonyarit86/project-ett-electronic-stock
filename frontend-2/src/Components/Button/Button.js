@@ -7,7 +7,7 @@ const Button = React.memo((props) => {
     props.element === "button" ? (
       <button
         type={props.type}
-        className={`btn ${props.className}`}
+        className={`btn ${props.className} ${props.fullWidth && "fullWidth"}`}
         disabled={props.disabled}
         onClick={props.onClick}
       >

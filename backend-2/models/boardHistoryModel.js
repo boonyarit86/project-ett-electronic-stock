@@ -60,7 +60,7 @@ const boardHistorySchema = new mongoose.Schema({
 
 boardHistorySchema.pre(/^find/, function (next) {
   this.populate({ path: "creator", select: "name role" });
-  this.populate({ path: "board", select: "boardName" });
+  this.populate({ path: "board", select: "boardName boardCode" });
   this.populate({ path: "tags.creator", select: "name role" });
   this.sort("-createAt");
   next();

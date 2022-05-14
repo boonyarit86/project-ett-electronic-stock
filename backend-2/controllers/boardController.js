@@ -292,7 +292,7 @@ exports.restoreBoard = catchAsync(async (req, res, next) => {
 });
 
 exports.checkAllToolOfBoard = catchAsync(async (req, res, next) => {
-  const givenBoard = Number(req.body.total);
+  const givenBoard = Number(req.params.total);
   const board = await Board.findById(req.params.bid);
   const dataCalulated = {
     board: { total: 0, leftover: 0 },
@@ -332,6 +332,7 @@ exports.checkAllToolOfBoard = catchAsync(async (req, res, next) => {
       dataCalulated.insufficientTool += 1;
     }
     dataCalulated.tools.push({
+      tid: tid,
       toolName: tool.toolName,
       total: toolUsed,
       toolCalc: leftoverTool,
@@ -372,6 +373,7 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
   const insufficientToolList = [];
   const toolUsedInBoardList = [];
   let isToolEnough = true;
+  console.log(req.body);
   if (givenBoard <= 0) {
     return next(new AppError("จำนวนบอร์ดต้องมีค่าอย่างน้อย 1", 400));
   }
@@ -487,6 +489,9 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
     pendingData.push(tool);
     pendingData.push(newToolHistory);
     await handleNotification(tool, "อุปกรณ์", tool.toolName);
+
+    io.emit("tool-action", { tid: tool._id, total: tool.total });
+
   } // end loop
 
   if (isNotToolFound) {
@@ -517,17 +522,21 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
   pendingData.push(newBoardHistory);
 
   await handleNotification(board, "บอร์ด", board.boardName);
-  await board.save();
-  await Promise.all([
-    pendingData.map(async (doc) => {
-      await doc.save();
-    }),
-  ]);
-  await numBoardHistory.save();
-  await numToolHistory.save();
+  // await board.save();
+  // await Promise.all([
+  //   pendingData.map(async (doc) => {
+  //     await doc.save();
+  //   }),
+  // ]);
+  // await numBoardHistory.save();
+  // await numToolHistory.save();
 
   // *** Using socket.io for sending board data ***
   // Do it here later
+  // for (let r = 0; r < tools.length; r++) {
+  //   io.emit("tool-action", { tid: tools[r]._id, total: 0 });
+  // }
+  io.emit("board-action", { bid: board._id, total: board.total });
 
   sendResponse(pendingData, 200, res);
 });

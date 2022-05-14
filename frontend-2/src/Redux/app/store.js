@@ -7,6 +7,7 @@ import ttsSlice from "../features/ttsSlice";
 import tcsSlice from "../features/tcsSlice";
 import notificationSlice from "../features/notificationSlice";
 import toolHistorySlice from "../features/toolHistorySlice";
+import instSlice from "../features/instSlice";
 
 export const store = configureStore({
     reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
         tts: ttsSlice,
         tcs: tcsSlice,
         notification: notificationSlice,
-        toolHistory: toolHistorySlice
+        toolHistory: toolHistorySlice,
+        inst: instSlice
     }
 })
