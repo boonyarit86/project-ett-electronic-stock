@@ -328,7 +328,7 @@ exports.checkAllToolOfBoard = catchAsync(async (req, res, next) => {
     }
     let toolUsed = board.tools[r].total * givenBoard;
     let leftoverTool = tool.total - toolUsed;
-    if (leftoverTool <= 0) {
+    if (leftoverTool < 0) {
       dataCalulated.insufficientTool += 1;
     }
     dataCalulated.tools.push({
@@ -489,9 +489,6 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
     pendingData.push(tool);
     pendingData.push(newToolHistory);
     await handleNotification(tool, "อุปกรณ์", tool.toolName);
-
-    io.emit("tool-action", { tid: tool._id, total: tool.total });
-
   } // end loop
 
   if (isNotToolFound) {
@@ -522,20 +519,21 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
   pendingData.push(newBoardHistory);
 
   await handleNotification(board, "บอร์ด", board.boardName);
-  // await board.save();
-  // await Promise.all([
-  //   pendingData.map(async (doc) => {
-  //     await doc.save();
-  //   }),
-  // ]);
-  // await numBoardHistory.save();
-  // await numToolHistory.save();
+  await board.save();
+  await Promise.all([
+    pendingData.map(async (doc) => {
+      await doc.save();
+    }),
+  ]);
+  await numBoardHistory.save();
+  await numToolHistory.save();
 
   // *** Using socket.io for sending board data ***
   // Do it here later
-  // for (let r = 0; r < tools.length; r++) {
-  //   io.emit("tool-action", { tid: tools[r]._id, total: 0 });
-  // }
+  for (let r = 0; r < tools.length; r++) {
+    let tool = await Tool.findById(tools[r].tid);
+    io.emit("tool-action", { tid: tool._id, total: tool.total });
+  }
   io.emit("board-action", { bid: board._id, total: board.total });
 
   sendResponse(pendingData, 200, res);
@@ -664,7 +662,7 @@ exports.requestInsufficientTool = catchAsync(async (req, res, next) => {
   // Create notification
   await handleNotification(tool, "อุปกรณ์", tool.toolName);
 
-  // Staring saving all documents
+  // Starting saving all documents
   await tool.save();
   await boardHistory.save();
   await toolHistory.save();
@@ -676,10 +674,15 @@ exports.requestInsufficientTool = catchAsync(async (req, res, next) => {
     await insufficientToolList.save();
   }
 
-  // *** Using socket.io for sending board data ***
-  // Do it here later
-
-  sendResponse(insufficientToolList, 200, res);
+  io.emit("tool-action", { tid: tool._id, total: tool.total });
+  const docsUpdated = await InsufficientTool.find();
+  res.status(200).json({
+    status: "success",
+    results: docsUpdated.length,
+    data: {
+      insufficientToolList: docsUpdated,
+    },
+  });
 });
 
 exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
@@ -756,6 +759,8 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
       }
       pendingData.push(tool);
       pendingData.push(toolHistory);
+
+      io.emit("tool-action", { tid: tool._id, total: tool.total });
     }
   }
   pendingData.push(boardHistory);
@@ -772,10 +777,12 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
   );
   if (insufficientToolList) {
     await insufficientToolList.remove();
+    io.emit("inst-deleting", { instId: boardHistory.insufficientToolId });
   }
 
   // *** Using socket.io for sending board data ***
   // Do it here later
+  io.emit("board-action", { bid: board._id, total: board.total });
 
   sendResponse(boardHistory, 200, res);
 });

@@ -19,6 +19,8 @@ import { setTcs } from "../../Redux/features/tcsSlice";
 import { catchError, catchRequestError } from "../../utils/handleError";
 import "./RequestBoard.css";
 import ToastToolList from "../../Components/Toast/ToastToolList";
+import ModalAction from "../../Components/Modal/ModalAction";
+import Backdrop from "../../Components/Backdrop/Backdrop";
 
 const RequestBoard = () => {
   const auth = useContext(AuthContext);
@@ -46,6 +48,7 @@ const RequestBoard = () => {
   const [insufficientToolList, setInsufficientToolList] = useState([]);
   const [isCheck, setIsCheck] = useState(false);
   const [isToolEnough, setIsToolEnough] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const [formState, inputHandler] = useForm(
     {
@@ -74,7 +77,7 @@ const RequestBoard = () => {
   }, [boards]);
 
   useEffect(() => {
-    const {boardId, total} = formState.inputs;
+    const { boardId, total } = formState.inputs;
     if (boardId.value !== "" || total?.value !== "") {
       setIsCheck(false);
       setInsufficientToolList([]);
@@ -82,7 +85,7 @@ const RequestBoard = () => {
     }
   }, [formState.inputs]);
 
-    console.log("Render!");
+  console.log("Render!");
 
   //   if (isLoading) return <div />;
   //   if (!isLoading && requestError) {
@@ -100,7 +103,9 @@ const RequestBoard = () => {
 
   const onSubmit = async (e) => {
     let menu = document.querySelectorAll(".sidebar__item");
-    let newItemActive = document.getElementById("m5");
+    let menuId = isToolEnough ? "m5" : "m9";
+    let link = isToolEnough ? "/boardList" : "/insTool";
+    let newItemActive = document.getElementById(menuId);
     e.preventDefault();
     const { boardId, total } = formState.inputs;
     let data = { total: total.value, description: description, tools: [] };
@@ -125,15 +130,15 @@ const RequestBoard = () => {
           headers: { Authorization: `Bearer ${auth.token}` },
         }
       ).then((res) => {
-        // menu.forEach((item) => {
-        //   let isItemActive = item.getAttribute("class").includes("active");
-        //   if (isItemActive) {
-        //     item.classList.remove("active");
-        //   }
-        // });
-        // newItemActive.classList.add("active");
+        menu.forEach((item) => {
+          let isItemActive = item.getAttribute("class").includes("active");
+          if (isItemActive) {
+            item.classList.remove("active");
+          }
+        });
+        newItemActive.classList.add("active");
         dispatch(endLoading());
-        // navigate("/boardList");
+        navigate(link);
       });
     } catch (error) {
       let mainElement = document.querySelector(".main");
@@ -146,6 +151,7 @@ const RequestBoard = () => {
     setInsufficientToolList([]);
     setToolList([]);
     setDescription("");
+    setOpenModal(false);
   };
 
   const onClickCheckBoard = async (e) => {
@@ -191,6 +197,10 @@ const RequestBoard = () => {
     }
   };
 
+  const handleModal = () => {
+    setOpenModal((prev) => !prev);
+  };
+
   return (
     <div className="requestBoard">
       <Heading type="main" text="เบิกบอร์ดและอุปกรณ์" className="u-mg-b" />
@@ -199,7 +209,6 @@ const RequestBoard = () => {
           element="error"
           type="default"
           message={errorMessage}
-          style={{ marginBottom: "1rem" }}
           className="u-mg-b"
         />
       )}
@@ -267,12 +276,44 @@ const RequestBoard = () => {
           element="button"
           className="btn-primary-blue"
           disabled={!formState.isValid || !isCheck}
-          onClick={onSubmit}
+          onClick={isToolEnough ? onSubmit : handleModal}
           fullWidth
         >
           เบิกบอร์ดและอุปกรณ์
         </Button>
       </div>
+
+      {openModal && (
+        <React.Fragment>
+          <ModalAction onClick={handleModal} title="ต้องการทำการเบิกหรือไม่?">
+            <Toast
+              element="warning"
+              type="light"
+              message="มีอุปกรณ์บางรายการไม่เพียงพอแต่ยังสามารถดำเนินขั้นตอนได้"
+              className="u-mg-b"
+            />
+            <div className="btn__group justify--left">
+              <Button
+                type="button"
+                element="button"
+                className="btn-primary-blue--outline"
+                onClick={handleModal}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                type="button"
+                element="button"
+                className="btn-primary-blue"
+                onClick={onSubmit}
+              >
+                ยืนยัน
+              </Button>
+            </div>
+          </ModalAction>
+          <Backdrop black style={{ zIndex: 100 }} onClick={handleModal} />
+        </React.Fragment>
+      )}
     </div>
   );
 };

@@ -217,7 +217,6 @@ const ToolList = () => {
         dispatch(endLoading());
         setSuccessMessage("ทำรายการเรียบร้อยแล้ว");
         setTimeout(() => setSuccessMessage(null), 10000);
-        console.log(res.data.data);
       });
     } catch (error) {
       dispatch(endLoading());

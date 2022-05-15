@@ -159,7 +159,7 @@ const CreateBoard = () => {
       formData.append("type", boardType);
       formData.append("avatar", file);
       formData.append("description", description);
-      formData.append("tools", JSON.stringify(toolSelectedList))
+      formData.append("tools", JSON.stringify(toolSelectedList));
 
       await Axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/boards`,
@@ -175,6 +175,9 @@ const CreateBoard = () => {
           }
         });
         newItemActive.classList.add("active");
+        setToolSelectedList("");
+        setBoardType("");
+        setDescription("");
         dispatch(endLoading());
         navigate("/boardList");
       });
@@ -184,10 +187,6 @@ const CreateBoard = () => {
       catchError(error, setErrorMessage);
       mainElement.scrollTo(0, 0);
     }
-
-    setToolSelectedList("");
-    setBoardType("");
-    setDescription("");
     setBoardCode("");
   };
 

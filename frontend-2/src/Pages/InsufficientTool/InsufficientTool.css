@@ -2,16 +2,16 @@
     width: 100%;
 }
 .insTool__list {
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: minmax(25rem, 1fr) minmax(25rem, 1fr) minmax(25rem, 1fr);
     gap: 2rem;
 }
 .insTool__item {
     padding: 2rem;
     background-color: var(--color-white);
     border-radius: 4px;
-    min-width: 35rem;
-    width: 50rem;
+    /* min-width: 35rem; */
+    /* width: 50rem; */
 }
 .insTool__creator {
     display: flex;
@@ -49,23 +49,13 @@
 }
 
 @media (max-width: 75em) {
-    .insTool__item {
-        min-width: 30rem;
-    }
-}
-
-@media (max-width: 56.25em) {
-    .insTool__item {
-        min-width: 27rem;
+    .insTool__list {
+        grid-template-columns: minmax(25rem, 1fr) minmax(25rem, 1fr);
     }
 }
 
 @media (max-width: 37.5em) {
     .insTool__list {
-        flex-direction: column;
-    }
-    .insTool__item {
-        min-width: 0;
-        width: 100%;
+        grid-template-columns: minmax(25rem, 1fr);
     }
 }

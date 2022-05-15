@@ -7,15 +7,31 @@ const Toast = React.memo((props) => {
   let element;
   if (props.element === "error") {
     element = (
-      <div className={`toast toast__error--${props.type} ${props.className}`} style={props.style}>
+      <div
+        className={`toast toast__error--${props.type} ${props.className}`}
+        style={props.style}
+      >
         <FiAlertTriangle className="icon--medium" />
         <span className="toast__heading">{props.message}</span>
       </div>
     );
   } else if (props.element === "success") {
     element = (
-      <div className={`toast toast__success--${props.type} ${props.className}`} style={props.style}>
+      <div
+        className={`toast toast__success--${props.type} ${props.className}`}
+        style={props.style}
+      >
         <IoIosCheckmarkCircleOutline className="icon--medium" />
+        <span className="toast__heading">{props.message}</span>
+      </div>
+    );
+  } else if (props.element === "warning") {
+    element = (
+      <div
+        className={`toast toast__warning--${props.type} ${props.className}`}
+        style={props.style}
+      >
+        <FiAlertTriangle className="icon--medium" />
         <span className="toast__heading">{props.message}</span>
       </div>
     );
