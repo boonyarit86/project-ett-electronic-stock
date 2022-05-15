@@ -8,6 +8,7 @@ import tcsSlice from "../features/tcsSlice";
 import notificationSlice from "../features/notificationSlice";
 import toolHistorySlice from "../features/toolHistorySlice";
 import instSlice from "../features/instSlice";
+import boardHistorySlice from "../features/boardHistorySlice";
 
 export const store = configureStore({
     reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
         tcs: tcsSlice,
         notification: notificationSlice,
         toolHistory: toolHistorySlice,
-        inst: instSlice
+        inst: instSlice,
+        boardHistory: boardHistorySlice
     }
 })

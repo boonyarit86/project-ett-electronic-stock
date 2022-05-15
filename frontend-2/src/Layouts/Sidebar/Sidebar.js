@@ -78,7 +78,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="sidebar__item" id="m8" onClick={() => onClick("m8")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/board/history" className="sidebar__link">
               <AiOutlineClockCircle className="sidebar__icon icon--medium" />
               <p className="sidebar__text">ประวัติรายการบอร์ด</p>
             </Link>

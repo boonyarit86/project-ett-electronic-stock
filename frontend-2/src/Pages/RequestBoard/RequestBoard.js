@@ -134,7 +134,6 @@ const RequestBoard = () => {
         }
       ).then((res) => {
         dispatch(endLoading());
-        console.log(res.data.data);
         let insufficientTool = res.data.data.insufficientTool;
         let tools = res.data.data.tools;
         let toolEnough = [];

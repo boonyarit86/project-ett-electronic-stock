@@ -1,0 +1,37 @@
+.toastToolList {
+  padding: 1rem;
+  border-radius: 4px;
+  width: 100%;
+}
+.toastToolList__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.toastToolList__row {
+  padding: 1rem 0;
+  display: flex;
+  gap: 1rem;
+}
+.toastToolList__row p {
+  font-size: 1.4rem;
+}
+.toastToolList__row p {
+  flex: 1;
+}
+.toastToolList__row p:not(:first-child) {
+  text-align: right;
+}
+.toastToolList__row p:nth-child(2) {
+  min-width: 6rem;
+}
+.toastToolList__row p:last-child {
+  min-width: 8rem;
+}
+.toastToolList--default {
+    background-color: var(--color-primary-grey--light-2);
+}
+.toastToolList__heading--default {
+    font-weight: 700;
+}

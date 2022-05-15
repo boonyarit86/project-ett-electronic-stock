@@ -62,6 +62,7 @@ boardHistorySchema.pre(/^find/, function (next) {
   this.populate({ path: "creator", select: "name role" });
   this.populate({ path: "board", select: "boardName boardCode" });
   this.populate({ path: "tags.creator", select: "name role" });
+  this.populate({ path: "tags.tools.tool", select: "toolName" });
   this.sort("-createAt");
   next();
 });

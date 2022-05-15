@@ -3,11 +3,6 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    max-height: 50rem;
-    overflow: scroll;
-}
-.modalHistory::-webkit-scrollbar {
-    display: none;
 }
 .modalHistory__tags {
     display: flex;

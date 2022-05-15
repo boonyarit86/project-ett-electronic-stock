@@ -75,6 +75,15 @@ const getUpdatedBoard = async (id) => {
   return doc;
 };
 
+const getUpdatedBoardHistory = async (id) => {
+  const doc = await BoardHistory.findById(id)
+  .populate({ path: "creator", select: "name role" })
+  .populate({ path: "board", select: "boardName boardCode" })
+  .populate({ path: "tags.creator", select: "name role" })
+  .populate({ path: "tags.tools.tool", select: "toolName" });
+  return doc;
+};
+
 exports.getAllBoards = catchAsync(async (req, res, next) => {
   const boards = await Board.find();
   let docs;
@@ -285,10 +294,15 @@ exports.restoreBoard = catchAsync(async (req, res, next) => {
   await boardHistory.save();
   await board.save();
 
-  // *** Using socket.io for sending board data ***
-  // Do it here later
+  let docUpdated = await getUpdatedBoardHistory(req.params.bhid);
+  io.emit("board-action", { bid: board._id, total: board.total });
 
-  sendResponse(board, 200, res);
+  res.status(200).json({
+    status: "success",
+    data: {
+      doc: docUpdated,
+    },
+  });
 });
 
 exports.checkAllToolOfBoard = catchAsync(async (req, res, next) => {
@@ -373,7 +387,7 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
   const insufficientToolList = [];
   const toolUsedInBoardList = [];
   let isToolEnough = true;
-  
+
   if (givenBoard <= 0) {
     return next(new AppError("จำนวนบอร์ดต้องมีค่าอย่างน้อย 1", 400));
   }
@@ -479,6 +493,7 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
         total: givenTool,
         insufficientTotal: 0,
         tool: tool.id,
+        th: newToolHistory.id,
       });
     }
 
@@ -530,7 +545,7 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
 
   for (let r = 0; r < tools.length; r++) {
     let tool = await Tool.findById(tools[r].tid);
-    if(tool) {
+    if (tool) {
       io.emit("tool-action", { tid: tool._id, total: tool.total });
     }
   }
@@ -626,7 +641,7 @@ exports.requestInsufficientTool = catchAsync(async (req, res, next) => {
     newToolArr.push(obj);
   });
   newToolArr.map((item) => {
-    if (item.tool.toString() === tid) {
+    if (item.tool._id.toString() === tid) {
       item.total += toolUsed;
       item.insufficientTotal -= toolUsed;
     }
@@ -698,6 +713,7 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
   // Update Board
   const bid = boardHistory.board.id;
   const board = await Board.findById(bid);
+
   if (!board) return next(new AppError("ไม่พบรายการบอร์ดนี้", 404));
   board.total += boardHistory.total;
   board.action = action;
@@ -758,7 +774,7 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
         }
         pendingData.push(tool);
         pendingData.push(toolHistory);
-  
+
         io.emit("tool-action", { tid: tool._id, total: tool.total });
       }
     }
@@ -780,9 +796,15 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
     io.emit("inst-deleting", { instId: boardHistory.insufficientToolId });
   }
 
+  let docUpdated = await getUpdatedBoardHistory(req.params.bhid);
   io.emit("board-action", { bid: board._id, total: board.total });
 
-  sendResponse(boardHistory, 200, res);
+  res.status(200).json({
+    status: "success",
+    data: {
+      doc: docUpdated,
+    },
+  });
 });
 
 exports.deleteBoard = catchAsync(async (req, res, next) => {

@@ -27,6 +27,7 @@ import BoardDetail from "./Pages/BoardDetail/BoardDetail";
 import CreateBoard from "./Pages/CreateBoard/CreateBoard";
 import RequestBoard from "./Pages/RequestBoard/RequestBoard";
 import InsufficientTool from "./Pages/InsufficientTool/InsufficientTool";
+import BoardHistory from "./Pages/BoardHistory/BoardHistory";
 
 function App() {
   const { token, logout, login, userId } = useAuth();
@@ -52,6 +53,7 @@ function App() {
               <Route path="/boardList/:boardId" element={<BoardDetail />} />
               <Route path="/createBoard" element={<CreateBoard />} />
               <Route path="/requestBoard" element={<RequestBoard />} />
+              <Route path="/board/history" element={<BoardHistory />} />
               <Route path="/insTool" element={<InsufficientTool />} />
               {/* Catch all - replace with 404 component if you want */}
               <Route path="*" element={<Navigate to="/" replace />} />
