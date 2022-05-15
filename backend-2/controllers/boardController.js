@@ -373,7 +373,7 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
   const insufficientToolList = [];
   const toolUsedInBoardList = [];
   let isToolEnough = true;
-  console.log(req.body);
+  
   if (givenBoard <= 0) {
     return next(new AppError("จำนวนบอร์ดต้องมีค่าอย่างน้อย 1", 400));
   }
@@ -528,11 +528,11 @@ exports.requestBoard = catchAsync(async (req, res, next) => {
   await numBoardHistory.save();
   await numToolHistory.save();
 
-  // *** Using socket.io for sending board data ***
-  // Do it here later
   for (let r = 0; r < tools.length; r++) {
     let tool = await Tool.findById(tools[r].tid);
-    io.emit("tool-action", { tid: tool._id, total: tool.total });
+    if(tool) {
+      io.emit("tool-action", { tid: tool._id, total: tool.total });
+    }
   }
   io.emit("board-action", { bid: board._id, total: board.total });
 
@@ -756,11 +756,11 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
         if (tool.total > tool.limit) {
           tool.isAlert = false;
         }
+        pendingData.push(tool);
+        pendingData.push(toolHistory);
+  
+        io.emit("tool-action", { tid: tool._id, total: tool.total });
       }
-      pendingData.push(tool);
-      pendingData.push(toolHistory);
-
-      io.emit("tool-action", { tid: tool._id, total: tool.total });
     }
   }
   pendingData.push(boardHistory);
@@ -780,8 +780,6 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
     io.emit("inst-deleting", { instId: boardHistory.insufficientToolId });
   }
 
-  // *** Using socket.io for sending board data ***
-  // Do it here later
   io.emit("board-action", { bid: board._id, total: board.total });
 
   sendResponse(boardHistory, 200, res);

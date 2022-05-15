@@ -2,47 +2,29 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import Axios from "axios";
+import Backdrop from "../../Components/Backdrop/Backdrop";
 import Button from "../../Components/Button/Button";
 import Heading from "../../Components/Text/Heading";
 import InputWithValidator from "../../Components/Input/InputWithValidator";
 import Input from "../../Components/Input/Input";
-import SelectTool from "../../Components/UIelements/SelectTool";
+import ModalAction from "../../Components/Modal/ModalAction";
 import SelectWithValidator from "../../Components/Select/SelectWithValidator";
 import Toast from "../../Components/Toast/Toast";
-import UploadOneImage from "../../Components/Button/UploadOneImage";
+import ToastToolList from "../../Components/Toast/ToastToolList";
 import { AuthContext } from "../../context/auth-context";
 import { VALIDATOR_REQUIRE } from "../../utils/validators";
 import { useForm } from "../../hooks/form-hook";
 import { startLoading, endLoading } from "../../Redux/features/stateSlice";
-import { setTts } from "../../Redux/features/ttsSlice";
-import { setTcs } from "../../Redux/features/tcsSlice";
-import { catchError, catchRequestError } from "../../utils/handleError";
+import { catchError } from "../../utils/handleError";
 import "./RequestBoard.css";
-import ToastToolList from "../../Components/Toast/ToastToolList";
-import ModalAction from "../../Components/Modal/ModalAction";
-import Backdrop from "../../Components/Backdrop/Backdrop";
 
 const RequestBoard = () => {
   const auth = useContext(AuthContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { ttsInSelect } = useSelector((state) => state.tts);
-  const { tcs } = useSelector((state) => state.tcs);
   const { boards } = useSelector((state) => state.board);
-  const [isLoading, setIsLoading] = useState(true);
-  const [file, setFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [requestError, setRequestError] = useState(null);
-  const [controller, setController] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [category, setCategory] = useState("");
-  const [boardCode, setBoardCode] = useState("");
-  const [boardType, setBoardType] = useState("");
-  const [toolType, setToolType] = useState("");
   const [description, setDescription] = useState("");
-  // selecTool Component
-  const [boardSelected, setBoardSelected] = useState("");
-  const [toolTotal, setToolTotal] = useState("");
   const [boardList, setBoardList] = useState([]);
   const [toolList, setToolList] = useState([]);
   const [insufficientToolList, setInsufficientToolList] = useState([]);
@@ -85,35 +67,21 @@ const RequestBoard = () => {
     }
   }, [formState.inputs]);
 
-  console.log("Render!");
-
-  //   if (isLoading) return <div />;
-  //   if (!isLoading && requestError) {
-  //     return (
-  //       <div className="createTool">
-  //         <Toast
-  //           element="error"
-  //           type="default"
-  //           message={requestError}
-  //           style={{ marginBottom: "1rem" }}
-  //         />
-  //       </div>
-  //     );
-  //   }
-
   const onSubmit = async (e) => {
+    e.preventDefault();
     let menu = document.querySelectorAll(".sidebar__item");
     let menuId = isToolEnough ? "m5" : "m9";
     let link = isToolEnough ? "/boardList" : "/insTool";
     let newItemActive = document.getElementById(menuId);
-    e.preventDefault();
     const { boardId, total } = formState.inputs;
     let data = { total: total.value, description: description, tools: [] };
+
     if (insufficientToolList.length > 0) {
       insufficientToolList.forEach((item) => {
         data.tools.push({ tid: item.tid, total: item.total });
       });
     }
+
     if (toolList.length > 0) {
       toolList.forEach((item) => {
         data.tools.push({ tid: item.tid, total: item.total });
@@ -155,7 +123,6 @@ const RequestBoard = () => {
   };
 
   const onClickCheckBoard = async (e) => {
-    // total, bid
     e.preventDefault();
     const { boardId, total } = formState.inputs;
     try {
@@ -289,7 +256,7 @@ const RequestBoard = () => {
             <Toast
               element="warning"
               type="light"
-              message="มีอุปกรณ์บางรายการไม่เพียงพอแต่ยังสามารถดำเนินขั้นตอนได้"
+              message="มีอุปกรณ์บางรายการไม่เพียงพอแต่ยังสามารถดำเนินการขั้นตอนนี้ได้"
               className="u-mg-b"
             />
             <div className="btn__group justify--left">

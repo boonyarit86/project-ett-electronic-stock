@@ -2,37 +2,38 @@ import React, { useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Axios from "axios";
 import Avatar from "../../Components/Avatar/Avatar";
+import Backdrop from "../../Components/Backdrop/Backdrop";
 import Button from "../../Components/Button/Button";
 import Heading from "../../Components/Text/Heading";
+import Input from "../../Components/Input/Input";
+import InputWithValidator from "../../Components/Input/InputWithValidator";
+import ModalAction from "../../Components/Modal/ModalAction";
 import Toast from "../../Components/Toast/Toast";
 import { endLoading, startLoading } from "../../Redux/features/stateSlice";
 import { setInsts } from "../../Redux/features/instSlice";
-import "./InsufficientTool.css";
 import { catchError, catchRequestError } from "../../utils/handleError";
 import { AuthContext } from "../../context/auth-context";
 import { time } from "../../utils/Time";
-import ModalAction from "../../Components/Modal/ModalAction";
 import { VALIDATOR_REQUIRE } from "../../utils/validators";
-import Backdrop from "../../Components/Backdrop/Backdrop";
-import InputWithValidator from "../../Components/Input/InputWithValidator";
-import Input from "../../Components/Input/Input";
 import { useForm } from "../../hooks/form-hook";
+
+import "./InsufficientTool.css";
 
 const InsufficientTool = () => {
   const dispatch = useDispatch();
   const auth = useContext(AuthContext);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [controller, setController] = useState(null);
   const { insts } = useSelector((state) => state.inst);
   const { tools } = useSelector((state) => state.tool);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [controller, setController] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [requestError, setRequestError] = useState(null);
-  const [description, setDescription] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [toolSelected, setToolSelected] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const [formatDate] = time();
+  const [description, setDescription] = useState("");
 
+  const [formatDate] = time();
   const [formState, inputHandler] = useForm(
     {
       total: {
@@ -79,7 +80,6 @@ const InsufficientTool = () => {
   };
 
   const handleOpenModal = (value) => {
-    // toolCode, insufficientTotal, toolInStock
     let toolId = value.tid;
     let findToolById = tools.find((item) => item._id === toolId);
     if (findToolById) {
@@ -111,7 +111,6 @@ const InsufficientTool = () => {
       description: description
     }
 
-    // PATCH /insufficientTool/request/:insuffiTool_id
     try {
       dispatch(startLoading());
       await Axios.patch(
@@ -131,7 +130,6 @@ const InsufficientTool = () => {
       catchError(error, setErrorMessage);
     }
 
-    console.log(data);
     setToolSelected(null);
     setOpenModal(false)
   }
@@ -191,18 +189,18 @@ const InsufficientTool = () => {
                 <li className="insTool__article u-mg-b--sm">
                   <p className="insTool__article-title">ชื่อบอร์ด</p>
                   <p className="insTool__article-text">
-                    {item.bh?.board?.boardName}
+                    {item.bh?.board?.boardName || "ข้อมูลถูกลบ"}
                   </p>
                 </li>
                 <li className="insTool__article u-mg-b--sm">
                   <p className="insTool__article-title">รหัสบอร์ด</p>
                   <p className="insTool__article-text">
-                    {item.bh?.board?.boardCode}
+                    {item.bh?.board?.boardCode || "ข้อมูลถูกลบ"}
                   </p>
                 </li>
                 <li className="insTool__article u-mg-b--sm">
                   <p className="insTool__article-title">เลขที่การเบิก</p>
-                  <p className="insTool__article-text">{item.bh?.code}</p>
+                  <p className="insTool__article-text">{item.bh?.code || "ข้อมูลถูกลบ"}</p>
                 </li>
               </ul>
 
@@ -324,22 +322,22 @@ const InsufficientTool = () => {
               className="icon--large"
             />
             <div className="insTool__creator-detail">
-              <p>Yukino (admin)</p>
+              <p>Hina (staff)</p>
               <p>12/12/2021</p>
             </div>
           </div>
           <ul className="insTool__board u-mg-b">
             <li className="insTool__article u-mg-b--sm">
               <p className="insTool__article-title">ชื่อบอร์ด</p>
-              <p className="insTool__article-text">ET-AEDUINO</p>
+              <p className="insTool__article-text">ET-INT4</p>
             </li>
             <li className="insTool__article u-mg-b--sm">
               <p className="insTool__article-title">รหัสบอร์ด</p>
-              <p className="insTool__article-text">b001</p>
+              <p className="insTool__article-text">b002</p>
             </li>
             <li className="insTool__article u-mg-b--sm">
               <p className="insTool__article-title">เลขที่การเบิก</p>
-              <p className="insTool__article-text">BH001</p>
+              <p className="insTool__article-text">BH005</p>
             </li>
           </ul>
 
@@ -374,7 +372,7 @@ const InsufficientTool = () => {
             </div>
           </div>
         </div>
-        
+
       </div>
 
       {openModal && (
