@@ -29,6 +29,7 @@ import RequestBoard from "./Pages/RequestBoard/RequestBoard";
 import InsufficientTool from "./Pages/InsufficientTool/InsufficientTool";
 import BoardHistory from "./Pages/BoardHistory/BoardHistory";
 import UpdateBoard from "./Pages/UpdateBoard/UpdateBoard";
+import AuthUser from "./Pages/AuthUser/AuthUser";
 
 function App() {
   const { token, logout, login, userId } = useAuth();
@@ -57,6 +58,7 @@ function App() {
               <Route path="/requestBoard" element={<RequestBoard />} />
               <Route path="/board/history" element={<BoardHistory />} />
               <Route path="/insTool" element={<InsufficientTool />} />
+              <Route path="/authUser" element={<AuthUser />} />
               {/* Catch all - replace with 404 component if you want */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

@@ -91,7 +91,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="sidebar__item" id="m10" onClick={() => onClick("m10")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/authUser" className="sidebar__link">
               <FiUsers className="sidebar__icon icon--medium" />
               <p className="sidebar__text">การจัดการผู้ใช้งาน</p>
             </Link>
