@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { io } from "socket.io-client";
 import { setNotification, addNewNotification } from "../Redux/features/notificationSlice";
 import { actionTool, deleteTool, addNewTool, updateTool } from "../Redux/features/toolSlice";
-import { actionBoard, addNewBoard, updateBoard } from "../Redux/features/boardSlice";
+import { actionBoard, addNewBoard, updateBoard, deleteBoard } from "../Redux/features/boardSlice";
 import { deleteInst } from "../Redux/features/instSlice";
 import "./Layout.css";
 
@@ -32,6 +32,9 @@ const Layout = (props) => {
     });
     socket.on("board-action", (data) => {
       dispatch(actionBoard(data));
+    });
+    socket.on("board-deleting", (data) => {
+      dispatch(deleteBoard(data.bid));
     });
     socket.on("board-adding", (data) => {
       dispatch(addNewBoard(data));

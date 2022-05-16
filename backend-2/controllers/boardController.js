@@ -817,7 +817,7 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
 
 exports.deleteBoard = catchAsync(async (req, res, next) => {
   const board = await Board.findById(req.params.bid);
-  if (!board) return next(new AppError("ไม่บอร์ดนี้", 404));
+  if (!board) return next(new AppError("ไม่พบบอร์ดนี้ในฐานข้อมูล", 404));
 
   if (hasImage(board?.avatar)) {
     await deleteOneImage(board.avatar?.public_id, null);
@@ -825,8 +825,7 @@ exports.deleteBoard = catchAsync(async (req, res, next) => {
   await deleteAllImage(board.images);
   await board.remove();
 
-  // *** Using socket.io for sending tool data ***
-  // Do it here later
+  io.emit("board-deleting", { bid: board._id });
 
   sendResponse(null, 204, res);
 });

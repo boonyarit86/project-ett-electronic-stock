@@ -27,6 +27,9 @@ const boardsSlice = createSlice({
     resetBoard: (state) => {
       state.board = null;
     },
+    deleteBoard: (state, action) => {
+      state.boards = state.boards.filter((board) => board._id !== action.payload);
+    },
     addNewBoard: (state, action) => {
       state.boards.push(action.payload);
     },
@@ -42,5 +45,5 @@ const boardsSlice = createSlice({
 });
 
 // export const getUser = (state) => state.user.user;
-export const { setBoards, actionBoard, getBoard, resetBoard, addNewBoard, updateBoard } = boardsSlice.actions;
+export const { setBoards, actionBoard, getBoard, resetBoard, addNewBoard, updateBoard, deleteBoard } = boardsSlice.actions;
 export default boardsSlice.reducer;

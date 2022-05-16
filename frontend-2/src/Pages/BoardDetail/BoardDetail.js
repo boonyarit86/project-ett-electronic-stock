@@ -89,10 +89,10 @@ const BoardDetail = () => {
   };
 
   const onSubmitDeleting = async (e) => {
+    e.preventDefault();
     let mainElement = document.querySelector(".main");
     let menu = document.querySelectorAll(".sidebar__item");
-    let newItemActive = document.getElementById("m2");
-    e.preventDefault();
+    let newItemActive = document.getElementById("m5");
 
     try {
       dispatch(startLoading());
