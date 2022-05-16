@@ -77,10 +77,10 @@ const getUpdatedBoard = async (id) => {
 
 const getUpdatedBoardHistory = async (id) => {
   const doc = await BoardHistory.findById(id)
-  .populate({ path: "creator", select: "name role" })
-  .populate({ path: "board", select: "boardName boardCode" })
-  .populate({ path: "tags.creator", select: "name role" })
-  .populate({ path: "tags.tools.tool", select: "toolName" });
+    .populate({ path: "creator", select: "name role" })
+    .populate({ path: "board", select: "boardName boardCode" })
+    .populate({ path: "tags.creator", select: "name role" })
+    .populate({ path: "tags.tools.tool", select: "toolName" });
   return doc;
 };
 
@@ -175,15 +175,20 @@ exports.createBoard = catchAsync(async (req, res, next) => {
 });
 
 exports.editBoard = catchAsync(async (req, res, next) => {
-  const { boardName, boardCode, type, limit, avatar, tools, description } =
-    req.body;
+  // *** For testing on postman: req.body.avatar, req.body.tools and the variable below ***
+  // const imagesDeleted = [
+  // { public_id: "dmohmelibcgoywivwwf5" },
+  // { public_id: "paqwiqksgehtgezrdrby" },
+  // ];
+  
+  const { boardName, boardCode, type, limit, description } = req.body;
+  const tools = JSON.parse(req.body.tools);
   const newAvatar = Boolean(req.files?.newAvatar) ? req.files.newAvatar[0] : {};
   const newImages = Boolean(req.files?.newImages) ? req.files.newImages : [];
-  // Resolve this array to be req.body.imagesDeleted later.
-  const imagesDeleted = [
-    // { public_id: "dmohmelibcgoywivwwf5" },
-    // { public_id: "paqwiqksgehtgezrdrby" },
-  ];
+  const avatar = req.body?.avatar ? JSON.parse(req.body.avatar) : null;
+  const imagesDeleted = req.body?.imagesDeleted
+    ? JSON.parse(req.body.imagesDeleted)
+    : [];
   const board = await Board.findById(req.params.bid);
   if (!board) return next(new AppError("ไม่พบรายการบอร์ดนี้", 404));
 
@@ -203,6 +208,9 @@ exports.editBoard = catchAsync(async (req, res, next) => {
   await board.save({ validateBeforeSave: false });
   await handleManyImages(board, newImages, imagesDeleted);
   await board.save({ validateBeforeSave: false });
+
+  let docUpdated = await getUpdatedBoard(board._id);
+  io.emit("board-updating", docUpdated);
   sendResponse(board, 200, res);
 });
 

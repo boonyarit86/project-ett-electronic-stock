@@ -30,9 +30,17 @@ const boardsSlice = createSlice({
     addNewBoard: (state, action) => {
       state.boards.push(action.payload);
     },
+    updateBoard: (state, action) => {
+      state.boards = state.boards.map((board) => {
+        if (board._id === action.payload._id) {
+          board = action.payload;
+        }
+        return board;
+      });
+    },
   }
 });
 
 // export const getUser = (state) => state.user.user;
-export const { setBoards, actionBoard, getBoard, resetBoard, addNewBoard } = boardsSlice.actions;
+export const { setBoards, actionBoard, getBoard, resetBoard, addNewBoard, updateBoard } = boardsSlice.actions;
 export default boardsSlice.reducer;
