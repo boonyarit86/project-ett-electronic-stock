@@ -32,7 +32,7 @@ import UpdateBoard from "./Pages/UpdateBoard/UpdateBoard";
 import AuthUser from "./Pages/AuthUser/AuthUser";
 
 function App() {
-  const { token, logout, login, userId } = useAuth();
+  const { token, logout, login, userId, handleSidebar, isSidebarOpen, handleCloseSidebar } = useAuth();
   const { loading } = useSelector((state) => state.initialState);
 
   let routes;
@@ -86,6 +86,9 @@ function App() {
           userId: userId,
           login: login,
           logout: logout,
+          handleSidebar: handleSidebar,
+          isSidebarOpen: isSidebarOpen,
+          handleCloseSidebar: handleCloseSidebar
         }}
       >
         {routes}

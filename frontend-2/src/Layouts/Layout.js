@@ -5,6 +5,7 @@ import { setNotification, addNewNotification } from "../Redux/features/notificat
 import { actionTool, deleteTool, addNewTool, updateTool } from "../Redux/features/toolSlice";
 import { actionBoard, addNewBoard, updateBoard, deleteBoard } from "../Redux/features/boardSlice";
 import { deleteInst } from "../Redux/features/instSlice";
+import { changeUserStatus, deleteUser } from "../Redux/features/userSlice"
 import "./Layout.css";
 
 const Layout = (props) => {
@@ -44,6 +45,12 @@ const Layout = (props) => {
     });
     socket.on("inst-deleting", (data) => {
       dispatch(deleteInst(data.instId));
+    });
+    socket.on("user-action", (data) => {
+      dispatch(changeUserStatus(data));
+    });
+    socket.on("user-deleting", (data) => {
+      dispatch(deleteUser(data));
     });
 
     return () => socket.disconnect();

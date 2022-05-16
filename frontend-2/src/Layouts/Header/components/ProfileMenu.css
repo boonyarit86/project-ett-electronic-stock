@@ -16,13 +16,13 @@
 }
 .profileMenu__list {
     list-style: none;
-    width: 100%;
+    width: 15rem;
     padding: 0.5rem 0;
     border-radius: 4px;
     box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
     position: absolute;
     top: 140%;
-    left: 0;
+    left: -50%;
     background-color: var(--color-white);
     z-index: 10;
     animation: fadeIn 0.3s ease-in-out;
@@ -39,7 +39,6 @@
         display: none;
     }
     .profileMenu__list {
-        width: 15rem;
         left: -150%;
     }
 }

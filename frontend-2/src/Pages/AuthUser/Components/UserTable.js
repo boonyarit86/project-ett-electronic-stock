@@ -1,15 +1,16 @@
 import React from "react";
+import Avatar from "../../../Components/Avatar/Avatar";
 import Button from "../../../Components/Button/Button";
 import Column from "../../../Components/Table/Column";
 import Row from "../../../Components/Table/Row";
+import StatusText from "../../../Components/Tag/StatusText";
 import Table from "../../../Components/Table/Table";
 import Thead from "../../../Components/Table/Thead";
 import Title from "../../../Components/Text/Title";
-import Avatar from "../../../Components/Avatar/Avatar";
+import { checkStatusUser } from "../../../utils/index";
 
 const UserTable = (props) => {
-  const { state, handleOpenModal, handleOpenTag } =
-    props;
+  const { state, handleUserStatus, handleDeleteUser } = props;
 
   return (
     <>
@@ -39,65 +40,55 @@ const UserTable = (props) => {
                   <p className="table__col-text">{user.name}</p>
                 </Column>
                 <Column minW={state[2].minW} maxW={state[2].maxW}>
-                  <p className="table__col-text">
-                   {user.email}
-                  </p>
+                  <p className="table__col-text">{user.email}</p>
                 </Column>
                 <Column minW={state[3].minW} maxW={state[3].maxW}>
-                  <p className="table__col-text">
-                    {user.role}
-                  </p>
+                <StatusText
+                    text={user.role}
+                    type={checkStatusUser(user.role)}
+                  />
                 </Column>
                 <Column
                   minW={state[4].minW}
                   maxW={state[4].maxW}
                   className="table__col-btns"
                 >
-                  {/* {item.action === "เบิกบอร์ด" ||
-                  item.action === "เพิ่มบอร์ด" ? (
-                    <Button
-                      element="button"
-                      type="button"
-                      className="btn-secondary-red"
-                      onClick={() =>
-                        handleOpenModal(
-                          item.action.includes("เพิ่ม") ? "เพิ่ม" : "เบิก",
-                          {
-                            boardName: item?.board?.boardName,
-                            total: item.total,
-                            _id: item._id,
-                          }
-                        )
-                      }
-                    >
-                      ยกเลิก
-                    </Button>
-                  ) : item.action === "เบิกบอร์ดพร้อมกับอุปกรณ์" ||
-                    item.action.includes("อุปกรณ์ไม่ครบ") ? (
-                    <Button
-                      element="button"
-                      type="button"
-                      className="btn-secondary-red"
-                      onClick={() =>
-                        handleOpenModal("เบิกบอร์ดพร้อมกับอุปกรณ์", {
-                          boardName: item?.board?.boardName,
-                          total: item.total,
-                          _id: item._id,
-                          tools: item.tags[item.tags.length - 1].tools,
-                        })
-                      }
-                    >
-                      ยกเลิก
-                    </Button>
-                  ) : null} */}
-                  <Button
-                    element="button"
-                    type="button"
-                    className="btn-secondary-purple"
-                    onClick={() => {}}
-                  >
-                    ดู
-                  </Button>
+                  {user.role === "admin" ? (
+                    "ไม่สามารถแก้ไขได้"
+                  ) : (
+                    <React.Fragment>
+                      <Button
+                        element="button"
+                        type="button"
+                        className="btn-primary-blue"
+                        onClick={() => handleUserStatus(user.role, user._id)}
+                      >
+                        {user.role === "user"
+                          ? "staff"
+                          : user.role === "staff"
+                          ? "user"
+                          : "อนุมัติ"}
+                      </Button>
+                      <Button
+                        element="button"
+                        type="button"
+                        className="btn-secondary-purple"
+                        onClick={ () => user.role === "unapprove" ? handleDeleteUser(user._id) :  handleUserStatus("non-status", user._id)}
+                      >
+                        {user.role === "unapprove" ? "ปฎิเสธ" : "non-status"}
+                      </Button>
+                      {user.role !== "unapprove" && (
+                        <Button
+                          element="button"
+                          type="button"
+                          className="btn-secondary-red"
+                          onClick={() => handleDeleteUser(user._id)}
+                        >
+                          ลบ
+                        </Button>
+                      )}
+                    </React.Fragment>
+                  )}
                 </Column>
               </Row>
             </React.Fragment>

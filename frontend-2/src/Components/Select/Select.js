@@ -16,7 +16,7 @@ const Select = (props) => {
   };
 
   return (
-    <div className={`select ${props.fullWidth && "fullWidth"}`}>
+    <div className={`select ${props.fullWidth && "fullWidth"} ${props.className}`}>
       <label htmlFor={props.id} className={`select__label`}>
         {props.label}{" "}
         {props.required && <span className="input__required">*</span>}

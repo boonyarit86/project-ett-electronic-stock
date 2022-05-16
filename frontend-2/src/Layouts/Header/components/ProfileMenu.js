@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { IoIosArrowDown } from "react-icons/io";
 import Avatar from "../../../Components/Avatar/Avatar";
@@ -15,6 +15,13 @@ const ProfileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenProfile, setIsOpenProfile] = useState(false);
   const [isOpenEditProfile, setIsOpenEditProfile] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === "unapprove" || user?.active === false) {
+      auth.logout();
+    }
+  }, [user]);
+
   const handleDropdownMenu = () => setIsOpen((prev) => !prev);
   const handleProfileModal = () => {
     if (isOpen) {
@@ -31,7 +38,7 @@ const ProfileMenu = () => {
     }
     setIsOpenEditProfile((prev) => !prev);
   };
-  //   console.log("Re-render ProfileMenu component")
+  
   return (
     <div className="profileMenu">
       {!user ? (
@@ -99,7 +106,9 @@ const ProfileMenu = () => {
           handleEditProfileModal={handleEditProfileModal}
         />
       )}
-      {isOpenEditProfile && <EditProfile onClick={handleEditProfileModal} user={user} />}
+      {isOpenEditProfile && (
+        <EditProfile onClick={handleEditProfileModal} user={user} />
+      )}
     </div>
   );
 };

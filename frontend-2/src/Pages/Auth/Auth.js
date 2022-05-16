@@ -99,7 +99,6 @@ const Auth = () => {
           passwordConfirm: passwordConfirm.value,
           name: name.value,
         };
-        // console.log(data)
         await Axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/users/register`,
           data

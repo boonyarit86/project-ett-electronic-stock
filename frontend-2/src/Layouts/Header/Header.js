@@ -1,17 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 
 import Notification from "./components/Notification";
 import ProfileMenu from "./components/ProfileMenu";
+import { AuthContext } from "../../context/auth-context";
 import "./Header.css";
 
 const Header = () => {
-
-  //   console.log("Re-render Header section");
+  const auth = useContext(AuthContext);
 
   const handleMenu = () => {
-    let sideBar = document.getElementById("sidebar");
-    sideBar.classList.toggle("open");
+    auth.handleSidebar();
   }
 
   return (

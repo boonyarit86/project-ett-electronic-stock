@@ -14,7 +14,19 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [tokenExpirationDate, setTokenExpirationDate] = useState(null);
+
+  const handleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+    let sideBar = document.getElementById("sidebar");
+    sideBar.classList.toggle("open");
+  }
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+    let sideBar = document.getElementById("sidebar");
+    sideBar.classList.remove("open");
+  }
 
   // function นี้ให้ผู้ใช้มีระยะเวลาใช้งานเว็บแค่ 1 ชั่วโมง หลังจากนั้นระบบจะทำการ logout auto
   const login = useCallback(
@@ -47,7 +59,7 @@ export const useAuth = () => {
         headers: { Authorization: `Bearer ${token}` },
       }).then((res) => {
         // dispatch(setNotification(res.data.data));
-      }) .catch((error) => {
+      }).catch((error) => {
         // Show error on Modal and Do it later.
         console.error(error);
         console.error(error.response.data.message);
@@ -131,5 +143,5 @@ export const useAuth = () => {
     }
   }, [login]);
 
-  return { login, logout, token, userId };
+  return { login, logout, token, userId, handleSidebar, isSidebarOpen, handleCloseSidebar };
 };

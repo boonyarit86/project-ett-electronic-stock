@@ -4,6 +4,9 @@ import { createContext } from 'react';
 export const AuthContext = createContext({
     token: null,
     userId: null,
+    isSidebarOpen: false,
+    handleSidebar: () => {},
+    handleCloseSidebar: () => {},
     login: () => { },
     logout: () => { },
 });

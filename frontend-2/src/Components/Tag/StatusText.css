@@ -14,3 +14,19 @@
     background-color: var(--color-error--palette);
     color: var(--color-error);
 }
+.statusText--primary-blue {
+    background-color: var(--color-primary-blue--palette);
+    color: var(--color-primary-blue);
+}
+.statusText--secondary-purple {
+    background-color: var(--color-secondary-purple--palette);
+    color: var(--color-secondary-purple);
+}
+.statusText--secondary-red {
+    background-color: var(--color-secondary-red--palette);
+    color: var(--color-secondary-red);
+}
+.statusText--default {
+    background-color: var(--color-primary-grey--light-2);
+    color: var(--color-primary-grey);
+}

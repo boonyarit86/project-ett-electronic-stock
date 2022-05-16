@@ -11,6 +11,15 @@ const checkStatus = (item) => {
   return response;
 };
 
+const checkStatusUser = (role) => {
+  let response = { type: null };
+  if (role === "admin") response.type = "primary-blue";
+  else if (role === "staff") response.type = "secondary-purple";
+  else if (role === "user") response.type = "secondary-red";
+  else if (role === "unapprove") response.type = "default";
+  return response.type;
+};
+
 function calcDuration(initialData, duration, setState) {
   let currentTime = new Date().getTime();
   if (Number(duration) === 0) {
@@ -25,4 +34,4 @@ function calcDuration(initialData, duration, setState) {
   }
 }
 
-export { checkStatus, calcDuration };
+export { checkStatus, calcDuration, checkStatusUser };

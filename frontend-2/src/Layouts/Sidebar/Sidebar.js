@@ -1,17 +1,30 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   AiOutlineHome,
   AiOutlineTool,
   AiOutlineAppstore,
   AiOutlineClockCircle,
+  AiOutlineMenu,
 } from "react-icons/ai";
 import { VscCircuitBoard } from "react-icons/vsc";
 import { FiUsers } from "react-icons/fi";
 import { GoSettings } from "react-icons/go";
+import Backdrop from "../../Components/Backdrop/Backdrop";
+import { AuthContext } from "../../context/auth-context";
 import "./Sidebar.css";
 
 const Sidebar = () => {
+  const auth = useContext(AuthContext);
+
+  useEffect(() => {
+    window.addEventListener("resize", function() {
+      if(window.innerWidth >= 900) {
+        auth.handleCloseSidebar();
+      }
+    })
+  }, [])
+
   const onClick = (id) => {
     let menu = document.querySelectorAll(".sidebar__item");
     let newItemActive = document.getElementById(id);
@@ -24,11 +37,16 @@ const Sidebar = () => {
     });
 
     newItemActive.classList.add("active");
+    auth.handleCloseSidebar();
   };
 
   return (
     <React.Fragment>
       <aside className="sidebar" id="sidebar">
+      <div className="sidebar__header">
+        <AiOutlineMenu className="sidebar__header-icon icon--medium" onClick={() => auth.handleCloseSidebar()} />
+        <img src="./images/logo.svg" alt="logo" />
+      </div>
         <ul className="sidebar__list">
           <li
             className="sidebar__item active"
@@ -104,6 +122,7 @@ const Sidebar = () => {
           </li>
         </ul>
       </aside>
+      {auth.isSidebarOpen && ( <Backdrop black style={{zIndex: 1}} onClick={() => auth.handleSidebar()} />) }
     </React.Fragment>
   );
 };

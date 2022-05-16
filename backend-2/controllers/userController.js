@@ -4,8 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const { hasImage } = require("../utils/index");
 const { deleteOneImage, handleOneImage } = require("../utils/handleImage");
-// const { io } = require("../app");
-// console.log(io);
+const { io } = require("../app");
 
 // --- Warning --- //
 // Every function in catchAsync() must define async(). otherwise there are some waring message about headers.
@@ -148,6 +147,7 @@ exports.setUserRole = catchAsync(async (req, res, next) => {
   if (role !== "admin") user.role = role;
   await user.save({ validateBeforeSave: false });
 
+  io.emit("user-action", { uid: user._id, role: user.role });
   sendResponse(user, 200, res);
 });
 
@@ -160,5 +160,7 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
   }
   user.active = false;
   await user.save({ validateBeforeSave: false });
+
+  io.emit("user-deleting", { uid: user._id, active: user.active });
   sendResponse(null, 204, res);
 });

@@ -56,6 +56,7 @@ const EditProfile = (props) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    let modalEditElement = document.querySelector(".editProfile");
     const { email, name, newPassword, oldPassword, newPasswordConfirm } =
       formState.inputs;
     let avatar = Boolean(fileDeleted) ? JSON.stringify(fileDeleted) : null;
@@ -86,6 +87,9 @@ const EditProfile = (props) => {
       dispatch(endLoading());
       catchError(error, setErrorMessage);
     }
+
+    modalEditElement.scrollTo(0, 0);
+
   };
 
   const omitValues = () => {

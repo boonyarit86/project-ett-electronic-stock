@@ -1,30 +1,21 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Axios from "axios";
-import DescriptionHistory from "../../Components/UIelements/DescriptionHistory";
 import Heading from "../../Components/Text/Heading";
-// import HistoryTable from "./Components/HistoryTable";
-// import ModalTag from "./Components/ModalTag";
-// import ModalCancel from "./Components/ModalCancel";
+import UserTable from "./Components/UserTable";
 import Select from "../../Components/Select/Select";
 import Toast from "../../Components/Toast/Toast";
-import { calcDuration } from "../../utils";
 import { AuthContext } from "../../context/auth-context";
 import { endLoading, startLoading } from "../../Redux/features/stateSlice";
 import { catchError, catchRequestError } from "../../utils/handleError";
-import {
-  setUsers
-} from "../../Redux/features/userSlice";
+import { setUsers } from "../../Redux/features/userSlice";
 import "./AuthUser.css";
-import UserTable from "./Components/UserTable";
 
-const timeOptions = [
+const statusOptions = [
   { name: "ทั้งหมด", value: 0 },
-  { name: "ภายใน 24 ชั่วโมง", value: 1 },
-  { name: "ภายใน 1 อาทิตย์", value: 7 },
-  { name: "ภายใน 1 เดือน", value: 30 },
-  { name: "ภายใน 3 เดือน", value: 90 },
-  { name: "ภายใน 5 เดือน", value: 150 },
+  { name: "unapprove", value: 1 },
+  { name: "user", value: 2 },
+  { name: "staff", value: 3 },
 ];
 
 const AuthUser = () => {
@@ -36,19 +27,10 @@ const AuthUser = () => {
   const [requestError, setRequestError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [controller, setController] = useState(null);
-  const [bhList, setBhList] = useState([]);
+  const [userStatus, setUserStatus] = useState(0);
   const [userFilter, setUserFilter] = useState([]);
-  const [bhFilter, setBhFilter] = useState([]);
-  const [openTag, setOpenTag] = useState(false);
-  const [tags, setTags] = useState([]);
-  const [cuurentTag, setCurrentTag] = useState(0);
-  const [initialValue, setInitialValue] = useState(null);
-  const [duration, setDuration] = useState(0);
-  const [action, setAction] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
-  const [dataSelected, setDataSelected] = useState(null);
-  const [description, setDescription] = useState("");
-  const [boardTableElement] = useState([
+
+  const [userTableElement] = useState([
     { minW: "10", maxW: "15", name: "รูปภาพ" },
     { minW: "20", maxW: "25", name: "ชื่อผู้ใช้งาน" },
     { minW: "30", maxW: "35", name: "อีเมล์" },
@@ -84,6 +66,18 @@ const AuthUser = () => {
     return () => controller && controller.abort();
   }, [controller, dispatch, auth.token]);
 
+  useEffect(() => {
+    let data = [...users];
+    if (Number(userStatus) === 1) {
+      data = data.filter((user) => user.role === "unapprove");
+    } else if (Number(userStatus) === 2) {
+      data = data.filter((user) => user.role === "user");
+    } else if (Number(userStatus) === 3) {
+      data = data.filter((user) => user.role === "staff");
+    }
+    setUserFilter(data);
+  }, [userStatus, users]);
+
   if (isLoading) return <div />;
   if (!isLoading && requestError) {
     return (
@@ -98,80 +92,54 @@ const AuthUser = () => {
     );
   }
 
-  const handleOpenTag = (tag, boardName, code) => {
-    let obj = {};
-    obj.boardName = boardName || "ไม่มีข้อมูล";
-    obj.code = code;
-    setOpenTag(true);
-    setTags(tag);
-    setInitialValue(obj);
-  };
-
-  const handleCloseTag = () => {
-    setOpenTag(false);
-    setTags([]);
-    setInitialValue(null);
-    setCurrentTag(0);
-  };
-
-  const handleOpenModal = (action, data) => {
-    setAction(action);
-    setDataSelected(data);
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setAction(null);
-    setDataSelected(null);
-    setOpenModal(false);
-    setDescription("");
-  };
-
-  const handleCurrentTag = (value) => {
-    let allTags = document.querySelectorAll(".modalHistory__tag");
-    let tagElement = document.getElementById(`htag-${value}`);
-
-    allTags.forEach((item) => {
-      if (item.getAttribute("class").includes("active")) {
-        item.classList.remove("active");
-      }
-    });
-    tagElement.classList.add("active");
-    setCurrentTag(value);
-  };
-
-  const onSubmitAction = async (e) => {
+  const handleUserStatus = async (status, userId) => {
     let mainElement = document.querySelector(".main");
-    let path =
-      action === "เบิกบอร์ดพร้อมกับอุปกรณ์" ? "restoreWithTool" : "restore";
-    e.preventDefault();
+    let newStatus;
+    if (status === "staff" || status === "unapprove") newStatus = "user";
+    else if (status === "user") newStatus = "staff";
+    else if (status === "non-status") newStatus = "unapprove";
 
-    console.log(
-      `${process.env.REACT_APP_BACKEND_URL}/boards/${path}/${dataSelected._id}`
-    );
     try {
       dispatch(startLoading());
       await Axios.patch(
-        `${process.env.REACT_APP_BACKEND_URL}/boards/${path}/${dataSelected._id}`,
-        { description: description },
+        `${process.env.REACT_APP_BACKEND_URL}/users/setRole/${userId}`,
+        { role: newStatus },
         {
           headers: { Authorization: `Bearer ${auth.token}` },
         }
       ).then((res) => {
         dispatch(endLoading());
-        setSuccessMessage("ทำรายการเรียบร้อยแล้ว");
+        setSuccessMessage("เปลี่ยนสถานะเรียบร้อยแล้ว");
         setTimeout(() => setSuccessMessage(null), 10000);
-        // dispatch(updateBoardHistory(res.data.data.doc));
       });
     } catch (error) {
       dispatch(endLoading());
       catchError(error, setErrorMessage);
     }
 
-    setAction(null);
-    setDataSelected(null);
-    setOpenModal(false);
-    setDescription("");
+    mainElement.scrollTo(0, 0);
+  };
+
+  const handleDeleteUser = async (userId) => {
+    let mainElement = document.querySelector(".main");
+
+    try {
+      dispatch(startLoading());
+      await Axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/users/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${auth.token}` },
+        }
+      ).then((res) => {
+        dispatch(endLoading());
+        setSuccessMessage("ลบข้อมูลเรียบร้อยแล้ว");
+        setTimeout(() => setSuccessMessage(null), 10000);
+      });
+    } catch (error) {
+      dispatch(endLoading());
+      catchError(error, setErrorMessage);
+    }
+
     mainElement.scrollTo(0, 0);
   };
 
@@ -194,39 +162,20 @@ const AuthUser = () => {
           className="u-mg-b"
         />
       )}
-      {/* <Select
-        label="ระยะเวลา"
-        id="duration"
-        setState={setDuration}
-        state={duration}
-        data={timeOptions}
-      /> */}
-      <UserTable
-        state={boardTableElement}
-        data={userFilter}
-        handleOpenModal={handleOpenModal}
-        handleOpenTag={handleOpenTag}
+      <Select
+        label="สถานะผู้ใช้งาน"
+        id="userStatus"
+        setState={setUserStatus}
+        state={userStatus}
+        data={statusOptions}
+        className="u-mg-b--small-2"
       />
-      {/* {openTag && (
-        <ModalTag
-          tags={tags}
-          handleOpenTag={handleOpenTag}
-          currentTag={cuurentTag}
-          handleCurrentTag={handleCurrentTag}
-          handleCloseTag={handleCloseTag}
-          board={initialValue}
-        />
-      )}
-      {openModal && (
-        <ModalCancel
-          setDescription={setDescription}
-          description={description}
-          handleCloseModal={handleCloseModal}
-          action={action}
-          dataSelected={dataSelected}
-          onSubmitAction={onSubmitAction}
-        />
-      )} */}
+      <UserTable
+        state={userTableElement}
+        data={userFilter}
+        handleUserStatus={handleUserStatus}
+        handleDeleteUser={handleDeleteUser}
+      />
     </div>
   );
 };
