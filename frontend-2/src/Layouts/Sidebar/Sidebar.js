@@ -63,7 +63,7 @@ const Sidebar = () => {
               <p className="sidebar__text">หน้าหลัก</p>
             </Link>
           </li>
-          <li className="sidebar__item" id="m2" >
+          <li className="sidebar__item" id="m2" onClick={() => auth.handleCloseSidebar()}>
             <Link to="/toolList" className="sidebar__link">
               <AiOutlineTool className="sidebar__icon icon--medium" />
               <p className="sidebar__text">รายการอุปกรณ์</p>
@@ -84,7 +84,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <hr className="sidebar__line" />
-          <li className="sidebar__item" id="m5" >
+          <li className="sidebar__item" id="m5" onClick={() => auth.handleCloseSidebar()}>
             <Link to="/boardList" className="sidebar__link">
               <VscCircuitBoard className="sidebar__icon icon--medium" />
               <p className="sidebar__text">รายการบอร์ด</p>
