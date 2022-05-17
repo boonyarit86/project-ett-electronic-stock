@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import Button from "../../../Components/Button/Button";
 import Column from "../../../Components/Table/Column";
 import Row from "../../../Components/Table/Row";
@@ -11,6 +12,7 @@ import { time } from "../../../utils/Time";
 const HistoryTable = (props) => {
   const { state, handleOpenModal, setState, initialData, handleOpenTag } =
     props;
+  const user = useSelector((state) => state.user.user);
   const [formatDate, formatTime] = time();
 
   return (
@@ -38,7 +40,9 @@ const HistoryTable = (props) => {
                 </Column>
                 <Column minW={state[2].minW} maxW={state[2].maxW}>
                   <p className="table__col-text">
-                    {item?.board?.boardName ? item.board.boardName : "ไม่ได้กำหนด"}
+                    {item?.board?.boardName
+                      ? item.board.boardName
+                      : "ไม่ได้กำหนด"}
                   </p>
                 </Column>
                 <Column minW={state[3].minW} maxW={state[3].maxW}>
@@ -74,7 +78,8 @@ const HistoryTable = (props) => {
                   className="table__col-btns"
                 >
                   {(item.action === "เบิกบอร์ด" ||
-                    item.action === "เพิ่มบอร์ด") ? (
+                    item.action === "เพิ่มบอร์ด") &&
+                  (user?.role === "admin" || user?.role === "staff") ? (
                     <Button
                       element="button"
                       type="button"
@@ -92,32 +97,34 @@ const HistoryTable = (props) => {
                     >
                       ยกเลิก
                     </Button>
-                  ) : (item.action === "เบิกบอร์ดพร้อมกับอุปกรณ์" || item.action.includes("อุปกรณ์ไม่ครบ")) ? (
+                  ) : item.action === "เบิกบอร์ดพร้อมกับอุปกรณ์" ||
+                    item.action.includes("อุปกรณ์ไม่ครบ") ? (
                     <Button
-                    element="button"
-                    type="button"
-                    className="btn-secondary-red"
-                    onClick={() =>
-                      handleOpenModal(
-                        "เบิกบอร์ดพร้อมกับอุปกรณ์",
-                        {
+                      element="button"
+                      type="button"
+                      className="btn-secondary-red"
+                      onClick={() =>
+                        handleOpenModal("เบิกบอร์ดพร้อมกับอุปกรณ์", {
                           boardName: item?.board?.boardName,
                           total: item.total,
                           _id: item._id,
-                          tools: item.tags[item.tags.length - 1].tools
-                        }
-                      )
-                    }
-                  >
-                    ยกเลิก
-                  </Button>
+                          tools: item.tags[item.tags.length - 1].tools,
+                        })
+                      }
+                    >
+                      ยกเลิก
+                    </Button>
                   ) : null}
                   <Button
                     element="button"
                     type="button"
                     className="btn-secondary-purple"
                     onClick={() =>
-                      handleOpenTag(item.tags, item?.board?.boardName, item.code)
+                      handleOpenTag(
+                        item.tags,
+                        item?.board?.boardName,
+                        item.code
+                      )
                     }
                   >
                     ดู

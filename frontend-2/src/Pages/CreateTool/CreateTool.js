@@ -124,8 +124,6 @@ const CreateTool = () => {
   }
 
   const onSubmit = async (e) => {
-    let menu = document.querySelectorAll(".sidebar__item");
-    let newItemActive = document.getElementById("m2");
     e.preventDefault();
     const { type, toolName } = formState.inputs;
 
@@ -146,13 +144,6 @@ const CreateTool = () => {
       await Axios.post(`${process.env.REACT_APP_BACKEND_URL}/tools`, formData, {
         headers: { Authorization: `Bearer ${auth.token}` },
       }).then((res) => {
-        menu.forEach((item) => {
-          let isItemActive = item.getAttribute("class").includes("active");
-          if (isItemActive) {
-            item.classList.remove("active");
-          }
-        });
-        newItemActive.classList.add("active");
         dispatch(endLoading());
         navigate("/toolList");
       });

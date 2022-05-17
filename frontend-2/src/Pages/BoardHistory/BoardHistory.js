@@ -154,8 +154,7 @@ const BoardHistory = () => {
     let mainElement = document.querySelector(".main");
     let path = action === "เบิกบอร์ดพร้อมกับอุปกรณ์" ? "restoreWithTool" : "restore";
     e.preventDefault();
-
-    console.log(`${process.env.REACT_APP_BACKEND_URL}/boards/${path}/${dataSelected._id}`)
+    
     try {
       dispatch(startLoading());
       await Axios.patch(

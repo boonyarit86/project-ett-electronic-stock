@@ -262,22 +262,22 @@ const InsufficientTool = () => {
               className="icon--large"
             />
             <div className="insTool__creator-detail">
-              <p>Yukino (admin)</p>
+              <p>Ruri (admin)</p>
               <p>12/12/2021</p>
             </div>
           </div>
           <ul className="insTool__board u-mg-b">
             <li className="insTool__article u-mg-b--sm">
               <p className="insTool__article-title">ชื่อบอร์ด</p>
-              <p className="insTool__article-text">ET-AEDUINO</p>
+              <p className="insTool__article-text">ET-MEGA 2510</p>
             </li>
             <li className="insTool__article u-mg-b--sm">
               <p className="insTool__article-title">รหัสบอร์ด</p>
-              <p className="insTool__article-text">b001</p>
+              <p className="insTool__article-text">b15</p>
             </li>
             <li className="insTool__article u-mg-b--sm">
               <p className="insTool__article-title">เลขที่การเบิก</p>
-              <p className="insTool__article-text">BH001</p>
+              <p className="insTool__article-text">BH05</p>
             </li>
           </ul>
 
@@ -286,7 +286,7 @@ const InsufficientTool = () => {
           </p>
           <div className="insTool__tools">
             <div className="insTool__tool">
-              <p>Tool Name</p>
+              <p>R250K</p>
               <ul className="insTool__article-tools bg--palette">
                 <li className="insTool__article u-mg-b--sm">
                   <p className="insTool__article-title">ชนิด</p>
@@ -294,67 +294,7 @@ const InsufficientTool = () => {
                 </li>
                 <li className="insTool__article u-mg-b--sm">
                   <p className="insTool__article-title">ประเภท</p>
-                  <p className="insTool__article-text">resister</p>
-                </li>
-                <li className="insTool__article u-mg-b--sm">
-                  <p className="insTool__article-title">จำนวนไม่พอ</p>
-                  <p className="insTool__article-text">10</p>
-                </li>
-              </ul>
-              <Button
-                element="button"
-                type="button"
-                className="btn btn-primary-blue btn--small"
-                fullWidth
-              >
-                เพิ่ม
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="insTool__item">
-          <div className="insTool__creator u-mg-b">
-            <Avatar
-              shape="circle"
-              alt="user"
-              src="/images/avatars/user-2.jpg"
-              className="icon--large"
-            />
-            <div className="insTool__creator-detail">
-              <p>Hina (staff)</p>
-              <p>12/12/2021</p>
-            </div>
-          </div>
-          <ul className="insTool__board u-mg-b">
-            <li className="insTool__article u-mg-b--sm">
-              <p className="insTool__article-title">ชื่อบอร์ด</p>
-              <p className="insTool__article-text">ET-INT4</p>
-            </li>
-            <li className="insTool__article u-mg-b--sm">
-              <p className="insTool__article-title">รหัสบอร์ด</p>
-              <p className="insTool__article-text">b002</p>
-            </li>
-            <li className="insTool__article u-mg-b--sm">
-              <p className="insTool__article-title">เลขที่การเบิก</p>
-              <p className="insTool__article-text">BH005</p>
-            </li>
-          </ul>
-
-          <p className="u-mg-b--md" style={{ fontWeight: 700 }}>
-            รายการอุปกรณ์ไม่พอ
-          </p>
-          <div className="insTool__tools">
-            <div className="insTool__tool">
-              <p>Tool Name</p>
-              <ul className="insTool__article-tools bg--palette">
-                <li className="insTool__article u-mg-b--sm">
-                  <p className="insTool__article-title">ชนิด</p>
-                  <p className="insTool__article-text">resister</p>
-                </li>
-                <li className="insTool__article u-mg-b--sm">
-                  <p className="insTool__article-title">ประเภท</p>
-                  <p className="insTool__article-text">resister</p>
+                  <p className="insTool__article-text">surface</p>
                 </li>
                 <li className="insTool__article u-mg-b--sm">
                   <p className="insTool__article-title">จำนวนไม่พอ</p>

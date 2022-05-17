@@ -19,7 +19,7 @@ const getEndNumber = (currentPage, initialData, endItem, pages) => {
 };
 
 const Pagination = (props) => {
-  const [rowPerPage, setRowPerPage] = useState(2);
+  const [rowPerPage, setRowPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [startItem, setStartItem] = useState(1);
@@ -99,7 +99,7 @@ const Pagination = (props) => {
           onChange={onChange}
           className="pagination__input"
         >
-          <option value={2}>2</option>
+          <option value={5}>5</option>
           <option value={10}>10</option>
           <option value={25}>25</option>
         </select>

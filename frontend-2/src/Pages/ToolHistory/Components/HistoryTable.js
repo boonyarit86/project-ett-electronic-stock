@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import Button from "../../../Components/Button/Button";
 import Column from "../../../Components/Table/Column";
 import Row from "../../../Components/Table/Row";
@@ -11,6 +12,7 @@ import { time } from "../../../utils/Time";
 const HistoryTable = (props) => {
   const { state, handleOpenModal, setState, initialData, handleOpenTag } =
     props;
+  const user = useSelector((state) => state.user.user);
   const [formatDate, formatTime] = time();
 
   return (
@@ -74,21 +76,26 @@ const HistoryTable = (props) => {
                   className="table__col-btns"
                 >
                   {(item.action === "เบิกอุปกรณ์" ||
-                    item.action === "เพิ่มอุปกรณ์") && (
-                    <Button
-                      element="button"
-                      type="button"
-                      className="btn-secondary-red"
-                      onClick={() =>
-                        handleOpenModal(
-                          item.action.includes("เพิ่ม") ? "เพิ่ม" : "เบิก",
-                          { toolName: item?.tool?.toolName, total: item.total, _id: item._id }
-                        )
-                      }
-                    >
-                      ยกเลิก
-                    </Button>
-                  )}
+                    item.action === "เพิ่มอุปกรณ์") &&
+                    (user?.role === "admin" || user?.role === "staff") && (
+                      <Button
+                        element="button"
+                        type="button"
+                        className="btn-secondary-red"
+                        onClick={() =>
+                          handleOpenModal(
+                            item.action.includes("เพิ่ม") ? "เพิ่ม" : "เบิก",
+                            {
+                              toolName: item?.tool?.toolName,
+                              total: item.total,
+                              _id: item._id,
+                            }
+                          )
+                        }
+                      >
+                        ยกเลิก
+                      </Button>
+                    )}
                   <Button
                     element="button"
                     type="button"

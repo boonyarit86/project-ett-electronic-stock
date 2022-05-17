@@ -11,3 +11,21 @@
 .heading--sub {
     font-size: var(--font-size--heading-2);
 }
+
+@media (max-width: 56.25em) {
+  .heading--main {
+    font-size: 3.6rem;
+  }
+  .heading--sub {
+    font-size: 2.9rem;
+  }
+}
+
+@media (max-width: 25em) {
+  .heading--main {
+    font-size: 3.2rem;
+  }
+  .heading--sub {
+    font-size: 2.6rem;
+  }
+}

@@ -27,18 +27,19 @@ const warningText = [
 ];
 
 const toolTableElement = [
-    { minW: "7", maxW: "10", name: "รูปภาพ" },
-    { minW: "23", maxW: "25", name: "ชื่ออุปกรณ์" },
-    { minW: "12", maxW: "15", name: "รหัสอุปกรณ์" },
-    { minW: "15", maxW: "17", name: "ชนิด" },
-    { minW: "15", maxW: "17", name: "ประเภท" },
-    { minW: "10", maxW: "12", name: "ขนาด" },
-    { minW: "14", maxW: "16", name: "จำนวนที่ใช้ในบอร์ด" },
-    { minW: "13", maxW: "15", name: "อื่นๆ" },
-  ];
+  { minW: "7", maxW: "10", name: "รูปภาพ" },
+  { minW: "23", maxW: "25", name: "ชื่ออุปกรณ์" },
+  { minW: "12", maxW: "15", name: "รหัสอุปกรณ์" },
+  { minW: "15", maxW: "17", name: "ชนิด" },
+  { minW: "15", maxW: "17", name: "ประเภท" },
+  { minW: "10", maxW: "12", name: "ขนาด" },
+  { minW: "14", maxW: "16", name: "จำนวนที่ใช้ในบอร์ด" },
+  { minW: "13", maxW: "15", name: "อื่นๆ" },
+];
 
 const BoardDetail = () => {
   const auth = useContext(AuthContext);
+  const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const boardId = useParams().boardId;
@@ -91,8 +92,6 @@ const BoardDetail = () => {
   const onSubmitDeleting = async (e) => {
     e.preventDefault();
     let mainElement = document.querySelector(".main");
-    let menu = document.querySelectorAll(".sidebar__item");
-    let newItemActive = document.getElementById("m5");
 
     try {
       dispatch(startLoading());
@@ -102,14 +101,6 @@ const BoardDetail = () => {
           headers: { Authorization: `Bearer ${auth.token}` },
         }
       ).then((res) => {
-        menu.forEach((item) => {
-          let isItemActive = item.getAttribute("class").includes("active");
-          if (isItemActive) {
-            item.classList.remove("active");
-          }
-        });
-
-        newItemActive.classList.add("active");
         dispatch(endLoading());
         navigate("/boardList");
       });
@@ -149,7 +140,7 @@ const BoardDetail = () => {
           <article className="itemDetail__article">
             <div className="itemDetail__content">
               <p className="itemDetail__title">รหัสบอร์ด</p>
-              <p className="itemDetail__text">{board.boardCode}</p>
+              <p className="itemDetail__text">{board.boardCode || "ไม่ได้กำหนด"}</p>
             </div>
             <div className="itemDetail__content">
               <p className="itemDetail__title">จำนวนบอร์ด</p>
@@ -177,27 +168,31 @@ const BoardDetail = () => {
             </div>
             <div className="itemDetail__description">
               <p className="itemDetail__title">รายละเอียดเพิ่มเติม</p>
-              <p className="itemDetail__text">{board.description}</p>
+              <p className="itemDetail__text">{board.description || "ไม่ได้กำหนด"}</p>
             </div>
           </article>
 
           <div className="btn__group">
-            <Button
-              element="link"
-              type="button"
-              path={`/boardList/${board._id}/update`}
-              className="btn-primary-blue"
-            >
-              แก้ไข
-            </Button>
-            <Button
-              element="button"
-              type="button"
-              className="btn-secondary-red"
-              onClick={handleModal}
-            >
-              ลบ
-            </Button>
+            {(user?.role === "admin" || user?.role === "staff") && (
+              <React.Fragment>
+                <Button
+                  element="link"
+                  type="button"
+                  path={`/boardList/${board._id}/update`}
+                  className="btn-primary-blue"
+                >
+                  แก้ไข
+                </Button>
+                <Button
+                  element="button"
+                  type="button"
+                  className="btn-secondary-red"
+                  onClick={handleModal}
+                >
+                  ลบ
+                </Button>
+              </React.Fragment>
+            )}
             <Button
               element="link"
               type="button"
@@ -247,10 +242,7 @@ const BoardDetail = () => {
           <Backdrop black style={{ zIndex: 100 }} />
         </React.Fragment>
       )}
-      <ToolTable
-        state={toolTableElement}
-        data={board.tools}
-      />
+      <ToolTable state={toolTableElement} data={board.tools} />
     </div>
   );
 };

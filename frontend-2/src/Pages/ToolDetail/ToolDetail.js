@@ -28,6 +28,7 @@ const warningText = [
 
 const ToolDetail = () => {
   const auth = useContext(AuthContext);
+  const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toolId = useParams().toolId;
@@ -79,10 +80,7 @@ const ToolDetail = () => {
 
   const onSubmitDeleting = async (e) => {
     let mainElement = document.querySelector(".main");
-    let menu = document.querySelectorAll(".sidebar__item");
-    let newItemActive = document.getElementById("m2");
     e.preventDefault();
-    console.log(tool._id);
 
     try {
       dispatch(startLoading());
@@ -92,14 +90,6 @@ const ToolDetail = () => {
           headers: { Authorization: `Bearer ${auth.token}` },
         }
       ).then((res) => {
-        menu.forEach((item) => {
-          let isItemActive = item.getAttribute("class").includes("active");
-          if (isItemActive) {
-            item.classList.remove("active");
-          }
-        });
-
-        newItemActive.classList.add("active");
         dispatch(endLoading());
         navigate("/toolList");
       });
@@ -139,7 +129,7 @@ const ToolDetail = () => {
           <article className="itemDetail__article">
             <div className="itemDetail__content">
               <p className="itemDetail__title">รหัสอุปกรณ์</p>
-              <p className="itemDetail__text">{tool.toolCode}</p>
+              <p className="itemDetail__text">{tool.toolCode || "ไม่ได้กำหนด"}</p>
             </div>
             <div className="itemDetail__content">
               <p className="itemDetail__title">จำนวนอุปกรณ์</p>
@@ -173,11 +163,13 @@ const ToolDetail = () => {
             </div>
             <div className="itemDetail__description">
               <p className="itemDetail__title">รายละเอียดเพิ่มเติม</p>
-              <p className="itemDetail__text">{tool.description}</p>
+              <p className="itemDetail__text">{tool.description || "ไม่ได้กำหนด"}</p>
             </div>
           </article>
 
           <div className="btn__group">
+          {(user?.role === "admin" || user?.role === "staff") && (
+            <React.Fragment>
             <Button
               element="link"
               type="button"
@@ -194,6 +186,8 @@ const ToolDetail = () => {
             >
               ลบ
             </Button>
+            </React.Fragment>
+          )}
             <Button
               element="link"
               type="button"

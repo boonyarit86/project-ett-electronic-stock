@@ -23,7 +23,6 @@ import { VALIDATOR_REQUIRE } from "../../utils/validators";
 
 import "./ToolList.css";
 
-
 const ToolList = () => {
   const auth = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -69,6 +68,20 @@ const ToolList = () => {
     },
     false
   );
+
+  useEffect(() => {
+    let menu = document.querySelectorAll(".sidebar__item");
+    let newItemActive = document.getElementById("m2");
+
+    menu.forEach((item) => {
+      let isItemActive = item.getAttribute("class").includes("active");
+      if (isItemActive) {
+        item.classList.remove("active");
+      }
+    });
+
+    newItemActive.classList.add("active");
+  }, []);
 
   useEffect(() => {
     if (tools.length !== 0) {

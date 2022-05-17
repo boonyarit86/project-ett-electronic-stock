@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import Avatar from "../../../Components/Avatar/Avatar";
 import Button from "../../../Components/Button/Button";
 import Column from "../../../Components/Table/Column";
@@ -11,22 +12,24 @@ import { checkStatus } from "../../../utils/index";
 import Pagination from "../../../Components/Table/Pagination";
 
 const ToolTable = (props) => {
-  const {state, handleOpenModal, setState, initialData} = props;
+  const { state, handleOpenModal, setState, initialData } = props;
+  const user = useSelector((state) => state.user.user);
 
   return (
     <>
       <Title className="table__title">ตารางรายการอุปกรณ์</Title>
-        <Table>
-          <Thead>
-            {props.state.map((item, index) => (
-              <React.Fragment key={index}>
-                <Column minW={item.minW} maxW={item.maxW}>
-                  <p className="table__header-text">{item.name}</p>
-                </Column>
-              </React.Fragment>
-            ))}
-          </Thead>
-          {props.data.length > 0 ? props.data.map((item, index) => (
+      <Table>
+        <Thead>
+          {props.state.map((item, index) => (
+            <React.Fragment key={index}>
+              <Column minW={item.minW} maxW={item.maxW}>
+                <p className="table__header-text">{item.name}</p>
+              </Column>
+            </React.Fragment>
+          ))}
+        </Thead>
+        {props.data.length > 0 ? (
+          props.data.map((item, index) => (
             <React.Fragment key={index}>
               <Row>
                 <Column minW={state[0].minW} maxW={state[0].maxW}>
@@ -79,14 +82,16 @@ const ToolTable = (props) => {
                   >
                     เบิก
                   </Button>
-                  <Button
-                    element="button"
-                    type="button"
-                    className="btn-secondary-purple"
-                    onClick={() => handleOpenModal("เพิ่ม", item)}
-                  >
-                    เพิ่ม
-                  </Button>
+                  {(user?.role === "admin" || user?.role === "staff") && (
+                    <Button
+                      element="button"
+                      type="button"
+                      className="btn-secondary-purple"
+                      onClick={() => handleOpenModal("เพิ่ม", item)}
+                    >
+                      เพิ่ม
+                    </Button>
+                  )}
                   <Button
                     element="link"
                     type="button"
@@ -98,13 +103,20 @@ const ToolTable = (props) => {
                 </Column>
               </Row>
             </React.Fragment>
-          )) : (
-              <Row>
-                  <div style={{width: "100%", textAlign: "center"}}>ไม่พบข้อมูล</div>
-              </Row>
-          )}
-          <Pagination data={props.data} setState={setState} initialData={initialData} />
-        </Table>
+          ))
+        ) : (
+          <Row>
+            <div style={{ width: "100%", textAlign: "center" }}>
+              ไม่พบข้อมูล
+            </div>
+          </Row>
+        )}
+        <Pagination
+          data={props.data}
+          setState={setState}
+          initialData={initialData}
+        />
+      </Table>
     </>
   );
 };

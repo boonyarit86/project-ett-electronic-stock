@@ -9,11 +9,8 @@
     border-radius: 4px;
     overflow-x: auto;
     margin-bottom: 3rem;
-    max-height: 50rem;
 }
-/* .table::-webkit-scrollbar {
-    display: none;
-} */
+
 .table__title {
     margin-bottom: 1rem;
 }

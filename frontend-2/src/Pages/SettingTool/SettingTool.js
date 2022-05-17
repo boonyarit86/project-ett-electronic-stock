@@ -240,7 +240,6 @@ const SettingTool = () => {
       <Heading
         type="main"
         text="การกำหนดค่าชนิด/ประเภทอุปกรณ์"
-        className="u-mg-b"
       />
       {errorMessage && (
         <Toast

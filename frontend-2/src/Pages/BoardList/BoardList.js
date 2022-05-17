@@ -64,6 +64,20 @@ const BoardList = () => {
   );
 
   useEffect(() => {
+    let menu = document.querySelectorAll(".sidebar__item");
+    let newItemActive = document.getElementById("m5");
+
+    menu.forEach((item) => {
+      let isItemActive = item.getAttribute("class").includes("active");
+      if (isItemActive) {
+        item.classList.remove("active");
+      }
+    });
+
+    newItemActive.classList.add("active");
+  }, []);
+
+  useEffect(() => {
     if (boards.length !== 0) {
       let boardOut = boards.filter((item) => item.total === 0);
       let boardRunningOut = boards.filter((item) => item.total <= item.limit);

@@ -146,8 +146,6 @@ const CreateBoard = () => {
   }
 
   const onSubmit = async (e) => {
-    let menu = document.querySelectorAll(".sidebar__item");
-    let newItemActive = document.getElementById("m5");
     e.preventDefault();
     const { boardName } = formState.inputs;
 
@@ -168,13 +166,6 @@ const CreateBoard = () => {
           headers: { Authorization: `Bearer ${auth.token}` },
         }
       ).then((res) => {
-        menu.forEach((item) => {
-          let isItemActive = item.getAttribute("class").includes("active");
-          if (isItemActive) {
-            item.classList.remove("active");
-          }
-        });
-        newItemActive.classList.add("active");
         setToolSelectedList("");
         setBoardType("");
         setDescription("");

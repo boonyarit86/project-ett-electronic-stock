@@ -33,8 +33,17 @@ import AuthUser from "./Pages/AuthUser/AuthUser";
 import SettingTool from "./Pages/SettingTool/SettingTool";
 
 function App() {
-  const { token, logout, login, userId, handleSidebar, isSidebarOpen, handleCloseSidebar } = useAuth();
+  const {
+    token,
+    logout,
+    login,
+    userId,
+    handleSidebar,
+    isSidebarOpen,
+    handleCloseSidebar,
+  } = useAuth();
   const { loading } = useSelector((state) => state.initialState);
+  const user = useSelector((state) => state.user.user);
 
   let routes;
   if (token) {
@@ -49,18 +58,36 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/toolList" element={<ToolList />} />
               <Route path="/toolList/:toolId" element={<ToolDetail />} />
-              <Route path="/toolList/:toolId/update" element={<UpdateTool />} />
-              <Route path="/createTool" element={<CreateTool />} />
+              {(user?.role === "admin" || user?.role === "staff") && (
+                <React.Fragment>
+                  <Route
+                    path="/toolList/:toolId/update"
+                    element={<UpdateTool />}
+                  />
+                  <Route path="/createTool" element={<CreateTool />} />
+                </React.Fragment>
+              )}
               <Route path="/tool/history" element={<ToolHistory />} />
               <Route path="/boardList" element={<BoardList />} />
               <Route path="/boardList/:boardId" element={<BoardDetail />} />
-              <Route path="/boardList/:boardId/update" element={<UpdateBoard />} />
-              <Route path="/createBoard" element={<CreateBoard />} />
-              <Route path="/requestBoard" element={<RequestBoard />} />
+              {(user?.role === "admin" || user?.role === "staff") && (
+                <React.Fragment>
+                  <Route
+                    path="/boardList/:boardId/update"
+                    element={<UpdateBoard />}
+                  />
+                  <Route path="/createBoard" element={<CreateBoard />} />
+                  <Route path="/requestBoard" element={<RequestBoard />} />
+                </React.Fragment>
+              )}
               <Route path="/board/history" element={<BoardHistory />} />
               <Route path="/insTool" element={<InsufficientTool />} />
-              <Route path="/authUser" element={<AuthUser />} />
-              <Route path="/setting" element={<SettingTool />} />
+              {user?.role === "admin" && (
+                <React.Fragment>
+                  <Route path="/authUser" element={<AuthUser />} />
+                  <Route path="/setting" element={<SettingTool />} />
+                </React.Fragment>
+              )}
               {/* Catch all - replace with 404 component if you want */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -90,7 +117,7 @@ function App() {
           logout: logout,
           handleSidebar: handleSidebar,
           isSidebarOpen: isSidebarOpen,
-          handleCloseSidebar: handleCloseSidebar
+          handleCloseSidebar: handleCloseSidebar,
         }}
       >
         {routes}

@@ -6,6 +6,7 @@ import Avatar from "../../../Components/Avatar/Avatar";
 import Backdrop from "../../../Components/Backdrop/Backdrop";
 import { AuthContext } from "../../../context/auth-context";
 import { readNotification } from "../../../Redux/features/notificationSlice";
+import { calculateNotificationTime } from "../../../utils/Time";
 import "./Notification.css";
 
 const Notification = () => {
@@ -45,7 +46,7 @@ const Notification = () => {
                 <Avatar className="icon--large-2" shape="circle" alt="system avatar" />
                 <article>
                   <p className="notification__message">ระบบ: {item.message}</p>
-                  <span className="notification__time">ล่าสุด</span>
+                  <span className="notification__time">{calculateNotificationTime(item.date)}</span>
                 </article>
               </li>
             ))
