@@ -12,6 +12,7 @@ const xss = require("xss-clean");
 const app = express();
 const mongoose = require("mongoose");
 const server = http.createServer(app);
+const path = require("path");
 dotenv.config({ path: "./config.env" });
 
 // Utils
@@ -28,13 +29,13 @@ const io = socketIo(server, {
   transports: ["polling"],
   cors: {
     cors: {
-      origin: process.env.FRONTEND_URL,
+      origin: process.env.HEROKU_URL,
     },
   },
 });
 
 io.on("connection", (socket) => {
-  // console.log(`A user: ${socket.id} is connected `);
+  console.log(`A user: ${socket.id} is connected `);
 
   socket.on("disconnect", () => {
     // console.log(`All socket ${socket.id} disconnected`);
@@ -44,7 +45,15 @@ io.on("connection", (socket) => {
 exports.io = io;
 
 // Set security HTTP headers
-app.use(helmet());
+// app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "img-src": ["'self'", "https: data:"]
+    }
+  })
+)
 
 // Log an action of using routes
 if (process.env.NODE_ENV === "development") {
@@ -53,6 +62,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: "10kb" }));
+// app.use(express.static(path.join("public")));
 app.use(cors());
 
 // Limit requests from API
@@ -94,6 +104,7 @@ const ttsRoutes = require("./routes/ttsRoutes");
 const tcsRoutes = require("./routes/tcsRoutes");
 const numHistoryRoutes = require("./routes/numHistoryRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+app.get("/", (req, res) => res.send("Hello"));
 app.use("/api/users", userRoutes);
 app.use("/api/tools", toolRoutes);
 app.use("/api/boards", boardRoutes);
@@ -101,6 +112,9 @@ app.use("/api/tts", ttsRoutes);
 app.use("/api/tcs", tcsRoutes);
 app.use("/api/numHistory", numHistoryRoutes);
 app.use("/api/notifications", notificationRoutes);
+// app.use((req, res, next) => {
+//   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+// })
 
 // Page 404
 app.all("*", (req, res, next) => {
@@ -131,42 +145,4 @@ process.on("unhandledRejection", (err) => {
   });
 });
 
-let data = [
-  { name: "Ai", id: 1 },
-  { name: "Ben", id: 2 },
-  { name: "Cony", id: 3 },
-  { name: "Diabo", id: 4 },
-  { name: "Emilia", id: 5 },
-  { name: "Falco", id: 6 },
-  { name: "Gabi", id: 7 },
-  { name: "Hinata", id: 8 },
-  { name: "Iru", id: 9 },
-  { name: "Joey", id: 10 },
-  { name: "Kao", id: 11 },
-  { name: "Lee", id: 12 },
-  { name: "Mina", id: 13 },
-  { name: "Nino", id: 14 },
-  { name: "Oto", id: 15 },
-  { name: "Pina", id: 16 },
-  { name: "Q", id: 17 },
-  { name: "Risa", id: 18 },
-  { name: "Satori", id: 19 },
-  { name: "Toma", id: 20 },
-  { name: "Umi", id: 21 },
-  { name: "Viole", id: 22 },
-  { name: "Wan", id: 23 },
-  { name: "Xi", id: 24 },
-  { name: "Yuna", id: 25 },
-  { name: "Zero", id: 26 },
-];
 
-const calData = (page, row) => {
-  // (5 * (1-1)) = 0
-  let itemStart = row * (page-1);
-  let itemEnd = row * page;
-  let Allpages = Math.ceil(data.length / row);
-  let response = data.slice(itemStart, itemEnd);
-  console.log(response);
-  console.log(`${Allpages} pages`)
-}
-// calData(1, 10);
