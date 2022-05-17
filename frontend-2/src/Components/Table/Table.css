@@ -8,7 +8,6 @@
     background-color: var(--color-white);
     border-radius: 4px;
     overflow-x: auto;
-    margin-bottom: 3rem;
 }
 
 .table__title {

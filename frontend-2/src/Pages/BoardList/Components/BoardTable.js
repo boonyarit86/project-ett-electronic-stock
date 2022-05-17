@@ -101,12 +101,12 @@ const BoardTable = (props) => {
             </div>
           </Row>
         )}
+      </Table>
         <Pagination
           data={props.data}
           setState={setState}
           initialData={initialData}
         />
-      </Table>
     </>
   );
 };
