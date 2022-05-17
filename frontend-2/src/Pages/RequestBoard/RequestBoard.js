@@ -49,7 +49,7 @@ const RequestBoard = () => {
   );
 
   useEffect(() => {
-    if (boards.length > 0) {
+    if (boards?.length > 0) {
       let boardArr = [];
       boards.forEach((item) => {
         boardArr.push({ name: item.boardName, value: item._id });
@@ -178,76 +178,82 @@ const RequestBoard = () => {
           className="u-mg-b"
         />
       )}
-      <div className="requestBoard__form">
-        <SelectWithValidator
-          label="ชื่อบอร์ด"
-          id="boardId"
-          placeholder="เลือกชื่อบอร์ด"
-          validators={[VALIDATOR_REQUIRE()]}
-          onInput={inputHandler}
-          errorMessage="กรุณาเลือกชื่อบอร์ด"
-          required
-          fullWidth
-          data={boardList}
-        />
-        <InputWithValidator
-          element="input"
-          type="number"
-          label="จำนวนบอร์ด"
-          id="total"
-          placeholder="กรอกจำนวนบอร์ด"
-          validators={[VALIDATOR_REQUIRE()]}
-          onInput={inputHandler}
-          errorMessage="กรุณากรอกจำนวนบอร์ด"
-          required
-          fullWidth
-        />
-        <Input
-          element="textarea"
-          label="รายละเอียดเพิ่มเติม"
-          id="description"
-          placeholder="ข้อมูลอื่นๆที่เกี่ยวกับบอร์ด"
-          setState={setDescription}
-          state={description}
-          fullWidth
-        />
-        <Button
-          type="button"
-          element="button"
-          className="btn-secondary-purple"
-          disabled={!formState.isValid}
-          onClick={onClickCheckBoard}
-          fullWidth
-        >
-          ตรวจสอบบอร์ดและอุปกรณ์
-        </Button>
-
-        {insufficientToolList.length > 0 && (
-          <ToastToolList
-            element="error"
-            data={insufficientToolList}
-            title="รายการอุปกรณ์ที่ไม่ครบ"
+      {!boards || boards?.length === 0 ? (
+        <div className="requestBoard__form">
+          <p>ไม่พบข้อมูลรายการบอร์ด</p>
+        </div>
+      ) : (
+        <div className="requestBoard__form">
+          <SelectWithValidator
+            label="ชื่อบอร์ด"
+            id="boardId"
+            placeholder="เลือกชื่อบอร์ด"
+            validators={[VALIDATOR_REQUIRE()]}
+            onInput={inputHandler}
+            errorMessage="กรุณาเลือกชื่อบอร์ด"
+            required
+            fullWidth
+            data={boardList}
           />
-        )}
-        {toolList.length > 0 && (
-          <ToastToolList
-            element="success"
-            data={toolList}
-            title="รายการอุปกรณ์ที่ต้องใช้"
+          <InputWithValidator
+            element="input"
+            type="number"
+            label="จำนวนบอร์ด"
+            id="total"
+            placeholder="กรอกจำนวนบอร์ด"
+            validators={[VALIDATOR_REQUIRE()]}
+            onInput={inputHandler}
+            errorMessage="กรุณากรอกจำนวนบอร์ด"
+            required
+            fullWidth
           />
-        )}
+          <Input
+            element="textarea"
+            label="รายละเอียดเพิ่มเติม"
+            id="description"
+            placeholder="ข้อมูลอื่นๆที่เกี่ยวกับบอร์ด"
+            setState={setDescription}
+            state={description}
+            fullWidth
+          />
+          <Button
+            type="button"
+            element="button"
+            className="btn-secondary-purple"
+            disabled={!formState.isValid}
+            onClick={onClickCheckBoard}
+            fullWidth
+          >
+            ตรวจสอบบอร์ดและอุปกรณ์
+          </Button>
 
-        <Button
-          type="button"
-          element="button"
-          className="btn-primary-blue"
-          disabled={!formState.isValid || !isCheck}
-          onClick={isToolEnough ? onSubmit : handleModal}
-          fullWidth
-        >
-          เบิกบอร์ดและอุปกรณ์
-        </Button>
-      </div>
+          {insufficientToolList.length > 0 && (
+            <ToastToolList
+              element="error"
+              data={insufficientToolList}
+              title="รายการอุปกรณ์ที่ไม่ครบ"
+            />
+          )}
+          {toolList.length > 0 && (
+            <ToastToolList
+              element="success"
+              data={toolList}
+              title="รายการอุปกรณ์ที่ต้องใช้"
+            />
+          )}
+
+          <Button
+            type="button"
+            element="button"
+            className="btn-primary-blue"
+            disabled={!formState.isValid || !isCheck}
+            onClick={isToolEnough ? onSubmit : handleModal}
+            fullWidth
+          >
+            เบิกบอร์ดและอุปกรณ์
+          </Button>
+        </div>
+      )}
 
       {openModal && (
         <React.Fragment>

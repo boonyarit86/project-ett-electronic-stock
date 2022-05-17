@@ -34,7 +34,7 @@ const Dashboard = () => {
   ]);
 
   useEffect(() => {
-    if (boards.length !== 0 && tools.length !== 0) {
+    if (boards?.length !== 0 && tools?.length !== 0) {
       let toolOut = tools.filter((item) => item.total === 0);
       let boardOut = boards.filter((item) => item.total === 0);
       // AllItemOut = [...AllItemOut, ...boardOut];

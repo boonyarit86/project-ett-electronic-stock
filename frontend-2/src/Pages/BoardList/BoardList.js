@@ -78,7 +78,7 @@ const BoardList = () => {
   }, []);
 
   useEffect(() => {
-    if (boards.length !== 0) {
+    if (boards?.length !== 0 && boards) {
       let boardOut = boards.filter((item) => item.total === 0);
       let boardRunningOut = boards.filter((item) => item.total <= item.limit);
       let newArr = [
@@ -115,7 +115,7 @@ const BoardList = () => {
   }, [boards]);
 
   useEffect(() => {
-    let data = [...boards];
+    let data = boards ? [...boards] : [];
     if (!searchResult) {
       if (Number(boardStatus) === 1) {
         data = data.filter(
