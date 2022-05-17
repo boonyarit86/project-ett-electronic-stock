@@ -115,7 +115,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="sidebar__item" id="m11" onClick={() => onClick("m11")}>
-            <Link to="/" className="sidebar__link">
+            <Link to="/setting" className="sidebar__link">
               <GoSettings className="sidebar__icon icon--medium" />
               <p className="sidebar__text">ตั้งค่าชนิด/ประเภทอุปกรณ์</p>
             </Link>

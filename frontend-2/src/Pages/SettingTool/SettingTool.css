@@ -1,0 +1,58 @@
+.settingTool__category-item, .settingTool__icons {
+    display: flex;
+    align-items: center;
+}
+
+.settingTool {
+    max-width: 80rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+.settingTool__form {
+    background-color: var(--color-white);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.settingTool__category-list {
+    list-style: none;
+    border: 1px solid var(--color-primary-grey);
+    border-radius: 4px;
+}
+.settingTool__category-item {
+    padding: 1rem;
+}
+.settingTool__category-name {
+    flex: 1;
+}
+.settingTool__icon {
+    cursor: pointer;
+    transition: all 0.3s;
+    color: var(--color-primary-grey);
+    width: 2rem;
+    height: 2rem;
+}
+.settingTool__icon:hover {
+    color: var(--color-primary-black);
+    transform: scale(1.05);
+}
+.settingTool__icon:first-child {
+    margin-right: 1rem;
+}
+.settingTool__input {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+@media (max-width: 56.25em) {
+    .settingTool {
+        width: 100%;
+    }
+}

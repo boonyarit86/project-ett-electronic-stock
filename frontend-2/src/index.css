@@ -133,7 +133,8 @@ body {
 .toastList__text,
 .form-upload__helperText,
 .modalHistory__tag-number,
-.selectTool__header {
+.selectTool__header,
+.settingTool__category-name {
   font-size: 1.4rem;
 }
 
