@@ -14,7 +14,7 @@ const BoardTable = (props) => {
     <>
       <Title className="table__title">รายการบอร์ดหมด</Title>
       {props.data.length > 0 ? (
-        <Table>
+        <Table className="u-mg-b">
           <Thead>
             {props.state.map((item, index) => (
               <React.Fragment key={index}>
@@ -66,7 +66,7 @@ const BoardTable = (props) => {
           ))}
         </Table>
       ) : (
-        <div>ไม่มีข้อมูลบอร์ด</div>
+        <div className="text-box u-mg-b--sm-2">ไม่มีข้อมูลบอร์ด</div>
       )}
     </>
   );

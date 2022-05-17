@@ -11,7 +11,7 @@ const tcsSlice = createSlice({
   initialState,
   reducers: {
     setTcs: (state, action) => {
-      state.tcs = action.payload;
+      state.tcs = action.payload || [];
     },
     setTcsInSelect: (state, action) => {
       let ttsId = action.payload;

@@ -84,7 +84,7 @@ const ToolList = () => {
   }, []);
 
   useEffect(() => {
-    if (tools.length !== 0) {
+    if (tools) {
       let toolOut = tools.filter((item) => item.total === 0);
       let toolRunningOut = tools.filter((item) => item.total <= item.limit);
       let newArr = [

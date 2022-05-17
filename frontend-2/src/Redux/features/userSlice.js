@@ -15,7 +15,7 @@ const userSlice = createSlice({
       } 
     },
     setUser: (state, action) => {
-      state.user = action.payload;
+      state.user = action.payload || [];
     },
     changeUserStatus: (state, action) => {
       let { uid, role } = action.payload;

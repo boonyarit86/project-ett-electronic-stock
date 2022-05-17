@@ -205,6 +205,7 @@ const ToolHistory = () => {
         setState={setDuration}
         state={duration}
         data={timeOptions}
+        className="u-mg-b--sm-2"
       />
       <HistoryTable
         state={toolTableElement}

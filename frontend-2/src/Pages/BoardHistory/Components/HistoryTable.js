@@ -145,6 +145,7 @@ const HistoryTable = (props) => {
           data={props.data}
           setState={setState}
           initialData={initialData}
+          className="u-mg-b"
         />
     </>
   );

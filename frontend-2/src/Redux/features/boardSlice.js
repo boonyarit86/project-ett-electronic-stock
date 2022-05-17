@@ -10,7 +10,10 @@ const boardsSlice = createSlice({
   initialState,
   reducers: {
     setBoards: (state, action) => {
-      state.boards = action.payload;
+      state.boards = action.payload || [];
+    },
+    setBoard: (state, action) => {
+      state.board = action.payload;
     },
     actionBoard: (state, action) => {
       let { bid, total } = action.payload;
@@ -45,5 +48,5 @@ const boardsSlice = createSlice({
 });
 
 // export const getUser = (state) => state.user.user;
-export const { setBoards, actionBoard, getBoard, resetBoard, addNewBoard, updateBoard, deleteBoard } = boardsSlice.actions;
+export const { setBoards, actionBoard, getBoard, resetBoard, addNewBoard, updateBoard, deleteBoard, setBoard } = boardsSlice.actions;
 export default boardsSlice.reducer;

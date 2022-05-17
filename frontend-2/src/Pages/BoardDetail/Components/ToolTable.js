@@ -36,7 +36,7 @@ const ToolTable = (props) => {
                   />
                 </Column>
                 <Column minW={state[1].minW} maxW={state[1].maxW}>
-                  <p className="table__col-text">{tool.toolName}</p>
+                  <p className="table__col-text">{tool?.toolName || "ไม่ได้กำหนด"}</p>
                 </Column>
                 <Column minW={state[2].minW} maxW={state[2].maxW}>
                   <p className="table__col-text">
@@ -69,7 +69,7 @@ const ToolTable = (props) => {
                   <Button
                     element="link"
                     type="button"
-                    path={`/toolList/${tool._id}`}
+                    path={`/toolList/${tool?._id}`}
                     className="btn-primary-grey"
                   >
                     ดู

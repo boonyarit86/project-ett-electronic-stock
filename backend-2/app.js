@@ -46,14 +46,19 @@ exports.io = io;
 
 // Set security HTTP headers
 // app.use(helmet());
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     useDefaults: true,
+//     directives: {
+//       "img-src": ["'self'", "https: data:"]
+//     }
+//   })
+// )
 app.use(
-  helmet.contentSecurityPolicy({
-    useDefaults: true,
-    directives: {
-      "img-src": ["'self'", "https: data:"]
-    }
+  helmet({
+    contentSecurityPolicy: false,
   })
-)
+);
 
 // Log an action of using routes
 if (process.env.NODE_ENV === "development") {

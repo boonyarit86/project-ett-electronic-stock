@@ -90,7 +90,7 @@ const Pagination = (props) => {
   };
 
   return (
-    <div className="pagination">
+    <div className={`pagination ${props.className}`}>
       <div className="pagination__select">
         <span>Row per page: </span>
         <select

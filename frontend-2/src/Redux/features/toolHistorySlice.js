@@ -9,7 +9,7 @@ const toolHistorySlice = createSlice({
   initialState,
   reducers: {
     setToolHistory: (state, action) => {
-      state.toolHistories = action.payload;
+      state.toolHistories = action.payload || [];
     },
     updateToolHistory: (state, action) => {
       state.toolHistories = state.toolHistories.map((doc) => {

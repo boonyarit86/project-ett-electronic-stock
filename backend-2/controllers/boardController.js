@@ -135,7 +135,7 @@ exports.getBoard = catchAsync(async (req, res, next) => {
   const board = await Board.findById(req.params.bid);
   if (!board) return next(new AppError("ไม่พบรายการบอร์ดนี้", 404));
   if (hasItem(board.tools)) {
-    board.tools = board.tools.filter((item) => item?.toolName !== null);
+    board.tools = board.tools.filter((item) => item.detail !== null);
     await board.save();
   }
 

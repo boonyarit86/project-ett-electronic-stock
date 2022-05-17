@@ -12,7 +12,7 @@ const ttsSlice = createSlice({
   initialState,
   reducers: {
     setTts: (state, action) => {
-      state.tts = action.payload;
+      state.tts = action.payload || [];
       state.ttsInSelect = action.payload.map((item) => {
         return { name: item.name, value: item._id };
       });

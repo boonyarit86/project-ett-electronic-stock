@@ -39,3 +39,17 @@
 .pagination__icon.disabled:hover {
     background-color: var(--color-white);
 }
+
+@media (max-width: 25em) {
+    .pagination {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        height: auto;
+        padding: 0 1rem;
+        gap: 1rem;
+    }
+    .pagination__select {
+        grid-column: 1 / -1;
+        grid-row: 1 / 2;
+    }
+}

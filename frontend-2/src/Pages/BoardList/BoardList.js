@@ -78,7 +78,7 @@ const BoardList = () => {
   }, []);
 
   useEffect(() => {
-    if (boards?.length !== 0 && boards) {
+    if (boards) {
       let boardOut = boards.filter((item) => item.total === 0);
       let boardRunningOut = boards.filter((item) => item.total <= item.limit);
       let newArr = [

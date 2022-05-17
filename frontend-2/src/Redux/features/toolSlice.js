@@ -10,7 +10,7 @@ const toolsSlice = createSlice({
   initialState,
   reducers: {
     setTools: (state, action) => {
-      state.tools = action.payload;
+      state.tools = action.payload || [];
     },
     actionTool: (state, action) => {
       let { tid, total } = action.payload;

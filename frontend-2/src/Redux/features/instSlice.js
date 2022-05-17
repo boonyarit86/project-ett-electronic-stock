@@ -10,7 +10,7 @@ const instSlice = createSlice({
   initialState,
   reducers: {
     setInsts: (state, action) => {
-      state.insts = action.payload;
+      state.insts = action.payload || [];
     },
     deleteInst: (state, action) => {
       state.insts = state.insts.filter((item) => item._id !== action.payload);

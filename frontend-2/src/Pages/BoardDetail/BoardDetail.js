@@ -13,9 +13,9 @@ import ToastList from "../../Components/Toast/ToastList";
 import Title from "../../Components/Text/Title";
 import Toast from "../../Components/Toast/Toast";
 import ToolTable from "./Components/ToolTable";
-import { getBoard, resetBoard } from "../../Redux/features/boardSlice";
+import { resetBoard, setBoard, updateBoard } from "../../Redux/features/boardSlice";
 import { checkStatus } from "../../utils";
-import { catchError } from "../../utils/handleError";
+import { catchError, catchRequestError } from "../../utils/handleError";
 import { endLoading, startLoading } from "../../Redux/features/stateSlice";
 import { AuthContext } from "../../context/auth-context";
 
@@ -48,9 +48,46 @@ const BoardDetail = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [controller, setController] = useState(null);
+  const [requestError, setRequestError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(getBoard(boardId));
+
+    return () => {
+      dispatch(resetBoard());
+    };
+  }, [])
+
+  useEffect(() => {
+    if (!controller) {
+      const ctrl = new AbortController();
+      setController(ctrl);
+      async function fetchBoardData() {
+        await Axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/boards/${boardId}`,
+          {
+            headers: { Authorization: `Bearer ${auth.token}` },
+            signal: ctrl.signal,
+          }
+        )
+          .then((res) => {
+            dispatch(setBoard(res.data.data.board));
+            dispatch(updateBoard(res.data.data.board));
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            setIsLoading(false);
+            catchRequestError(error, setRequestError);
+          });
+      }
+      fetchBoardData();
+    }
+
+    return () => controller && controller.abort();
+  }, [boardId]);
+
+  useEffect(() => {
     if (board) {
       let newImagesArr = [];
       if (board?.avatar?.url) {
@@ -67,10 +104,7 @@ const BoardDetail = () => {
       setImages(newImagesArr);
     }
 
-    return () => {
-      dispatch(resetBoard());
-    };
-  }, [dispatch, board, boardId]);
+  }, [board]);
 
   const changedPreviewImg = (img, id) => {
     let imgElement = document.getElementById(id);
@@ -113,8 +147,17 @@ const BoardDetail = () => {
     setOpenModal(false);
   };
 
-  if (!board) {
-    return <div />;
+  if (isLoading) {
+    return <div className="text-box">Loading...</div>;
+  } else if (!isLoading && requestError) {
+    <div className="itemDetail">
+      <Toast
+        element="error"
+        type="default"
+        message={requestError}
+        className="u-mg-b"
+      />
+    </div>;
   }
 
   return (
@@ -140,7 +183,9 @@ const BoardDetail = () => {
           <article className="itemDetail__article">
             <div className="itemDetail__content">
               <p className="itemDetail__title">รหัสบอร์ด</p>
-              <p className="itemDetail__text">{board.boardCode || "ไม่ได้กำหนด"}</p>
+              <p className="itemDetail__text">
+                {board.boardCode || "ไม่ได้กำหนด"}
+              </p>
             </div>
             <div className="itemDetail__content">
               <p className="itemDetail__title">จำนวนบอร์ด</p>
@@ -168,7 +213,9 @@ const BoardDetail = () => {
             </div>
             <div className="itemDetail__description">
               <p className="itemDetail__title">รายละเอียดเพิ่มเติม</p>
-              <p className="itemDetail__text">{board.description || "ไม่ได้กำหนด"}</p>
+              <p className="itemDetail__text">
+                {board.description || "ไม่ได้กำหนด"}
+              </p>
             </div>
           </article>
 

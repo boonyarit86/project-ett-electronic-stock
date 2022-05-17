@@ -34,43 +34,45 @@ const Dashboard = () => {
   ]);
 
   useEffect(() => {
-    if (boards?.length !== 0 && tools?.length !== 0 && tools && boards) {
-      let toolOut = tools.filter((item) => item.total === 0);
+    let newArr = [];
+    let AllItemTotalOut = 0;
+    if (boards) {
       let boardOut = boards.filter((item) => item.total === 0);
       // AllItemOut = [...AllItemOut, ...boardOut];
-      let AllItemTotalOut = toolOut.length + boardOut.length;
-      let newArr = [
-        {
-          icon: <AiOutlineTool className="equipment-box__icon icon--large" />,
-          text: "จำนวนอุปกรณ์",
-          total: tools.length,
-        },
-        {
-          icon: <VscCircuitBoard className="equipment-box__icon icon--large" />,
-          text: "จำนวนบอร์ด",
-          total: boards.length,
-        },
-        {
-          icon: <AiOutlineTool className="equipment-box__icon icon--large" />,
-          text: "จำนวนของหมดทั้งหมด",
-          total: AllItemTotalOut,
-        },
-      ];
-      setToolListout(toolOut);
+      AllItemTotalOut += boardOut?.length;
+      newArr.push({
+        icon: <VscCircuitBoard className="equipment-box__icon icon--large" />,
+        text: "จำนวนบอร์ด",
+        total: boards.length,
+      });
       setBoardListout(boardOut);
-      setStatusBoxes(newArr);
     }
+
+    if (tools) {
+      let toolOut = tools.filter((item) => item.total === 0);
+      AllItemTotalOut += toolOut?.length;
+      newArr.unshift({
+        icon: <AiOutlineTool className="equipment-box__icon icon--large" />,
+        text: "จำนวนอุปกรณ์",
+        total: tools.length,
+      });
+      setToolListout(toolOut);
+    }
+
+    newArr.push({
+      icon: <AiOutlineTool className="equipment-box__icon icon--large" />,
+      text: "จำนวนของหมดทั้งหมด",
+      total: AllItemTotalOut,
+    });
+    setStatusBoxes(newArr);
+
   }, [boards, tools]);
   return (
     <div className="dashboard">
       <Heading type="main" text="หน้าหลัก" />
       <EquipmentStatusBoxs data={statusBoxes} />
-      {toolListOut.length > 0 ? (
         <ToolTable state={toolTableElement} data={toolListOut} />
-      ) : <p>Loading tool table...</p>}
-       {boardListOut.length > 0 ? (
         <BoardTable state={boardTableElement} data={boardListOut} />
-      ): <p>Loading board table...</p>}
     </div>
   );
 };
