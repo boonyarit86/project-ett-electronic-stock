@@ -32,7 +32,7 @@ const UserTable = (props) => {
                 <Column minW={state[0].minW} maxW={state[0].maxW}>
                   <Avatar
                     shape="square"
-                    src={user?.avatar?.url ? user.avatar.url : null}
+                    src={user?.avatar?.url ? user.avatar.url : "/images/avatars/user-2.jpg"}
                     className="icon--large"
                   />
                 </Column>

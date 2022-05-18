@@ -5,7 +5,7 @@ const Tool = require("../models/toolModel");
 const NumHistory = require("../models/numHistory");
 const BoardHistory = require("../models/boardHistoryModel");
 const ToolHistory = require("../models/toolHistoryModel");
-const InsufficientTool = require("../models/insufficientToolModel");
+const InsufficientTool = require("../models/InsufficientToolModel");
 const {
   hasImage,
   calculateLeftItem,

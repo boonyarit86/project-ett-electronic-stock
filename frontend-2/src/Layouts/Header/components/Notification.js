@@ -52,7 +52,7 @@ const Notification = () => {
             ))
           ) : (
             <li className="notification__item">
-              <Avatar className="icon--large-2" />
+              <Avatar src="/images/avatars/user-1.jpg" className="icon--large-2" />
               <article>
                 <p className="notification__message">ระบบ: ไม่มีการแจ้งเตือน</p>
               </article>

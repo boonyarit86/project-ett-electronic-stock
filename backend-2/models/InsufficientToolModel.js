@@ -30,7 +30,7 @@ const insufficientToolSchema = new mongoose.Schema({
 insufficientToolSchema.pre(/^find/, function (next) {
     this.populate({ path: "bh", select: "code" });
     this.populate({ path: "bh.board", select: "boardName boardCode" });
-    this.populate({ path: "creator", select: "name role" });
+    this.populate({ path: "creator", select: "name role avatar" });
     this.populate({
       path: "tools.detail",
       select: "toolName toolCode total",

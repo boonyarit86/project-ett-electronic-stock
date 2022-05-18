@@ -175,7 +175,7 @@ const InsufficientTool = () => {
                 <Avatar
                   shape="circle"
                   alt="user"
-                  src={item.creator?.avatar?.url}
+                  src={item.creator?.avatar?.url || "/images/avatars/user-2.jpg"}
                   className="icon--large"
                 />
                 <div className="insTool__creator-detail">
