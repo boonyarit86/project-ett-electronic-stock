@@ -3,11 +3,11 @@ import { useSelector } from "react-redux";
 import { IoIosArrowDown } from "react-icons/io";
 import Avatar from "../../../Components/Avatar/Avatar";
 import Backdrop from "../../../Components/Backdrop/Backdrop";
+import EditProfile from "../../../Components/Modal/EditProfile";
 import Profile from "../../../Components/Modal/Profile";
 import Skeleton from "../../../Components/Skeleton/Skeleton";
 import { AuthContext } from "../../../context/auth-context";
 import "./ProfileMenu.css";
-import EditProfile from "../../../Components/Modal/EditProfile";
 
 const ProfileMenu = () => {
   const auth = useContext(AuthContext);
@@ -54,7 +54,7 @@ const ProfileMenu = () => {
         <React.Fragment>
           <Avatar
             className="icon--large"
-            src={user?.avatar?.url ? user.avatar.url : null}
+            src={user?.avatar?.url ? user.avatar.url : "/images/avatars/user-2.jpg"}
             shape="circle"
             onClick={handleDropdownMenu}
             alt="user avatar"

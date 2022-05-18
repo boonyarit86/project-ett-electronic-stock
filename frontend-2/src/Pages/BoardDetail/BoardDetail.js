@@ -13,7 +13,11 @@ import ToastList from "../../Components/Toast/ToastList";
 import Title from "../../Components/Text/Title";
 import Toast from "../../Components/Toast/Toast";
 import ToolTable from "./Components/ToolTable";
-import { resetBoard, setBoard, updateBoard } from "../../Redux/features/boardSlice";
+import {
+  resetBoard,
+  setBoard,
+  updateBoard,
+} from "../../Redux/features/boardSlice";
 import { checkStatus } from "../../utils";
 import { catchError, catchRequestError } from "../../utils/handleError";
 import { endLoading, startLoading } from "../../Redux/features/stateSlice";
@@ -53,11 +57,10 @@ const BoardDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-
     return () => {
       dispatch(resetBoard());
     };
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (!controller) {
@@ -99,11 +102,10 @@ const BoardDetail = () => {
       if (newImagesArr.length > 0) {
         setPreviewImage(newImagesArr[0].url);
       } else {
-        setPreviewImage("/images/avatars/user-2.jpg");
+        setPreviewImage("/images/empty-img.png");
       }
       setImages(newImagesArr);
     }
-
   }, [board]);
 
   const changedPreviewImg = (img, id) => {
@@ -221,24 +223,24 @@ const BoardDetail = () => {
 
           <div className="btn__group">
             {(user?.role === "admin" || user?.role === "staff") && (
-              <React.Fragment>
-                <Button
-                  element="link"
-                  type="button"
-                  path={`/boardList/${board._id}/update`}
-                  className="btn-primary-blue"
-                >
-                  แก้ไข
-                </Button>
-                <Button
-                  element="button"
-                  type="button"
-                  className="btn-secondary-red"
-                  onClick={handleModal}
-                >
-                  ลบ
-                </Button>
-              </React.Fragment>
+              <Button
+                element="link"
+                type="button"
+                path={`/boardList/${board._id}/update`}
+                className="btn-primary-blue"
+              >
+                แก้ไข
+              </Button>
+            )}
+            {user?.role === "admin" && (
+              <Button
+                element="button"
+                type="button"
+                className="btn-secondary-red"
+                onClick={handleModal}
+              >
+                ลบ
+              </Button>
             )}
             <Button
               element="link"

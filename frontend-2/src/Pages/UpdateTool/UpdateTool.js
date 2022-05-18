@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "../../Components/Button/Button";
 import Heading from "../../Components/Text/Heading";
@@ -23,6 +23,7 @@ import "./UpdateTool.css";
 
 const UpdateTool = () => {
   const auth = useContext(AuthContext);
+  const navigate = useNavigate();
   const toolId = useParams().toolId;
   const tool = useSelector((state) => state.tool.tool);
   const dispatch = useDispatch();
@@ -42,7 +43,6 @@ const UpdateTool = () => {
   const [description, setDescription] = useState("");
   const [fileDeleted, setFileDeleted] = useState(null);
   const [filesDeleted, setFilesDeleted] = useState([]);
-  const [successMessage, setSuccessMessage] = useState(null);
 
   const [formState, inputHandler] = useForm(
     {
@@ -179,15 +179,14 @@ const UpdateTool = () => {
         }
       ).then((res) => {
         dispatch(endLoading());
-        setSuccessMessage("บันทึกข้อมูลเรียบร้อยแล้ว");
-        setTimeout(() => setSuccessMessage(null), 10000);
+        navigate(`/toolList/${tool._id}`);
       });
     } catch (error) {
       dispatch(endLoading());
       catchError(error, setErrorMessage);
+      let mainElement = document.querySelector(".main");
+      mainElement.scrollTo(0, 0);
     }
-    let mainElement = document.querySelector(".main");
-    mainElement.scrollTo(0, 0);
   };
 
   return (
@@ -202,14 +201,6 @@ const UpdateTool = () => {
           element="error"
           type="default"
           message={errorMessage}
-          className="u-mg-b"
-        />
-      )}
-      {successMessage && (
-        <Toast
-          element="success"
-          type="default"
-          message={successMessage}
           className="u-mg-b"
         />
       )}

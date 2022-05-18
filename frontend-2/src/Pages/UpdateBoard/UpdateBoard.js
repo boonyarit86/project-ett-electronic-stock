@@ -22,6 +22,7 @@ import "./UpdateBoard.css";
 
 const UpdateBoard = () => {
   const auth = useContext(AuthContext);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { ttsInSelect } = useSelector((state) => state.tts);
   const { tcs } = useSelector((state) => state.tcs);
@@ -43,7 +44,6 @@ const UpdateBoard = () => {
   const [limit, setLimit] = useState(0);
   const [fileDeleted, setFileDeleted] = useState(null);
   const [filesDeleted, setFilesDeleted] = useState([]);
-  const [successMessage, setSuccessMessage] = useState(null);
   // selecTool Component
   const [toolSelected, setToolSelected] = useState("");
   const [toolTotal, setToolTotal] = useState("");
@@ -211,15 +211,14 @@ const UpdateBoard = () => {
         }
       ).then((res) => {
         dispatch(endLoading());
-        setSuccessMessage("บันทึกข้อมูลเรียบร้อยแล้ว");
-        setTimeout(() => setSuccessMessage(null), 10000);
+        navigate(`/boardList/${board._id}`);
       });
     } catch (error) {
       dispatch(endLoading());
       catchError(error, setErrorMessage);
+      let mainElement = document.querySelector(".main");
+      mainElement.scrollTo(0, 0);
     }
-    let mainElement = document.querySelector(".main");
-    mainElement.scrollTo(0, 0);
   };
 
   return (
@@ -230,14 +229,6 @@ const UpdateBoard = () => {
           element="error"
           type="default"
           message={errorMessage}
-          className="u-mg-b"
-        />
-      )}
-      {successMessage && (
-        <Toast
-          element="success"
-          type="default"
-          message={successMessage}
           className="u-mg-b"
         />
       )}

@@ -51,7 +51,7 @@ const ToolDetail = () => {
       if (newImagesArr.length > 0) {
         setPreviewImage(newImagesArr[0].url);
       } else {
-        setPreviewImage("/images/avatars/user-2.jpg");
+        setPreviewImage("/images/empty-img.png");
       }
       setImages(newImagesArr);
     }
@@ -169,7 +169,6 @@ const ToolDetail = () => {
 
           <div className="btn__group">
           {(user?.role === "admin" || user?.role === "staff") && (
-            <React.Fragment>
             <Button
               element="link"
               type="button"
@@ -178,6 +177,8 @@ const ToolDetail = () => {
             >
               แก้ไข
             </Button>
+          )}
+          {(user?.role === "admin") && (
             <Button
               element="button"
               type="button"
@@ -186,7 +187,6 @@ const ToolDetail = () => {
             >
               ลบ
             </Button>
-            </React.Fragment>
           )}
             <Button
               element="link"

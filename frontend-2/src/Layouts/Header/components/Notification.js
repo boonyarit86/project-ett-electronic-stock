@@ -43,7 +43,7 @@ const Notification = () => {
           {notifications.length > 0 ? (
             notifications.map((item) => (
               <li className="notification__item" key={item._id}>
-                <Avatar className="icon--large-2" shape="circle" alt="system avatar" />
+                <Avatar src="/images/avatars/user-1.jpg" className="icon--large-2" shape="circle" alt="system avatar" />
                 <article>
                   <p className="notification__message">ระบบ: {item.message}</p>
                   <span className="notification__time">{calculateNotificationTime(item.date)}</span>

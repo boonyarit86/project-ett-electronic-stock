@@ -14,7 +14,7 @@ const Profile = (props) => {
                 <AiOutlineClose className="profile__close-icon icon--medium" onClick={props.onClick} />
             </div>
             <div className="profile__intro">
-                <Avatar src={user?.avatar?.url ? user.avatar.url : null} className="profile__avatar" alt="user avatar" shape="circle" />
+                <Avatar src={user?.avatar?.url ? user.avatar.url :"/images/avatars/user-2.jpg"} className="profile__avatar" alt="user avatar" shape="circle" />
                 <article className="profile__detail">
                     <div className="profile__text-box">
                         <p className="profile__title">อีเมล์</p>

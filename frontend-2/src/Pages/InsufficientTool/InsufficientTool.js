@@ -262,7 +262,7 @@ const InsufficientTool = () => {
               className="icon--large"
             />
             <div className="insTool__creator-detail">
-              <p>Ruri (admin)</p>
+              <p>Ruri (staff)</p>
               <p>12/12/2021</p>
             </div>
           </div>
@@ -286,7 +286,7 @@ const InsufficientTool = () => {
           </p>
           <div className="insTool__tools">
             <div className="insTool__tool">
-              <p>R250K</p>
+              <p>R250K (An example for displaying on this page)</p>
               <ul className="insTool__article-tools bg--palette">
                 <li className="insTool__article u-mg-b--sm">
                   <p className="insTool__article-title">ชนิด</p>

@@ -82,6 +82,7 @@ const EditProfile = (props) => {
         dispatch(endLoading());
         setSuccessMessage("บันทึกข้อมูลเรียบร้อยแล้ว");
         setTimeout(() => setSuccessMessage(null), 10000);
+        setFile(null)
       });
     } catch (error) {
       dispatch(endLoading());
@@ -140,6 +141,8 @@ const EditProfile = (props) => {
           initialValue={user.email}
           required
           fullWidth
+          disabled={user?.role === "admin"}
+        
         />
         <div className="input__group editProfile__input-group">
           <InputWithValidator

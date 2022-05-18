@@ -20,6 +20,10 @@
 .input__box input:focus, .input__box textarea:focus {
     border: 1px solid var(--color-blue--light);
 }
+.input__box input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 .input__box-error input {
     border: 1px solid var(--color-error);
 }

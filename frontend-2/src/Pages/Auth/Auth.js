@@ -157,7 +157,7 @@ const Auth = () => {
               type="email"
               label="อีเมล์"
               id="email"
-              placeholder="กรุณากรอกอีเมล์ของคุณ"
+              placeholder="For testing: user@hotmail.com"
               validators={[VALIDATOR_EMAIL()]}
               onInput={inputHandler}
               errorMessage="กรุณากรอกอีเมล์ของคุณ"
@@ -181,9 +181,9 @@ const Auth = () => {
             <Input
               element="input"
               type="password"
-              label="รหัสผ่าน"
+              label="รหัสผ่าน "
               id="password"
-              placeholder="กรุณากรอกรหัสผ่านของคุณ"
+              placeholder="For testing: 1234"
               validators={[VALIDATOR_MINLENGTH(4)]}
               onInput={inputHandler}
               errorMessage="โปรดใส่รหัสผ่านอย่างน้อย 4 ตัว"

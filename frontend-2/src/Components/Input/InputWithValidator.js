@@ -57,30 +57,6 @@ const Input = (props) => {
 
   const element =
     props.element === "input" ? (
-      // <TextField
-      //   error={!inputState.isValid && inputState.isTouched}
-      //   id={props.id}
-      //   label={
-      //     <div>
-      //       {props.label}{" "}
-      //       <span style={{ color: "red", fontWeight: "bold" }}>*</span>
-      //     </div>
-      //   }
-      //   variant="outlined"
-      //   fullWidth
-      //   type={props.type}
-      //   helperText={
-      //     !inputState.isValid && inputState.isTouched && props.errorText
-      //   }
-      //   onChange={changeHandler}
-      //   onBlur={touchHandler}
-      //   value={inputState.value}
-      //   style={{ margin: "20px 0" }}
-      //   InputLabelProps={{
-      //     shrink: props.shrink,
-      //   }}
-      //   disabled={props.disabled}
-      // />
       <div
         className={`input__box ${props.fullWidth && "fullWidth"} ${
           isInputEmpty(isValid, isTouched, props.errorMessage) &&
@@ -99,6 +75,7 @@ const Input = (props) => {
           onBlur={touchHandler}
           onChange={changeHandler}
           value={inputState.value}
+          disabled={props.disabled}
         />
         {isInputEmpty(isValid, isTouched, props.errorMessage) ? (
           <span className="input__error-message">{props.errorMessage}</span>

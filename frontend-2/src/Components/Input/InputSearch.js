@@ -8,7 +8,7 @@ const InputSearch = (props) => {
 
   return (
     <div className={`inputSearch ${props.className}`}>
-      <label htmlFor="search" className="inputSearch__label">
+      <label htmlFor="search" className="inputSearch__label u-mg-b--sm">
         {props.label}
       </label>
       <div className="inputSearch__form">
@@ -40,7 +40,7 @@ const InputSearch = (props) => {
             </ul>
           )}
         </div>
-        <Button element="button" type="button" className="btn-primary-blue" onClick={onClickReset}>
+        <Button element="button" type="button" className="btn-primary-blue btn--small-2" onClick={onClickReset}>
           reset
         </Button>
       </div>

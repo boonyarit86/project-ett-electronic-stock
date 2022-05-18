@@ -2,7 +2,7 @@
   width: 30rem;
 }
 .inputSearch__label {
-  margin-bottom: 0.5rem;
+  display: inline-block;
 }
 .inputSearch__input-box {
   height: inherit;
