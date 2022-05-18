@@ -135,7 +135,7 @@ const UpdateBoard = () => {
     if (tcs.length > 0 && ttsId !== "") {
       tcs.forEach((item) => {
         if (item.tts === ttsId) {
-          newArr.push({ name: item.name, value: item._id });
+          newArr.push({ name: item.name, value: item?._id });
         }
       });
       setCategories(newArr);
@@ -150,7 +150,7 @@ const UpdateBoard = () => {
           toolFilter.push({
             name: item.toolName,
             value: item._id,
-            tcsId: item.category._id,
+            tcsId: item.category?._id,
           });
         }
       });

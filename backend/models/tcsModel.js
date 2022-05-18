@@ -4,7 +4,6 @@ const tcsSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please fill name."],
-    unique: true,
     lowercase: true,
   },
   tts: {

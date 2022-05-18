@@ -211,18 +211,18 @@ const InsufficientTool = () => {
                 {item.tools.length > 0 &&
                   item.tools.map((tool) => (
                     <div className="insTool__tool" key={tool._id}>
-                      <p>{tool.detail?.toolName}</p>
+                      <p>{tool.detail?.toolName || "ข้อมูลถูกลบ"}</p>
                       <ul className="insTool__article-tools bg--palette">
                         <li className="insTool__article u-mg-b--sm">
                           <p className="insTool__article-title">ชนิด</p>
                           <p className="insTool__article-text">
-                            {tool.type?.name}
+                            {tool.type?.name || "ข้อมูลถูกลบ"}
                           </p>
                         </li>
                         <li className="insTool__article u-mg-b--sm">
                           <p className="insTool__article-title">ประเภท</p>
                           <p className="insTool__article-text">
-                            {tool.category?.name}
+                            {tool.category?.name || "ไม่ได้กำหนด"}
                           </p>
                         </li>
                         <li className="insTool__article u-mg-b--sm">

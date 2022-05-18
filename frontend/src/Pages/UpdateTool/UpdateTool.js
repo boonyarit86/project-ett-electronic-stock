@@ -265,7 +265,7 @@ const UpdateTool = () => {
             state={category}
             fullWidth
             data={categories.length > 0 ? categories : []}
-            initialValue={tool.category._id}
+            initialValue={tool.category?._id}
           />
         </div>
         <Input
