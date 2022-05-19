@@ -787,8 +787,11 @@ exports.restoreBoardWithTool = catchAsync(async (req, res, next) => {
       }
     }
   }
-  pendingData.push(boardHistory);
-  pendingData.push(board);
+
+  await boardHistory.save();
+  await board.save();
+  // pendingData.push(boardHistory);
+  // pendingData.push(board);
 
   await Promise.all([
     pendingData.map(async (doc) => {
