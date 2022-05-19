@@ -24,11 +24,14 @@
 }
 .auth__intro {
     background-color: var(--color-primary-blue--palette);
+    display: flex;
+    flex-direction: column;
   }
 .auth__intro-box {
   text-align: center;
   gap: 3rem;
-  padding: 0 2rem;
+  padding: 2rem;
+  flex: 1;
 }
 .auth__intro-image {
   max-width: 40.1rem;
@@ -36,6 +39,7 @@
 }
 .auth__logo {
   margin-top: 2rem;
+  width: fit-content;
 }
 .auth__form-box {
   width: 50rem;
