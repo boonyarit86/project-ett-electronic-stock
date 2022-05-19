@@ -42,7 +42,7 @@ exports.getAllnotifications = catchAsync(async (req, res, next) => {
 exports.readNotifications = catchAsync(async (req, res, next) => {
   console.log("Reset notification")
   const user = await User.findById(req.user.id);
-//   user.unreadNotification = 0;
+  user.unreadNotification = 0;
   await user.save({ validateBeforeSave: false });
 
   res.status(200).json({
