@@ -168,7 +168,7 @@ const AuthUser = () => {
         setState={setUserStatus}
         state={userStatus}
         data={statusOptions}
-        className="u-mg-b--small-2"
+        className="u-mg-b--sm-2"
       />
       <UserTable
         state={userTableElement}
